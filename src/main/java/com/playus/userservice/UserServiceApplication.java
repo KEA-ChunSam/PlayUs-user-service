@@ -1,4 +1,4 @@
-package com.playus.user_service;
+package com.playus.userservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
