@@ -1,13 +1,16 @@
 package com.playus.userservice.domain.user.entity;
 
+import com.playus.userservice.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "tag")
-public class Tag {
+@Table(name = "tag", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "tag_name", name = "uk_tag_name")
+})
+public class Tag extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
