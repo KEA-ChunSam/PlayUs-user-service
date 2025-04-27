@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User extends BaseTimeEntity {
 
+    public static final float DEFAULT_SCORE = 0.3f;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -39,7 +41,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private AuthProvider authProvider;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private boolean activated;
 
     @Column(name = "thumbnail_url", length = 255, nullable = false)
@@ -63,7 +65,7 @@ public class User extends BaseTimeEntity {
         this.userScore = userScore;
     }
 
-    public static User create(String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, String thumbnailURL, Float userScore) {
+    public static User create(String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, String thumbnailURL) {
         return User.builder()
                 .nickname(nickname)
                 .birth(birth)
@@ -73,7 +75,7 @@ public class User extends BaseTimeEntity {
                 .activated(true)
                 .blockOff(null)
                 .thumbnailURL(thumbnailURL)
-                .userScore(0.3f)
+                .userScore(DEFAULT_SCORE)
                 .build();
     }
 
@@ -81,8 +83,13 @@ public class User extends BaseTimeEntity {
         this.blockOff = blockOff;
     }
     public void updateImage(String thumbnailURL) {this.thumbnailURL = thumbnailURL; }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateUserScore(Float userScore) {
+        this.userScore = userScore;
     }
 
     public void withdrawAccount() {
