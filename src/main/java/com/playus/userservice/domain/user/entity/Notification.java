@@ -51,5 +51,6 @@ public class Notification extends BaseTimeEntity {
         this.message = notification.getMessage();
         this.isRead = notification.isRead();
         this.type = notification.getType();
+        this.user = notification.getUser();
     }
 }
