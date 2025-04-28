@@ -23,6 +23,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -34,18 +44,26 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set Docker image tag
+      - name: Set Docker image tags
         run: |
-          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            echo "TAG=latest" >> $GITHUB_ENV
-          else
-            echo "TAG=dev" >> $GITHUB_ENV
+          BRANCH_NAME=${GITHUB_REF##*/}
+          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          BUILD_VERSION=${{ github.run_number }}-${SHORT_SHA}
+
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "BASE_TAG=latest" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            echo "BASE_TAG=dev" >> $GITHUB_ENV
           fi
+
+          echo "BUILD_VERSION=$BUILD_VERSION" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.TAG }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BASE_TAG }} \
+                       -t ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BUILD_VERSION }} .
 
-      - name: Push Docker image
+      - name: Push Docker images
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BASE_TAG }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BUILD_VERSION }}
