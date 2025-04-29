@@ -18,22 +18,11 @@ public class MongoConfig {
         return new SimpleMongoClientDatabaseFactory(uri);
     }
 
-    @Bean(name = "userMongoDbFactory")
-    public MongoDatabaseFactory userMongoDbFactory(@Value("${spring.data.mongodb.user.uri}") String uri) {
-        return new SimpleMongoClientDatabaseFactory(uri);
-    }
-
-
-
     @Primary
     @Bean(name = "readMongoTemplate")
     public MongoTemplate readMongoTemplate(@Qualifier("readMongoDbFactory") MongoDatabaseFactory factory) {
         return new MongoTemplate(factory);
     }
 
-    @Bean(name = "userMongoTemplate")
-    public MongoTemplate userMongoTemplate(@Qualifier("userMongoDbFactory") MongoDatabaseFactory factory) {
-        return new MongoTemplate(factory);
-    }
 }
 
