@@ -12,6 +12,10 @@ spring:
     mongodb:
       read:
         uri: mongodb://localhost:27017/read_db
+    redis:
+      host: localhost
+      port: 6379
+
 
   jpa:
     show-sql: true
@@ -24,3 +28,16 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
         show_sql: true
+
+  redis:
+    enabled: false
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  health:
+    redis:
+      enabled: false
