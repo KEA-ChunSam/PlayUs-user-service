@@ -1,4 +1,4 @@
-package com.playus.user_service.global.swagger;
+package com.playus.userservice.global.swagger;
 
 import java.util.List;
 
