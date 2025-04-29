@@ -39,7 +39,7 @@ public class NotificationDocument extends BaseTimeEntity {
         this.type = type;
     }
 
-    public static NotificationDocument fromEntity(Long id, Long receiverId, String message, boolean isRead, Type type) {
+    public static NotificationDocument createNotificationDocument(Long id, Long receiverId, String message, boolean isRead, Type type) {
         return NotificationDocument.builder()
                 .id(id)
                 .receiverId(receiverId)

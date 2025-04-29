@@ -13,10 +13,6 @@ spring:
       read:
         uri: mongodb://localhost:27017/read_db
 
-    redis:
-      host: localhost
-      port: 6379
-
   jpa:
     show-sql: true
     hibernate:
