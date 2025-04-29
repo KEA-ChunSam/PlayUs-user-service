@@ -11,7 +11,6 @@ spring:
   data:
     mongodb:
       read:
-        enabled: true
         uri: mongodb://localhost:27017/read_db
 
   jpa:
@@ -30,6 +29,7 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+
 
 management:
   health:

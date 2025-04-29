@@ -13,8 +13,8 @@ import lombok.*;
 })
 public class UserTag extends BaseTimeEntity {
 
-    @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_tag_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
