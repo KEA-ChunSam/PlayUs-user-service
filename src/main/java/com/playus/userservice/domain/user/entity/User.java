@@ -25,6 +25,9 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 255)
     private String nickname;
 
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
+
     @Column(nullable = false)
     private LocalDate birth;
 
@@ -52,8 +55,9 @@ public class User extends BaseTimeEntity {
     private LocalDateTime blockOff;
 
     @Builder
-    private User(String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, LocalDateTime blockOff, String thumbnailURL, Float userScore) {
+    private User(String nickname,String email, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, LocalDateTime blockOff, String thumbnailURL, Float userScore) {
         this.nickname = nickname;
+        this.email = email;
         this.birth = birth;
         this.gender = gender;
         this.role = role;
@@ -64,9 +68,10 @@ public class User extends BaseTimeEntity {
         this.userScore = userScore;
     }
 
-    public static User create(String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, String thumbnailURL) {
+    public static User create(String nickname,String email, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, String thumbnailURL) {
         return User.builder()
                 .nickname(nickname)
+                .email(email)
                 .birth(birth)
                 .gender(gender)
                 .role(role)
@@ -81,6 +86,7 @@ public class User extends BaseTimeEntity {
     public void updateBlockOff(LocalDateTime blockOff) {
         this.blockOff = blockOff;
     }
+
     public void updateImage(String thumbnailURL) {this.thumbnailURL = thumbnailURL; }
 
     public void updateNickname(String nickname) {
@@ -93,6 +99,11 @@ public class User extends BaseTimeEntity {
 
     public void withdrawAccount() {
         this.activated = false;
+    }
+
+    public void updateUserInfo(String email, String nickname) {
+        this.email = email;
+        this.nickname = nickname;
     }
 
 }

@@ -25,6 +25,18 @@ spring:
           time_zone: Asia/Seoul
         show_sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+
+  jwt:
+    secret: cGxheXVza2FrYW9uYXZlcm9hdXRobG9naW5qd3Q=
+
 eureka:
   client:
     register-with-eureka: false

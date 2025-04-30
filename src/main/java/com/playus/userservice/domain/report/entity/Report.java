@@ -14,7 +14,6 @@ public class Report extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="report_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

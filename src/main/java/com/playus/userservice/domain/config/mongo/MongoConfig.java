@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+
+import java.util.Collections;
 
 @Configuration
 @ConditionalOnProperty(name = "spring.data.mongodb.read.enabled", havingValue = "true", matchIfMissing = true)
@@ -26,5 +30,16 @@ public class MongoConfig {
         return new MongoTemplate(factory);
     }
 
+    @Bean
+    public MongoCustomConversions mongoCustomConversions() {
+        return new MongoCustomConversions(Collections.emptyList());
+    }
+
+    @Bean
+    public MongoMappingContext mongoMappingContext(MongoCustomConversions conversions) {
+        MongoMappingContext context = new MongoMappingContext();
+        context.setSimpleTypeHolder(conversions.getSimpleTypeHolder());
+        return context;
+    }
 }
 
