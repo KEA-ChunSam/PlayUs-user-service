@@ -13,6 +13,9 @@ public class OAuth2ClientConfig {
 
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(
-                socialClientRegistration.naverClientRegistration());
+                //socialClientRegistration.naverClientRegistration(),
+                socialClientRegistration.kakaoClientRegistration());
     }
+
+
 }

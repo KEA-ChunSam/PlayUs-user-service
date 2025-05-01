@@ -41,4 +41,12 @@ public class UserDto {
         this.blockOff = user.getBlockOff();
         this.createdAt = user.getCreatedAt();
     }
+
+    //JWT필터에서 사용
+    public static UserDto fromJwt(Long id, Role role) {
+        UserDto dto = new UserDto();
+        dto.id = id;
+        dto.role = role;
+        return dto;
+    }
 }

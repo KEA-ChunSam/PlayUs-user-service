@@ -26,13 +26,8 @@ public class KakaoResponse implements OAuth2Response {
     }
 
     @Override
-    public String getEmail() {
-        return String.valueOf(kakaoAccount.get("email"));
-    }
-
-    @Override
-    public String getName() {
-        return String.valueOf(kakaoAccount.get("name"));
+    public String getPhoneNumber() {
+        return String.valueOf(kakaoAccount.get("phone_number"));
     }
 
     @Override

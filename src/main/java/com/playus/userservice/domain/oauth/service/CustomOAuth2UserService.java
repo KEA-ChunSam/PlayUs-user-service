@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -35,61 +36,67 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         System.out.println(oAuth2User);
 
-        // naver에서 온 건지, google에서 온 건지 등 확인
+        // kakao에서 온 건지, naver에서 온 건지 확인
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response response = null;
-        if ("naver".equals(registrationId)) {
-            response = new NaverResponse(oAuth2User.getAttributes());
-        }
 
-        else if ("kakao".equals(registrationId)) {
+
+        if ("kakao".equals(registrationId)) {
             response = new KakaoResponse(oAuth2User.getAttributes());
         }
 
+        /*
+        else if ("naver".equals(registrationId)) {
+            response = new NaverResponse(oAuth2User.getAttributes());
+        }
+         */
+
         else return null;
 
-        // 로그인 완료 후 진행 로직
-        String username = response.getProvider() + " " + response.getProviderId();
-        Optional<User> optionalUser = userRepository.findByUsername(username);
 
-        User user;
-
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-            user.updateUserInfo(response.getEmail(), response.getName());
-        } else {
-            // 생일 처리
-            LocalDate birth;
-            try {
-                birth = LocalDate.parse(response.getBirthYear() + response.getBirthday(), DateTimeFormatter.ofPattern("yyyyMMdd"));
-            } catch (Exception e) {
-                birth = LocalDate.of(2000, 1, 1); // 기본값
-            }
-
-            // 성별 변환
-            Gender gender;
-            try {
-                gender = Gender.valueOf(response.getGender().toUpperCase());
-            } catch (Exception e) {
-                gender = Gender.UNKNOWN;
-            }
-
-            // 유저 생성
-            user = User.create(
-                    response.getName(),                    // nickname
-                    response.getEmail(),
-                    birth,
-                    gender,
-                    Role.USER,
-                    AuthProvider.valueOf(response.getProvider().toUpperCase()),
-                    "default.png"
+        // 전화번호 기반 중복 체크
+        String phoneNumber = response.getPhoneNumber();
+        if (phoneNumber != null && userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+            OAuth2Error error = new OAuth2Error(
+                    "duplicated_user",
+                    "이미 등록된 전화번호입니다",
+                    null
             );
+            throw new OAuth2AuthenticationException(error, error.toString());
         }
+
+        // 신규 유저 생성 로직
+        LocalDate birth;
+        try {
+            birth = LocalDate.parse(
+                    response.getBirthYear() + response.getBirthday(),
+                    DateTimeFormatter.ofPattern("yyyyMMdd")
+            );
+        } catch (Exception e) {
+            birth = LocalDate.of(2000, 1, 1);
+        }
+
+        String respGender = response.getGender();
+        Gender gender;
+        try {
+            gender = Gender.valueOf(respGender.toUpperCase());  // male→MALE, female→FEMALE
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            OAuth2Error error = new OAuth2Error("invalid_gender", "유효하지 않은 성별 정보입니다", null);
+            throw new OAuth2AuthenticationException(error, error.toString());
+        }
+        User user = User.create(
+                "default_nickname",            // nickname 기본값, 나중에 프론트에서 입력
+                phoneNumber,
+                birth,
+                gender,
+                Role.USER,
+                AuthProvider.KAKAO,
+                "default.png"                  // 썸네일 기본값, 나중에 프론트에서 입력
+        );
 
         userRepository.save(user);
 
         UserDto userDto = new UserDto(user);
         return new CustomOAuth2User(userDto);
-
     }
 }

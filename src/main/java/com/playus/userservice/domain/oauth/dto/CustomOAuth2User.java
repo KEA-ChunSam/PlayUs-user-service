@@ -38,8 +38,9 @@ public class CustomOAuth2User implements OAuth2User {
         return List.of((GrantedAuthority) () -> userDto.getRole().name());
     }
 
-    public String getId() {
-        return String.valueOf(userDto.getId());
+    @Override
+    public String getName() {
+        return String.valueOf(userDto.getId()); // 이거빼면 OAuth2User implements 에서 에러
     }
 
 }

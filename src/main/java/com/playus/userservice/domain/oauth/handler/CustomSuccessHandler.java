@@ -34,10 +34,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(userId.toString(), role, 60 * 60 * 60L); // ✅ ID로 토큰 생성
+        String token = jwtUtil.createJwt(userId.toString(), role, 60 * 60 * 60L);
 
         response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000/choice-team");
     }
 
     private Cookie createCookie(String key, String value) {

@@ -21,59 +21,58 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
-    public String getUsername(String token) {
-        return extractPayload(token)
-                .get("username", String.class);
-    }
-
-    public String getRole(String token) {
-        return extractPayload(token)
-                .get("role", String.class);
-    }
-
-    public String getCategory(String token) {
-        return extractPayload(token)
-                .get("category", String.class);
-    }
-
-    public Boolean isExpired(String token) {
-        Date expiration = extractPayload(token)
-                .getExpiration();
-
-        return expiration.before(new Date());
-    }
-
-    public String createJwt(String username, String role, Long expiredMs) {
-        Map<String, Object> claims = Map.of(
-                "username", username,
-                "role", role
-        );
-
+    /** JWT 생성 (userId, role 기반) */
+    public String createJwt(String userId, String role, Long expiredMs) {
         return Jwts.builder()
-                .claims(claims)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
-                .signWith(key)  // ✅ 0.12.3에서는 signWith(key)만 사용 (알고리즘 자동 선택)
-                .compact();
-    }
-
-    public String createJwt(String category, String username, String role, Long expiredMs) {
-        return Jwts.builder()
-                .claim("category", category)
-                .claim("username", username)
+                .setSubject(userId)  // 🟡 userId를 subject로 저장
                 .claim("role", role)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(key)
                 .compact();
     }
 
+    /** JWT 생성 - category 포함 버전 (optional) */
+    public String createJwt(String category, String userId, String role, Long expiredMs) {
+        return Jwts.builder()
+                .setSubject(userId)
+                .claim("category", category)
+                .claim("role", role)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(key)
+                .compact();
+    }
+
+    /** JWT 만료 여부 확인 */
+    public Boolean isExpired(String token) {
+        Date expiration = extractPayload(token).getExpiration();
+        return expiration.before(new Date());
+    }
+
+    /** userId 추출 */
+    public String getUserId(String token) {
+        return extractPayload(token).getSubject(); // 🟡 subject에 저장된 userId 꺼냄
+    }
+
+    /** 역할(role) 추출 */
+    public String getRole(String token) {
+        return extractPayload(token).get("role", String.class);
+    }
+
+    /** category 추출 (optional) */
+    public String getCategory(String token) {
+        return extractPayload(token).get("category", String.class);
+    }
+
+    /** 내부 Payload 추출 */
     private Claims extractPayload(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
 

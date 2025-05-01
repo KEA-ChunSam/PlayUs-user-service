@@ -1,6 +1,5 @@
 package com.playus.userservice.domain.config;
 
-
 import com.playus.userservice.domain.oauth.config.OAuth2ClientConfig;
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
@@ -25,66 +24,54 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuth2ClientConfig OAuth2ClientConfig;
+    private final OAuth2ClientConfig oAuth2ClientConfig;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtUtil jwtUtil;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        //csrf disable
-        http
-                .csrf((auth) -> auth.disable());
+        // CSRF, Form Login, HTTP Basic 비활성화
+        http.csrf(csrf -> csrf.disable());
+        http.formLogin(form -> form.disable());
+        http.httpBasic(basic -> basic.disable());
 
-        //From 로그인 방식 disable
-        http
-                .formLogin((auth) -> auth.disable());
+        // CORS 설정
+        http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                config.setAllowedMethods(Collections.singletonList("*"));
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                config.setMaxAge(3600L);
+                config.setExposedHeaders(Collections.singletonList("Authorization"));
+                return config;
+            }
+        }));
 
-        //HTTP Basic 인증 방식 disable
-        http
-                .httpBasic((auth) -> auth.disable());
+        // JWT 필터 추가
+        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-        http
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+        // OAuth2 로그인 설정
+        http.oauth2Login(oauth2 -> oauth2
+                .clientRegistrationRepository(oAuth2ClientConfig.clientRegistrationRepository())
+                .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler)
+        );
 
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+        // 인가 설정
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/user/login/kakao/**").permitAll() // 로그인만 허용
+                .anyRequest().authenticated()                                 // 나머지는 인증 필요
+        );
 
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-
-                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration;
-                    }
-                }));
-
-        http
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-        //oauth2
-        http
-                .oauth2Login((oauth2) -> oauth2.clientRegistrationRepository(OAuth2ClientConfig.clientRegistrationRepository())
-                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService)))
-                        .successHandler(customSuccessHandler));
-
-        //경로별 인가 작업
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
-                        .anyRequest().authenticated());
-
-        //세션 설정 : STATELESS
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        // 세션 관리: Stateless
+        http.sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
         return http.build();
     }
