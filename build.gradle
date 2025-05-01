@@ -40,9 +40,6 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	// MSA
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
 	// Monitoring
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
