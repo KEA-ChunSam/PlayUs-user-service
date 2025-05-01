@@ -25,6 +25,11 @@ public class UserDocument extends BaseTimeEntity {
     private String nickname;
 
     @NotNull
+    @Field("phone_number")
+    @Size(min = 1, max = 20)
+    private String phoneNumber;
+
+    @NotNull
     private LocalDate birth;
 
     @NotNull
@@ -49,9 +54,10 @@ public class UserDocument extends BaseTimeEntity {
     private LocalDateTime blockOff;
 
     @Builder
-    private UserDocument(Long id, String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
+    private UserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
         this.id = id;
         this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
         this.birth = birth;
         this.gender = gender;
         this.role = role;
@@ -62,10 +68,11 @@ public class UserDocument extends BaseTimeEntity {
         this.blockOff = blockOff;
     }
 
-    public static UserDocument createUserDocument(Long id, String nickname, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
+    public static UserDocument createUserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
         return UserDocument.builder()
                 .id(id)
                 .nickname(nickname)
+                .phoneNumber(phoneNumber)
                 .birth(birth)
                 .gender(gender)
                 .role(role)
