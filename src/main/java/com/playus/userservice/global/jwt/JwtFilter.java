@@ -53,8 +53,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-
-
         Long userId = Long.parseLong(jwtUtil.getUserId(token));
         Role role = Role.valueOf(jwtUtil.getRole(token));
         UserDto userDTO = UserDto.fromJwt(userId, role);
