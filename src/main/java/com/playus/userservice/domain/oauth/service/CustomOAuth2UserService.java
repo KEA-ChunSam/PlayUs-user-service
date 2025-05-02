@@ -31,6 +31,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
      * @return
      * @throws OAuth2AuthenticationException
      */
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -95,7 +96,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         userRepository.save(user);
-
         UserDto userDto = new UserDto(user);
         return new CustomOAuth2User(userDto);
     }
