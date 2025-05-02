@@ -13,6 +13,10 @@ spring:
       read:
         uri: mongodb://localhost:27017/read_db
 
+    redis:
+      host: localhost
+      port: 6379
+
   jpa:
     show-sql: true
     hibernate:
@@ -34,10 +38,10 @@ spring:
             client-secret: ${KAKAO_CLIENT_SECRET}
             redirect-uri: ${KAKAO_REDIRECT_URI}
             authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
             scope:
               - phone_number
               - gender
-              - age_range
               - birthday
               - birthyear
         provider:
@@ -48,7 +52,7 @@ spring:
             user-name-attribute: id
 
   jwt:
-    secret: cGxheXVza2FrYW9uYXZlcm9hdXRobG9naW5qd3Q=
+    secret: ${JWT_SECRET}
 
 eureka:
   client:
