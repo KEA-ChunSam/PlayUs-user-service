@@ -3,7 +3,7 @@ spring:
     name: search-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/playus
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,7 +11,7 @@ spring:
   data:
     mongodb:
       read:
-        uri: mongodb://localhost:27017/read_db
+        uri: ${SPRING_MONGO_URL}
 
     redis:
       host: localhost
@@ -20,7 +20,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     database: mysql
     properties:
       hibernate:
