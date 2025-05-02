@@ -1,6 +1,5 @@
 package com.playus.userservice.domain.config;
 
-import com.playus.userservice.domain.oauth.config.OAuth2ClientConfig;
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.jwt.JwtFilter;
@@ -16,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
 import java.util.Collections;
 
 @Configuration
@@ -24,7 +22,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuth2ClientConfig oAuth2ClientConfig;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtUtil jwtUtil;
@@ -57,14 +54,17 @@ public class SecurityConfig {
 
         // OAuth2 로그인 설정
         http.oauth2Login(oauth2 -> oauth2
-                .clientRegistrationRepository(oAuth2ClientConfig.clientRegistrationRepository())
                 .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                 .successHandler(customSuccessHandler)
         );
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/user/login/kakao/**").permitAll() // 로그인만 허용
+                .requestMatchers(
+                        "/login",
+                        "/oauth2/authorization/kakao",
+                        "/login/oauth2/code/kakao"
+                ).permitAll()
                 .anyRequest().authenticated()                                 // 나머지는 인증 필요
         );
 
