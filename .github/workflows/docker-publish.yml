@@ -85,7 +85,7 @@ jobs:
           if [[ "$BRANCH_NAME" == "main" ]]; then 
             echo "Skipping main branch update (prod) for now"
           elif [[ "$BRANCH_NAME" == "develop" ]]; then
-            sed -i "/name: user-service/{n;s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BUILD_VERSION }}|}" PlayUs-k8s/overlays/develop/patch-image.yaml
+            sed -i "/name: user-service/{n;s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/playus-user-service:${{ env.BUILD_VERSION }}|}" PlayUs-k8s/overlays/develop/user-service/patch-image.yaml
           fi
 
           cd PlayUs-k8s
