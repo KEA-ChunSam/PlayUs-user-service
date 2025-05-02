@@ -8,6 +8,7 @@ import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -35,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        System.out.println(oAuth2User);
+        log.debug("OAuth2 user attributes: {}", oAuth2User.getAttributes());
 
         // kakao에서 온 건지, naver에서 온 건지 확인
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
@@ -52,12 +54,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
          */
 
-        else return null;
+        else {
+            OAuth2Error error = new OAuth2Error(
+                    "unsupported_provider",
+                    "지원하지 않는 OAuth2 공급자입니다: " + registrationId,
+                    null
+            );
+            throw new OAuth2AuthenticationException(error, error.toString());
+        }
 
 
         // 전화번호 기반 중복 체크
         String phoneNumber = response.getPhoneNumber();
-        if (phoneNumber != null && userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            OAuth2Error error = new OAuth2Error(
+                    "missing_phone",
+                    "전화번호가 제공되지 않았습니다",
+                    null
+            );
+            throw new OAuth2AuthenticationException(error, error.toString());
+        }
+        if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
             OAuth2Error error = new OAuth2Error(
                     "duplicated_user",
                     "이미 등록된 전화번호입니다",
