@@ -73,9 +73,15 @@ jobs:
         if: success()
 
         run: |
-          git clone https://x-access-token:${{ secrets.K8S_REPO_TOKEN }}@github.com/KEA-ChunSam/PlayUs-k8s.git
-
           BRANCH_NAME=${GITHUB_REF##*/}
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            K8S_BRANCH="main" 
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            K8S_BRANCH="develop"
+          fi
+  
+          git clone --single-branch --branch "$K8S_BRANCH" https://x-access-token:${{ secrets.K8S_REPO_TOKEN }}@github.com/KEA-ChunSam/PlayUs-k8s.git
+  
           if [[ "$BRANCH_NAME" == "main" ]]; then 
             echo "Skipping main branch update (prod) for now"
           elif [[ "$BRANCH_NAME" == "develop" ]]; then
