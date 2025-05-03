@@ -53,7 +53,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             // Refresh Token -  HttpOnly·Secure쿠키
             Cookie refreshCookie = new Cookie("Refresh", refreshToken);
             refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(true);         // HTTPS 환경에서는 반드시 true
+            //refreshCookie.setSecure(true);         // HTTPS 환경에서는 반드시 true
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
             response.addCookie(refreshCookie);
