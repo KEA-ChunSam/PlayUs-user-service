@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
 import java.util.Collections;
 
 @Configuration
@@ -25,53 +27,51 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
 
-        // CSRF, Form Login, HTTP Basic 비활성화
-        http.csrf(csrf -> csrf.disable());
-        http.formLogin(form -> form.disable());
-        http.httpBasic(basic -> basic.disable());
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
+                .addFilterBefore(
+                        new JwtFilter(jwtUtil, redisTemplate),
+                        UsernamePasswordAuthenticationFilter.class
+                )
 
-        // CORS 설정
-        http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                config.setAllowedMethods(Collections.singletonList("*"));
-                config.setAllowedHeaders(Collections.singletonList("*"));
-                config.setAllowCredentials(true);
-                config.setMaxAge(3600L);
-                config.setExposedHeaders(Collections.singletonList("Authorization"));
-                return config;
-            }
-        }));
+                .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest req) {
+                        CorsConfiguration c = new CorsConfiguration();
+                        c.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        c.setAllowedMethods(Collections.singletonList("*"));
+                        c.setAllowedHeaders(Collections.singletonList("*"));
+                        c.setAllowCredentials(true);
+                        c.setExposedHeaders(Collections.singletonList("Authorization"));
+                        return c;
+                    }
+                }))
 
-        // JWT 필터 추가
-        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                // OAuth2
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler)
+                )
 
-        // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler)
-        );
+                // 인증/인가
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/oauth2/authorization/kakao",
+                                "/login/oauth2/code/kakao",
+                                "/api/v1/auth/reissue",
+                                "/api/v1/auth/logout"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
 
-        // 인가 설정
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/login",
-                        "/oauth2/authorization/kakao",
-                        "/login/oauth2/code/kakao"
-                ).permitAll()
-                .anyRequest().authenticated()                                 // 나머지는 인증 필요
-        );
-
-        // 세션 관리: Stateless
-        http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

@@ -38,11 +38,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             String role = authorities.iterator().next().getAuthority();
 
-            //Access/Refresh 토큰 생성
+            // Access/Refresh 토큰 생성
             String accessToken  = jwtUtil.createAccessToken(userId, role);
             String refreshToken = jwtUtil.createRefreshToken(userId);
 
-            //Redis에 Refresh Token 저장 (key = refresh:{userId})
+            // Redis에 Refresh Token 저장 (key = refresh:{userId})
             redisTemplate.opsForValue()
                     .set("refresh:" + userId,
                             refreshToken,
@@ -50,13 +50,19 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             TimeUnit.MILLISECONDS);
 
 
-            //쿠키로 토큰 전송
-            Cookie accessCookie = createCookie("Authorization", accessToken, (int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
-            Cookie refreshCookie = createCookie("Refresh", refreshToken, (int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
-            response.addCookie(accessCookie);
+            // Refresh Token -  HttpOnly·Secure쿠키
+            Cookie refreshCookie = new Cookie("Refresh", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(false);         // HTTPS 환경에서는 반드시 true
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
             response.addCookie(refreshCookie);
 
-            //프론트엔드로 리다이렉트
+            // Access Token -  Authorization 헤더
+            response.setHeader("Authorization", "Bearer " + accessToken);
+            //response.setHeader("Access-Control-Expose-Headers", "Authorization");
+
+            // 로그인 후 프론트 페이지로 리다이렉트
             getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/choice-team");
 
         } catch (Exception e) {
@@ -64,14 +70,5 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Authentication Success Handling Error");
         }
-    }
-
-    private Cookie createCookie(String name, String value, int maxAgeSec) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAgeSec);
-        // cookie.setSecure(true); // HTTPS에서 필요시 활성화
-        return cookie;
     }
 }
