@@ -79,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (!accessExpired && refreshExpired) {
             String userId = jwtUtil.getUserId(access);
             String role   = jwtUtil.getRole(access);
-            String newRefresh = jwtUtil.createRefreshToken(userId);
+            String newRefresh = jwtUtil.createRefreshToken(userId, role);
 
             // Redis에 저장
             redisTemplate.opsForValue()

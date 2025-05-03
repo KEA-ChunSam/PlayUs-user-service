@@ -34,9 +34,10 @@ public class JwtUtil {
     }
 
     //리프레시토큰
-    public String createRefreshToken(String userId) {
+    public String createRefreshToken(String userId, String role) {
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("role", role)
                 .claim("type", "refresh")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRE_MS))
