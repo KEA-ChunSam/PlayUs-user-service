@@ -53,14 +53,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             // Refresh Token -  HttpOnly·Secure쿠키
             Cookie refreshCookie = new Cookie("Refresh", refreshToken);
             refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(false);         // HTTPS 환경에서는 반드시 true
+            refreshCookie.setSecure(true);         // HTTPS 환경에서는 반드시 true
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
             response.addCookie(refreshCookie);
 
             // Access Token -  Authorization 헤더
             response.setHeader("Authorization", "Bearer " + accessToken);
-            //response.setHeader("Access-Control-Expose-Headers", "Authorization");
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
             // 로그인 후 프론트 페이지로 리다이렉트
             getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/choice-team");
