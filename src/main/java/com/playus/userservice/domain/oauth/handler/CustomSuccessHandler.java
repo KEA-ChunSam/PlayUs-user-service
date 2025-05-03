@@ -34,8 +34,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
             String userId = customUser.getUserDto().getId().toString();
 
-            // 일반 유저_관리자 구별
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            if (authorities == null || authorities.isEmpty()) {
+                log.error("인증 객체에 권한이 없습니다. userId={}", userId);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "권한 정보 누락");
+                return;
+            }
             String role = authorities.iterator().next().getAuthority();
 
             // Access/Refresh 토큰 생성
