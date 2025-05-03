@@ -41,14 +41,27 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         String access = extractAccessToken(req);
         String refresh = extractRefreshToken(req);
 
-        boolean accessExpired  = access == null  || jwtUtil.isExpired(access);
-        boolean refreshExpired = refresh == null || jwtUtil.isExpired(refresh);
+        boolean accessExpired;
+        boolean refreshExpired;
+
+        // access token 만료 체크 (예외 발생 시 만료로 처리)
+        try {
+            accessExpired = (access == null) || jwtUtil.isExpired(access);
+        } catch (JwtException | IllegalArgumentException e) {
+            accessExpired = true;
+        }
+
+        // refresh token 만료 체크 (예외 발생 시 만료로 처리)
+        try {
+            refreshExpired = (refresh == null) || jwtUtil.isExpired(refresh);
+        } catch (JwtException | IllegalArgumentException e) {
+            refreshExpired = true;
+        }
+
 
         // case1: 둘 다 만료 → 401
         if (accessExpired && refreshExpired) {
