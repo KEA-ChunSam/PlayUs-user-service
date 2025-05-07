@@ -64,3 +64,7 @@ management:
   health:
     redis:
       enabled: false
+
+app:
+  frontend:
+    redirect-uri: http://localhost:3000/choice-team
