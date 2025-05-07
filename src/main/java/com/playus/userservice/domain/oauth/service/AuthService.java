@@ -62,6 +62,7 @@ public class AuthService {
         expired.setHttpOnly(true);
         expired.setSecure(true);
         expired.setPath("/");
+        expired.setAttribute("SameSite", "Strict");
         expired.setMaxAge(0);
         res.addCookie(expired);
     }
