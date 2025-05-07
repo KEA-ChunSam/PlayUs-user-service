@@ -26,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
 
     public JwtFilter(JwtUtil jwtUtil,
-                     RedisTemplate<String, String> redisTemplate) {
+        RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
         this.redisTemplate = redisTemplate;
     }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -26,9 +29,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final String REFRESH_COOKIE  = "Refresh";
-    private static final String REDIS_PREFIX    = "refresh:";
-    private static final String BEARER_PREFIX   = "Bearer ";
+    private static final String REFRESH_COOKIE = "Refresh";
+    private static final String REDIS_PREFIX   = "refresh:";
+    private static final String BEARER_PREFIX  = "Bearer ";
 
     /**
      * case1: 둘 다 만료 → 401
@@ -36,21 +39,25 @@ public class AuthService {
      * case3: access 유효 + refresh 만료 → refresh만 자동 재발급
      * case4: 둘 다 유효 → 정상 인증 세팅
      */
+
     public void validateAndRefreshTokens(HttpServletRequest req, HttpServletResponse res) {
         String access  = extractAccessToken(req);
         String refresh = extractRefreshToken(req);
 
+        // 토큰이 아예 없는 경우 (로그인 필요)
+        if (access == null && refresh == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다");
+        }
+
         boolean accessExpired;
         boolean refreshExpired;
 
-        // access 만료 체크 (에러 나면 만료로 간주)
         try {
             accessExpired = (access == null) || jwtUtil.isExpired(access);
         } catch (JwtException | IllegalArgumentException e) {
             accessExpired = true;
         }
 
-        // refresh 만료 체크
         try {
             refreshExpired = (refresh == null) || jwtUtil.isExpired(refresh);
         } catch (JwtException | IllegalArgumentException e) {
@@ -64,6 +71,13 @@ public class AuthService {
 
         // case2: access 만료, refresh 유효 → access 재발급
         if (accessExpired && !refreshExpired) {
+            // Redis에서 리프레시 토큰 유효성 검증
+            String userId = jwtUtil.getUserId(refresh);
+            String stored = redisTemplate.opsForValue().get(REDIS_PREFIX + userId);
+            if (!refresh.equals(stored)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
+            }
+
             reissueAccessToken(req, res);
             authenticateWithRefreshToken(refresh);
             return;
@@ -83,7 +97,6 @@ public class AuthService {
     /** /reissue - refresh로 access만 재발급 */
     public void reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
         String refresh = extractRefreshToken(req);
-        // 만료/변조 체크
         boolean expired;
         try {
             expired = jwtUtil.isExpired(refresh);
@@ -93,15 +106,17 @@ public class AuthService {
         if (expired) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         }
-        // Redis 검증
+
+        // Redis 검증 한 번 더
         String userId = jwtUtil.getUserId(refresh);
         String stored = redisTemplate.opsForValue().get(REDIS_PREFIX + userId);
         if (!refresh.equals(stored)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         }
-        // 새 Access 토큰 발급
-        String role           = jwtUtil.getRole(refresh);
+
+        String role = jwtUtil.getRole(refresh);
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
+
         res.setHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + newAccessToken);
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
     }
@@ -112,7 +127,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         }
         String userId = jwtUtil.getUserId(access);
-        String role   = jwtUtil.getRole(access);
+        String role = jwtUtil.getRole(access);
 
         String newRefresh = jwtUtil.createRefreshToken(userId, role);
         redisTemplate.opsForValue()
@@ -123,23 +138,23 @@ public class AuthService {
 
         Cookie cookie = new Cookie(REFRESH_COOKIE, newRefresh);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);    // 프로덕션에서는 true 로 설정
+        cookie.setSecure(true);    // 프로덕션에서는 true
         cookie.setPath("/");
-        cookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
+        cookie.setMaxAge((int) (JwtUtil.REFRESH_EXPIRE_MS / 1000));
         res.addCookie(cookie);
     }
 
-    /** case2,4공통 */
+    /** case2,4 공통 - Access 토큰으로 인증 설정 */
     private void authenticateWithAccessToken(String access) {
         String userId = jwtUtil.getUserId(access);
-        String role   = jwtUtil.getRole(access);
+        String role = jwtUtil.getRole(access);
         setAuthentication(userId, role);
     }
 
-    /** case2 */
+    /** case2 -Refresh 토큰으로 인증 설정 */
     private void authenticateWithRefreshToken(String refresh) {
         String userId = jwtUtil.getUserId(refresh);
-        String role   = jwtUtil.getRole(refresh);
+        String role = jwtUtil.getRole(refresh);
         setAuthentication(userId, role);
     }
 
@@ -153,16 +168,27 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    /** 기존 logout 로직 */
+    /** 개선된 logout 로직 */
     public void logout(HttpServletRequest req, HttpServletResponse res) {
-        String refresh = extractRefreshToken(req);
-        String userId  = jwtUtil.getUserId(refresh);
-        redisTemplate.delete(REDIS_PREFIX + userId);
+        try {
+            String refresh = extractRefreshToken(req);
+            if (refresh != null) {
+                try {
+                    String userId = jwtUtil.getUserId(refresh);
+                    redisTemplate.delete(REDIS_PREFIX + userId);
+                } catch (JwtException | IllegalArgumentException e) {
+                    log.warn("Invalid refresh token during logout: {}", e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            log.info("No refresh cookie found during logout: {}", e.getMessage());
+        }
 
         Cookie expired = new Cookie(REFRESH_COOKIE, null);
         expired.setHttpOnly(true);
         expired.setSecure(true);
         expired.setPath("/");
+        expired.setAttribute("SameSite", "Strict");
         expired.setMaxAge(0);
         res.addCookie(expired);
     }
@@ -177,13 +203,13 @@ public class AuthService {
 
     private String extractRefreshToken(HttpServletRequest req) {
         if (req.getCookies() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST");
+            return null;
         }
         for (Cookie c : req.getCookies()) {
             if (REFRESH_COOKIE.equals(c.getName())) {
                 return c.getValue();
             }
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST");
+        return null;
     }
 }
