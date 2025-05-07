@@ -62,13 +62,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException(error, error.toString());
         }
 
-        // 1) 기존 사용자면 바로 CustomOAuth2User 반환
+        // 기존 사용자면 바로 CustomOAuth2User 반환
         Optional<User> existing = userRepository.findByPhoneNumber(phoneNumber);
         if (existing.isPresent()) {
             return new CustomOAuth2User(new UserDto(existing.get()));
         }
 
-        // 2) 신규 사용자 생성
+        // 신규 사용자 생성
         LocalDate birth;
         try {
             birth = LocalDate.parse(

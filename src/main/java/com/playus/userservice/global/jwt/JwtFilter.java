@@ -25,23 +25,26 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public JwtFilter(JwtUtil jwtUtil, RedisTemplate<String, String> redisTemplate) {
+    public JwtFilter(JwtUtil jwtUtil,
+                     RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
         this.redisTemplate = redisTemplate;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain)
+            throws ServletException, IOException {
 
-        String header = req.getHeader(HttpHeaders.AUTHORIZATION);
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             try {
+                // Access Token이 유효하면 SecurityContext 설정
                 if (!jwtUtil.isExpired(token)) {
                     String userId = jwtUtil.getUserId(token);
-                    String role  = jwtUtil.getRole(token);
+                    String role   = jwtUtil.getRole(token);
 
                     CustomOAuth2User principal = new CustomOAuth2User(
                             UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
@@ -56,6 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        chain.doFilter(req, res);
+        chain.doFilter(request, response);
     }
 }
