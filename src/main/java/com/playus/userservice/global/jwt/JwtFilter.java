@@ -6,6 +6,7 @@ import com.playus.userservice.domain.user.enums.Role;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,16 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 
-/**
-case1: 둘 다 만료 → 401
-case2: access 만료 + refresh 유효 → access만 자동 재발급
-case3: access 유효 + refresh 만료 → refresh만 자동 재발급
-case4: 둘 다 유효 → 정상 처리
- */
-
+@Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -58,6 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (JwtException | IllegalArgumentException e) {
+                log.debug("토큰 인증 실패: {}", e.getMessage());
             }
         }
 
