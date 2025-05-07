@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +29,17 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+
+    private static final List<String> ALLOWED_ORIGINS = List.of(
+            "http://localhost:3000"
+    );
+
+    private static final String[] WHITELISTED_PATHS = {
+            "/oauth2/authorization/kakao",
+            "/login/oauth2/code/kakao",
+            "/api/v1/auth/reissue",
+            "/api/v1/auth/logout"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,7 +57,7 @@ public class SecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest req) {
                         CorsConfiguration c = new CorsConfiguration();
-                        c.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        c.setAllowedOrigins(ALLOWED_ORIGINS);
                         c.setAllowedMethods(Collections.singletonList("*"));
                         c.setAllowedHeaders(Collections.singletonList("*"));
                         c.setAllowCredentials(true);
@@ -62,12 +74,8 @@ public class SecurityConfig {
 
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/oauth2/authorization/kakao",
-                                "/login/oauth2/code/kakao",
-                                "/api/v1/auth/reissue",
-                                "/api/v1/auth/logout"
-                        ).permitAll()
+                        .requestMatchers(WHITELISTED_PATHS)
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
 
