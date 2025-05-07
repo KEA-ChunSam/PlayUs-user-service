@@ -106,7 +106,7 @@ jobs:
             git commit -m "Update user-service image to ${{ env.BUILD_VERSION }} on $BRANCH_NAME"
           else
             echo "No changes detected, creating empty commit to trigger deploy"
-            git commit --allow-empty -m "Force deploy: user-service image to ${{ env.BUILD_VERSION }} on $BRANCH_NAME"
+            git commit -m "Update user-service image to ${BUILD_VERSION} on ${BRANCH_NAME}"
           fi
                
           git push https://x-access-token:${{ secrets.K8S_REPO_TOKEN }}@github.com/KEA-ChunSam/PlayUs-k8s.git
