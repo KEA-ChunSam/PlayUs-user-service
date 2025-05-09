@@ -18,7 +18,7 @@ public class TokenController {
 
     @PostMapping("/reissue")
     public ResponseEntity<Void> reissue(HttpServletRequest req, HttpServletResponse res) {
-        authService.reissueAccessToken(req, res);
+        authService.validateAndRefreshTokens(req, res);
         return ResponseEntity.ok().build();
     }
 
