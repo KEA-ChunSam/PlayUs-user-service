@@ -1,6 +1,9 @@
 package com.playus.userservice.domain.oauth.service;
 
+import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.oauth.enums.TokenType;
+import com.playus.userservice.domain.user.dto.UserDto;
+import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.global.jwt.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +61,7 @@ public class AuthService {
     }
 
     public void logout(HttpServletRequest req, HttpServletResponse res) {
-        // Refresh Token 삭제 (쿠키 만료 & Redis key 삭제)
+        // Refresh Token 삭제
         tokenService.deleteRefreshToken(req, res);
 
         // Access Token 블랙리스트
@@ -66,7 +69,6 @@ public class AuthService {
         if (access != null && !jwtUtil.isExpired(access)) {
             String jti = jwtUtil.getJti(access);
 
-            // 남은 만료 시간(초) 계산
             long ttlSeconds = jwtUtil.getRemainingExpirationTime(access) / 1000;
 
             if (ttlSeconds > 0) {
@@ -86,26 +88,35 @@ public class AuthService {
 
     private void authenticate(String token) {
         if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "MISSING_TOKEN");
         }
+
+        String jti = jwtUtil.getJti(token);
+        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jti))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
+        }
+
+        String type = jwtUtil.getType(token);
+        if ("refresh".equals(type)) {
+            String userId = jwtUtil.getUserId(token);
+            String refreshKey = "refresh:" + userId;
+            if (!Boolean.TRUE.equals(redisTemplate.hasKey(refreshKey))) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_SESSION");
+            }
+        }
+
         String userId = jwtUtil.getUserId(token);
-        String role   = jwtUtil.getRole(token);
+        String role = jwtUtil.getRole(token);
+
+        CustomOAuth2User principal =
+                new CustomOAuth2User(
+                        UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
+                );
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                new com.playus.userservice.domain.oauth.dto.CustomOAuth2User(
-                        com.playus.userservice.domain.user.dto.UserDto.fromJwt(
-                                Long.parseLong(userId),
-                                com.playus.userservice.domain.user.enums.Role.valueOf(role)
-                        )
-                ),
-                null,
-                new com.playus.userservice.domain.oauth.dto.CustomOAuth2User(
-                        com.playus.userservice.domain.user.dto.UserDto.fromJwt(
-                                Long.parseLong(userId),
-                                com.playus.userservice.domain.user.enums.Role.valueOf(role)
-                        )
-                ).getAuthorities()
+                principal, null, principal.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
     }
 }

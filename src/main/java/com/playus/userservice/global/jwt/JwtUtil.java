@@ -74,6 +74,10 @@ public class JwtUtil {
         return extractPayload(token).getId();
     }
 
+    public String getType(String token) {
+        return extractPayload(token).get("type", String.class);
+    }
+
     public long getRemainingExpirationTime(String token) {
         return extractPayload(token).getExpiration().getTime() - System.currentTimeMillis();
     }
