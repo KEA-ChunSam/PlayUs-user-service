@@ -49,4 +49,3 @@ public class NotificationDocument extends BaseTimeEntity {
                 .build();
     }
 }
-

@@ -39,4 +39,3 @@ public class UserTagDocument extends BaseTimeEntity {
 }
 
 
-
