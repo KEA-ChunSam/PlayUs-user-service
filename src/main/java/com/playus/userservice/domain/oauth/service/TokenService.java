@@ -90,7 +90,12 @@ public class TokenService {
     }
 
     public void deleteRefreshToken(HttpServletRequest req, HttpServletResponse res) {
-        String refresh = resolveToken(req, TokenType.REFRESH);
+        String refresh;
+        try {
+            refresh = resolveToken(req, TokenType.REFRESH);
+        } catch (ResponseStatusException e) {
+            refresh = null;
+        }
         if (refresh != null) {
             String userId = jwtUtil.getUserId(refresh);
             redisTemplate.delete(REDIS_PREFIX + userId);
