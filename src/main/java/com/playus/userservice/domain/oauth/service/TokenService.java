@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -83,12 +85,14 @@ public class TokenService {
                         JwtUtil.REFRESH_EXPIRE_MS,
                         TimeUnit.MILLISECONDS);
 
-        Cookie cookie = new Cookie(REFRESH_COOKIE, newRefresh);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
-        res.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, newRefresh)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     public void deleteRefreshToken(HttpServletRequest req, HttpServletResponse res) {
@@ -102,12 +106,14 @@ public class TokenService {
             String userId = jwtUtil.getUserId(refresh);
             redisTemplate.delete(REDIS_PREFIX + userId);
         }
-        Cookie expired = new Cookie(REFRESH_COOKIE, null);
-        expired.setHttpOnly(true);
-        expired.setSecure(true);
-        expired.setPath("/");
-        expired.setMaxAge(0);
-        res.addCookie(expired);
+        ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(Duration.ZERO)
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
     }
 
     private String extractAccessToken(HttpServletRequest req) {
