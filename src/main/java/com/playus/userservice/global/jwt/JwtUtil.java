@@ -27,6 +27,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("role", role)
+                .claim("type", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRE_MS))
                 .signWith(key)
@@ -62,6 +63,7 @@ public class JwtUtil {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(key)
+                .require("type", "access")
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
