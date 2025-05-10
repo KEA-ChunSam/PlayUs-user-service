@@ -3,15 +3,15 @@ spring:
     name: search-service
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
     mongodb:
       read:
-        uri: ${SPRING_MONGO_URL}
+        uri: ${SPRING_DATA_MONGODB_READ_URI}
 
     redis:
       host: localhost
