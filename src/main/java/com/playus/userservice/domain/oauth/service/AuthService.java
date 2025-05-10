@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -13,12 +14,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.Duration;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * case1: 둘 다 만료 → 401
@@ -54,7 +58,21 @@ public class AuthService {
     }
 
     public void logout(HttpServletRequest req, HttpServletResponse res) {
+        // Refresh Token 삭제 (쿠키 만료 & Redis key 삭제)
         tokenService.deleteRefreshToken(req, res);
+
+        // Access Token 블랙리스트
+        String access = tokenService.resolveToken(req, TokenType.ACCESS);
+        if (access != null && !jwtUtil.isExpired(access)) {
+            String jti = jwtUtil.getJti(access);
+
+            // 남은 만료 시간(초) 계산
+            long ttlSeconds = jwtUtil.getRemainingExpirationTime(access) / 1000;
+
+            if (ttlSeconds > 0) {
+                redisTemplate.opsForValue().set("blacklist:" + jti, "", Duration.ofSeconds(ttlSeconds));
+            }
+        }
     }
 
     private boolean isExpired(String token) {

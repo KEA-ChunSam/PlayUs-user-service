@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 
 @Component
@@ -25,6 +26,7 @@ public class JwtUtil {
     //엑세스토큰
     public String createAccessToken(String userId, String role) {
         return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
                 .setSubject(userId)
                 .claim("role", role)
                 .claim("type", "access")
@@ -66,5 +68,13 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getJti(String token) {
+        return extractPayload(token).getId();
+    }
+
+    public long getRemainingExpirationTime(String token) {
+        return extractPayload(token).getExpiration().getTime() - System.currentTimeMillis();
     }
 }
