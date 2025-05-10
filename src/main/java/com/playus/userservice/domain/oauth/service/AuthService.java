@@ -26,7 +26,7 @@ public class AuthService {
      * case3: access 유효 + refresh 만료 → refresh 재발급
      * case4: 둘 다 유효 → 정상 인증 세팅
      */
-    public void validateAndRefreshTokens(HttpServletRequest req, HttpServletResponse res) {
+    public void verifyAndRenewTokens(HttpServletRequest req, HttpServletResponse res) {
         String access  = tokenService.resolveToken(req, TokenType.ACCESS);
         String refresh = tokenService.resolveToken(req, TokenType.REFRESH);
 
