@@ -4,7 +4,6 @@ import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.AuthProvider;
 import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class UserDto {
 
