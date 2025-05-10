@@ -63,7 +63,6 @@ public class JwtUtil {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(key)
-                .require("type", "access")
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
