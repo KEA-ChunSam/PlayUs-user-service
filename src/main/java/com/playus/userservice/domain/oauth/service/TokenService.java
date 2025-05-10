@@ -49,7 +49,7 @@ public class TokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         }
         if (expired) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
         }
         // Redis 검증
         String userId;
@@ -70,9 +70,7 @@ public class TokenService {
     public void reissueRefreshToken(String access, HttpServletResponse res) {
 
         if (access == null || jwtUtil.isExpired(access)) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "INVALID_TOKEN"
-            );
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         }
 
         String userId = jwtUtil.getUserId(access);
@@ -99,21 +97,21 @@ public class TokenService {
         String refresh;
         try {
             refresh = resolveToken(req, TokenType.REFRESH);
-        } catch (ResponseStatusException e) {
-            refresh = null;
-        }
-        if (refresh != null) {
             String userId = jwtUtil.getUserId(refresh);
             redisTemplate.delete(REDIS_PREFIX + userId);
+
+        } catch (ResponseStatusException | JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
+        } finally {
+            ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .path("/")
+                    .maxAge(Duration.ZERO)
+                    .build();
+            res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
         }
-        ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .path("/")
-                .maxAge(Duration.ZERO)
-                .build();
-        res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
     }
 
     private String extractAccessToken(HttpServletRequest req) {
