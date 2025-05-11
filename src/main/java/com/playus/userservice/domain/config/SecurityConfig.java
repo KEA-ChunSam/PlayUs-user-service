@@ -37,6 +37,8 @@ public class SecurityConfig {
     private static final String[] WHITELISTED_PATHS = {
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
+            "/oauth2/authorization/naver",
+            "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
             "/api/v1/auth/logout"
     };

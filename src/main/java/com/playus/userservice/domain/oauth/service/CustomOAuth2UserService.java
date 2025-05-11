@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -40,8 +41,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response response;
 
+
         if ("kakao".equals(registrationId)) {
             response = new KakaoResponse(oAuth2User.getAttributes());
+        } else if ("naver".equals(registrationId)) {
+            response = new NaverResponse((Map)oAuth2User.getAttributes().get("response"));
         } else {
             OAuth2Error error = new OAuth2Error(
                     "unsupported_provider",
