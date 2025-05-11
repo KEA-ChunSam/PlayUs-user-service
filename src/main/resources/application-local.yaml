@@ -3,15 +3,19 @@ spring:
     name: search-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/playus
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
     mongodb:
       read:
-        uri: mongodb://localhost:27017/read_db
+        uri: ${SPRING_DATA_MONGODB_READ_URI}
+
+    redis:
+      host: localhost
+      port: 6379
 
   jpa:
     show-sql: true
@@ -25,6 +29,31 @@ spring:
           time_zone: Asia/Seoul
         show_sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - phone_number
+              - gender
+              - birthday
+              - birthyear
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  jwt:
+    secret: ${JWT_SECRET}
+
 eureka:
   client:
     register-with-eureka: false
@@ -35,3 +64,7 @@ management:
   health:
     redis:
       enabled: false
+
+app:
+  frontend:
+    redirect-uri: http://localhost:3000/choice-team
