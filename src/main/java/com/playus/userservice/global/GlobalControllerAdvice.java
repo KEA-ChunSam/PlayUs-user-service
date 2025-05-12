@@ -1,10 +1,12 @@
 package com.playus.userservice.global;
 
 import com.playus.userservice.domain.oauth.controller.TokenController;
+import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -13,7 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
-        TokenController.class
+        TokenController.class,
+        CustomOAuth2UserService.class
 })
 public class GlobalControllerAdvice {
 
@@ -33,19 +36,24 @@ public class GlobalControllerAdvice {
         return ErrorResponse.unauthorizedError(errorMessage);
     }
 
-    /*
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({
-            PartyGenderExceptionGroup.InvalidDescriptionException.class,
-            PartyJoinMethodExceptionGroup.InvalidDescriptionException.class,
-            PartyAgeGroupExceptionGroup.InvalidDescriptionException.class
-    })
-    public ResponseEntity<String> invalidDescriptionExceptionHandler(Exception e) {
-        String errorMessage = e.getMessage();
-        log.warn("Validation Error: {}", errorMessage);
-        return ResponseEntity.badRequest().body(errorMessage);
+    @ExceptionHandler(OAuth2AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> oauth2AuthExceptionHandler(OAuth2AuthenticationException e) {
+        String errorCode = e.getError().getErrorCode();
+        HttpStatus status = switch (errorCode) {
+            case "missing_phone", "invalid_gender", "unsupported_provider" -> HttpStatus.BAD_REQUEST;
+            case "provider_mismatch" -> HttpStatus.CONFLICT;
+            default -> HttpStatus.UNAUTHORIZED;
+        };
+
+        ErrorResponse body = ErrorResponse.builder()
+                .code(status.value())
+                .status(status)
+                .message(e.getError().getDescription())
+                .build();
+
+        log.warn("OAuth2 Error ({}): {}", errorCode, body.message());
+        return ResponseEntity.status(status).body(body);
     }
-     */
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
