@@ -108,9 +108,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     // 생년월일
     private LocalDate parseBirth(String year, String dayMonth) {
+        if (year == null || dayMonth == null) return LocalDate.of(2000, 1, 1);
+
+        // 하이픈 슬래시 제거 (ex: 10_01 → 1001)
+        String mmdd = dayMonth.replaceAll("[^\\d]", "");
+        if (mmdd.length() != 4) return LocalDate.of(2000, 1, 1);
+
         try {
-            return LocalDate.parse(year + dayMonth,
-                    DateTimeFormatter.ofPattern("yyyyMMdd"));
+            return LocalDate.parse(year + mmdd, DateTimeFormatter.ofPattern("yyyyMMdd"));
         } catch (Exception e) {
             return LocalDate.of(2000, 1, 1);
         }
