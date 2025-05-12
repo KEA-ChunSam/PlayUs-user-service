@@ -43,8 +43,8 @@
     <springProfile name="local">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="SENTRY"/>
-            <appender-ref ref="ASYNC_SLACK"/>
+<!--            <appender-ref ref="SENTRY"/>-->
+<!--            <appender-ref ref="ASYNC_SLACK"/>-->
         </root>
     </springProfile>
 
