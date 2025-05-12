@@ -1,6 +1,6 @@
 spring:
   application:
-    name: search-service
+    name: user-service
 
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -84,3 +84,15 @@ management:
 app:
   frontend:
     redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
+
+sentry:
+  dsn: ${SENTRY_REPOSITORY_DSN}
+  environment: ${SENTRY_ENVIRONMENT}
+  servername: ${SENTRY_SERVERNAME}
+  repository-uri: ${SENTRY_REPOSITORY_URI}
+
+logging:
+  config: classpath:logback-spring.xml
+
+slack:
+  webhook-url: ${SLACK_WEBHOOK_URL}
