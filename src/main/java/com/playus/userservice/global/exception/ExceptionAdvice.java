@@ -1,4 +1,4 @@
-package com.playus.userservice.global;
+package com.playus.userservice.global.exception;
 
 import com.playus.userservice.domain.oauth.controller.TokenController;
 import com.playus.userservice.global.response.ErrorResponse;
@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestControllerAdvice(assignableTypes = {
         TokenController.class
 })
-public class GlobalControllerAdvice {
+public class ExceptionAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)
