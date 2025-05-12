@@ -29,81 +29,50 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2Response response;
 
-
-        if ("kakao".equals(registrationId)) {
-            response = new KakaoResponse(oAuth2User.getAttributes());
-        } else if ("naver".equals(registrationId)) {
-            response = new NaverResponse(oAuth2User.getAttributes());
-            log.debug("Naver raw attributes: {}", response);
-        } else {
-            OAuth2Error error = new OAuth2Error(
-                    "unsupported_provider",
-                    "지원하지 않는 OAuth2 공급자입니다: " + registrationId,
-                    null
-            );
-            throw new OAuth2AuthenticationException(error, error.toString());
-        }
+        OAuth2Response response = switch (registrationId) {
+            case "kakao" -> new KakaoResponse(oAuth2User.getAttributes());
+            case "naver" -> new NaverResponse(oAuth2User.getAttributes());
+            default -> throw new OAuth2AuthenticationException(
+                    new OAuth2Error("unsupported_provider",
+                            "지원하지 않는 OAuth2 공급자입니다: " + registrationId, null));
+        };
 
         // 필수 정보 확인
         String phoneNumber = response.getPhoneNumber();
         if (phoneNumber == null || phoneNumber.isBlank()) {
-            OAuth2Error error = new OAuth2Error(
-                    "missing_phone",
-                    "전화번호가 제공되지 않았습니다",
-                    null
-            );
-            throw new OAuth2AuthenticationException(error, error.toString());
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("missing_phone", "전화번호가 제공되지 않았습니다", null));
         }
 
-        // 기존 사용자면 바로 CustomOAuth2User 반환
+        // 이미 가입된 사용자 처리
         Optional<User> existing = userRepository.findByPhoneNumber(phoneNumber);
+        AuthProvider currentProvider = "kakao".equals(registrationId)
+                ? AuthProvider.KAKAO
+                : AuthProvider.NAVER;
+
         if (existing.isPresent()) {
-            return new CustomOAuth2User(new UserDto(existing.get()));
+            User user = existing.get();
+
+            // 공급자가 일치 → 바로 로그인
+            if (user.getAuthProvider() == currentProvider) {
+                return new CustomOAuth2User(new UserDto(user));
+            }
+
+            // 공급자가 다름 → 오류
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("provider_mismatch",
+                            "이 전화번호는 이미 " + user.getAuthProvider()
+                                    + " 계정으로 가입되어 있습니다.", null));
         }
 
         // 신규 사용자 생성
-        LocalDate birth;
-        try {
-            birth = LocalDate.parse(
-                    response.getBirthYear() + response.getBirthday(),
-                    DateTimeFormatter.ofPattern("yyyyMMdd")
-            );
-        } catch (Exception e) {
-            birth = LocalDate.of(2000, 1, 1);
-        }
+        LocalDate birth = parseBirth(response.getBirthYear(), response.getBirthday());
 
-        //성별
-        String rawGender = response.getGender();
-        Gender gender;
-
-        // naver: M or F or U
-        if ("naver".equals(registrationId)) {
-            if ("F".equalsIgnoreCase(rawGender)) {
-                gender = Gender.FEMALE;
-            } else if ("M".equalsIgnoreCase(rawGender)) {
-                gender = Gender.MALE;
-            } else {
-                gender = Gender.UNDEFINED;
-            }
-        } else {
-            // Kakao: male or female
-            if ("male".equalsIgnoreCase(rawGender)) {
-                gender = Gender.MALE;
-            } else if ("female".equalsIgnoreCase(rawGender)) {
-                gender = Gender.FEMALE;
-            } else {
-                OAuth2Error error = new OAuth2Error(
-                        "invalid_gender",
-                        "유효하지 않은 성별 정보입니다: " + rawGender,
-                        null
-                );
-                throw new OAuth2AuthenticationException(error, error.toString());
-            }
-        }
+        Gender gender = mapGender(registrationId, response.getGender());
 
         User user = User.create(
                 "default_nickname",
@@ -111,11 +80,42 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 birth,
                 gender,
                 Role.USER,
-                AuthProvider.KAKAO,
+                currentProvider,
                 "default.png"
         );
         userRepository.save(user);
 
         return new CustomOAuth2User(new UserDto(user));
     }
+
+    // 생년월일
+    private LocalDate parseBirth(String year, String dayMonth) {
+        try {
+            return LocalDate.parse(year + dayMonth,
+                    DateTimeFormatter.ofPattern("yyyyMMdd"));
+        } catch (Exception e) {
+            return LocalDate.of(2000, 1, 1);
+        }
+    }
+
+    // 성별 매핑
+    private Gender mapGender(String registrationId, String raw) {
+
+        // naver: M or F or U
+        if ("naver".equals(registrationId)) {
+            return switch (raw == null ? "" : raw.toUpperCase()) {
+                case "F" -> Gender.FEMALE;
+                case "M" -> Gender.MALE;
+                default -> Gender.UNDEFINED;
+            };
+        } else { // kakao : male or female
+            if ("male".equalsIgnoreCase(raw)) return Gender.MALE;
+            if ("female".equalsIgnoreCase(raw)) return Gender.FEMALE;
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("invalid_gender",
+                            "유효하지 않은 성별 정보입니다: " + raw, null));
+        }
+    }
 }
+
+
