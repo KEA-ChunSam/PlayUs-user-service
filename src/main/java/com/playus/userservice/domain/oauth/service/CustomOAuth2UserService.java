@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +29,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = false)
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -41,12 +43,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                             "지원하지 않는 OAuth2 공급자입니다: " + registrationId, null));
         };
 
-        // 필수 정보 확인
+        // 전화번호 필수 확인
         String phoneNumber = response.getPhoneNumber();
         if (phoneNumber == null || phoneNumber.isBlank()) {
             throw new OAuth2AuthenticationException(
                     new OAuth2Error("missing_phone", "전화번호가 제공되지 않았습니다", null));
         }
+        String normalizedPhone = normalizePhone(phoneNumber);
 
         // 이미 가입된 사용자 처리
         Optional<User> existing = userRepository.findByPhoneNumber(phoneNumber);
@@ -86,6 +89,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         userRepository.save(user);
 
         return new CustomOAuth2User(new UserDto(user));
+    }
+
+    // 전화번호 정규화 (+821012345678 과 같은 E.164 형식으로 반환)
+
+    private String normalizePhone(String raw) {
+
+        String digits = raw.replaceAll("[^+\\d]", "");
+
+        if (digits.startsWith("+82")) {
+            return digits;
+        }
+        if (digits.startsWith("0")) {
+            return "+82" + digits.substring(1);
+        }
+        // 국내번호 가정 -> +82 붙임 (필요 시 정책 조정)
+        return "+82" + digits;
     }
 
     // 생년월일
