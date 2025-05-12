@@ -1,4 +1,4 @@
-package com.playus.userservice.domain.config;
+package com.playus.userservice.global.config;
 
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
