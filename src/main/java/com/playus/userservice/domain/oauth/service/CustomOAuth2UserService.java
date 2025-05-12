@@ -84,12 +84,33 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             birth = LocalDate.of(2000, 1, 1);
         }
 
+        //성별
+        String rawGender = response.getGender();
         Gender gender;
-        try {
-            gender = Gender.valueOf(response.getGender().toUpperCase());
-        } catch (Exception ex) {
-            OAuth2Error error = new OAuth2Error("invalid_gender", "유효하지 않은 성별 정보입니다", null);
-            throw new OAuth2AuthenticationException(error, error.toString());
+
+        // naver: M or F or U
+        if ("naver".equals(registrationId)) {
+            if ("F".equalsIgnoreCase(rawGender)) {
+                gender = Gender.FEMALE;
+            } else if ("M".equalsIgnoreCase(rawGender)) {
+                gender = Gender.MALE;
+            } else {
+                gender = Gender.UNDEFINED;
+            }
+        } else {
+            // Kakao: male or female
+            if ("male".equalsIgnoreCase(rawGender)) {
+                gender = Gender.MALE;
+            } else if ("female".equalsIgnoreCase(rawGender)) {
+                gender = Gender.FEMALE;
+            } else {
+                OAuth2Error error = new OAuth2Error(
+                        "invalid_gender",
+                        "유효하지 않은 성별 정보입니다: " + rawGender,
+                        null
+                );
+                throw new OAuth2AuthenticationException(error, error.toString());
+            }
         }
 
         User user = User.create(
