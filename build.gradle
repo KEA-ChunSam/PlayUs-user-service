@@ -70,6 +70,10 @@ dependencies {
 
 	// Jackson 또는 Gson과 연동하기 위한 모듈
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// Sentry
+	implementation("io.sentry:sentry-logback:7.17.0")
+	implementation("com.github.maricn:logback-slack-appender:1.6.1")
 }
 
 dependencyManagement {
