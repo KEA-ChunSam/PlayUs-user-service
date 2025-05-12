@@ -79,7 +79,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user = User.create(
                 "default_nickname",
-                phoneNumber,
+                normalizedPhone,
                 birth,
                 gender,
                 Role.USER,
@@ -92,7 +92,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     // 전화번호 정규화 (+821012345678 과 같은 E.164 형식으로 반환)
-
     private String normalizePhone(String raw) {
 
         String digits = raw.replaceAll("[^+\\d]", "");
@@ -136,5 +135,3 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 }
-
-
