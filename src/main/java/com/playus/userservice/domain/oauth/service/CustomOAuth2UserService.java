@@ -45,7 +45,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if ("kakao".equals(registrationId)) {
             response = new KakaoResponse(oAuth2User.getAttributes());
         } else if ("naver".equals(registrationId)) {
-            response = new NaverResponse((Map)oAuth2User.getAttributes().get("response"));
+            response = new NaverResponse(oAuth2User.getAttributes());
+            log.debug("Naver raw attributes: {}", response);
         } else {
             OAuth2Error error = new OAuth2Error(
                     "unsupported_provider",

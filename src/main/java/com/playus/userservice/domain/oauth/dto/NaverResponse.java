@@ -22,26 +22,26 @@ public class NaverResponse implements OAuth2Response {
 
     @Override
     public String getProviderId() {
-        return String.valueOf(attributes.get("id"));
+        return (String)((Map)attributes.get("response")).get("id");
     }
 
     @Override
     public String getPhoneNumber() {
-        return String.valueOf(naverAccount.get("mobile"));
+        return (String)((Map)attributes.get("response")).get("mobile");
     }
 
     @Override
     public String getGender() {
-        return String.valueOf(naverAccount.get("gender"));
+        return (String) ((Map) attributes.get("response")).get("gender");
     }
 
     @Override
     public String getBirthday() {
-        return String.valueOf(naverAccount.get("birthday"));  // 예: "0824"
+        return (String) ((Map) attributes.get("response")).get("birthday");  // 예: "0824"
     }
 
     @Override
     public String getBirthYear() {
-        return String.valueOf(naverAccount.get("birthyear")); // 예: "1999"
+        return (String) ((Map) attributes.get("response")).get("birthyear");     // 예: "1999"
     }
 }
