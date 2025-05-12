@@ -1,4 +1,4 @@
-package com.playus.userservice.domain.config;
+package com.playus.userservice.global.config;
 
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
@@ -35,10 +35,13 @@ public class SecurityConfig {
     );
 
     private static final String[] WHITELISTED_PATHS = {
+            "/error",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
             "/api/v1/auth/reissue",
-            "/api/v1/auth/logout"
+            "/api/v1/auth/logout",
     };
 
     @Bean
