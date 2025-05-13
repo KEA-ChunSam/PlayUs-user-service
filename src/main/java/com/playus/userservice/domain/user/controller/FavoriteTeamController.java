@@ -1,8 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.FavoriteTeamRequest;
-import com.playus.userservice.domain.user.dto.FavoriteTeamResponse;
+import com.playus.userservice.domain.user.dto.FavoriteTeamDto;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +19,23 @@ public class FavoriteTeamController {
     private final FavoriteTeamService favoriteTeamService;
 
     @PostMapping
-    public ResponseEntity<FavoriteTeamResponse> saveOrUpdateOne(
+    public ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> saveOrUpdateOne(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody FavoriteTeamRequest request) {
+            @Valid @RequestBody FavoriteTeamDto.FavoriteTeamRequest request) {
 
         Long userId = Long.parseLong(principal.getName());
-        FavoriteTeamResponse resp = favoriteTeamService
+        FavoriteTeamDto.FavoriteTeamResponse resp = favoriteTeamService
                 .setFavoriteTeam(userId, request);
         return ResponseEntity.ok(resp);
     }
 
     @PutMapping
-    public ResponseEntity<FavoriteTeamResponse> updateMany(
+    public ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> updateMany(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody List<FavoriteTeamRequest> requests) {
+            @Valid @RequestBody List<FavoriteTeamDto.FavoriteTeamRequest> requests) {
 
         Long userId = Long.parseLong(principal.getName());
-        FavoriteTeamResponse resp = favoriteTeamService
+        FavoriteTeamDto.FavoriteTeamResponse resp = favoriteTeamService
                 .updateFavoriteTeams(userId, requests);
         return ResponseEntity.ok(resp);
     }
