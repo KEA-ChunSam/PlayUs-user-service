@@ -26,7 +26,6 @@ public class UserController {
             @AuthenticationPrincipal CustomOAuth2User principal,
             @Valid @RequestBody NicknameDto.NicknameRequest request) {
 
-        // principal.getName()에 userId(String)이 담겨 있으므로 파싱
         Long userId = Long.parseLong(principal.getName());
         NicknameDto.NicknameResponse resp = userService.updateNickname(userId, request);
         return ResponseEntity.ok(resp);
