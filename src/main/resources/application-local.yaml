@@ -81,6 +81,18 @@ management:
     redis:
       enabled: false
 
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health           # 애플리케이션 상태 확인
+          - info             # 애플리케이션 정보
+          - prometheus       # 메트릭 데이터 노출
+
+  endpoint:
+    health:
+      show-details: always
+
 app:
   frontend:
     redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
