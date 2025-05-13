@@ -1,4 +1,4 @@
-package com.playus.userservice.global.config;
+package com.playus.userservice.global.config.data.jpa;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;

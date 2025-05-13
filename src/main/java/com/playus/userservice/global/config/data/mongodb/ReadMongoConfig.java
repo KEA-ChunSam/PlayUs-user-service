@@ -1,4 +1,4 @@
-package com.playus.userservice.global.config.mongo;
+package com.playus.userservice.global.config.data.mongodb;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;

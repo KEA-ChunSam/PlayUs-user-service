@@ -1,4 +1,4 @@
-package com.playus.userservice.global.config;
+package com.playus.userservice.global.config.data.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
