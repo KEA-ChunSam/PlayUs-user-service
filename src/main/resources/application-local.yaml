@@ -83,4 +83,4 @@ management:
 
 app:
   frontend:
-    redirect-uri: http://localhost:3000/choice-team
+    redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
