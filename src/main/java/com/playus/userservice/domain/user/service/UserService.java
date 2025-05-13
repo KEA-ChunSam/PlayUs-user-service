@@ -22,7 +22,6 @@ public class UserService {
                         HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         user.updateNickname(req.getNickname());
-        // (managed entity이므로 save() 생략 가능)
 
         return new NicknameDto.NicknameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
     }
