@@ -52,7 +52,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String normalizedPhone = normalizePhone(phoneNumber);
 
         // 이미 가입된 사용자 처리
-        Optional<User> existing = userRepository.findByPhoneNumber(phoneNumber);
+        Optional<User> existing = userRepository.findByPhoneNumber(normalizedPhone);
         AuthProvider currentProvider = "kakao".equals(registrationId)
                 ? AuthProvider.KAKAO
                 : AuthProvider.NAVER;
