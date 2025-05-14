@@ -23,6 +23,10 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
+    public SecretKey getKey() {
+        return this.key;
+    }
+
     //엑세스토큰
     public String createAccessToken(String userId, String role) {
         return Jwts.builder()
