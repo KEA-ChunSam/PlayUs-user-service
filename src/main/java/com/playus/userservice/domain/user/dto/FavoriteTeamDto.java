@@ -11,10 +11,10 @@ public class FavoriteTeamDto {
     public static class FavoriteTeamRequest {
 
         @NotNull
-        private final Long teamId;          // 1~10
+        private final Long teamId;
 
         @Min(1) @Max(10)
-        private final Integer displayOrder; // 1~10, null 허용
+        private final Integer displayOrder;
 
         public FavoriteTeamRequest(Long teamId, Integer displayOrder) {
             this.teamId = teamId;
