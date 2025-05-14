@@ -27,7 +27,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Value("${app.frontend.redirect-uri}")
+    @Value("${app.frontend.success-redirect-uri}")
     private String redirectUri;
 
     @Override
