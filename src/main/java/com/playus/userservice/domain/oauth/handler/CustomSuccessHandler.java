@@ -74,12 +74,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             accessCookie.setMaxAge((int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
             response.addCookie(accessCookie);
 
-            /*response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Authorization", "Bearer " + accessToken);
-            response.setHeader("Access-Control-Expose-Headers", "Authorization");*/
-
             // 로그인 후 프론트 페이지로 리다이렉트
             getRedirectStrategy().sendRedirect(request, response, redirectUri);
 
