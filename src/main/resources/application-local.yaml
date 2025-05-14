@@ -97,7 +97,7 @@ management:
 app:
   frontend:
     success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
-    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?error
+    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error
 
 
 sentry:
