@@ -35,55 +35,57 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI openApi() {
-		// JWT 설정
-		String jwt = "JWT";
-		SecurityRequirement jwtSecurityRequirement = new SecurityRequirement().addList(jwt);
-		SecurityScheme jwtScheme = new SecurityScheme()
-				.name(jwt)
-				.type(SecurityScheme.Type.HTTP)
-				.scheme("bearer")
-				.bearerFormat("JWT");
+		// Cookie 기반 인증 (Access 토큰)
+		String cookieAuth = "CookieAuth";
+		SecurityRequirement cookieRequirement = new SecurityRequirement().addList(cookieAuth);
+		SecurityScheme cookieScheme = new SecurityScheme()
+				.name("Access")
+				.type(SecurityScheme.Type.APIKEY)
+				.in(SecurityScheme.In.COOKIE);
 
-		// OAuth2 설정 1
+		// OAuth2 Kakao 설정
 		String oauth2Kakao = "OAuth2_Kakao";
-		SecurityRequirement kakaoSecurityRequirement = new SecurityRequirement().addList(oauth2Kakao);
+		SecurityRequirement kakaoRequirement = new SecurityRequirement().addList(oauth2Kakao);
 		SecurityScheme kakaoScheme = new SecurityScheme()
 				.name(oauth2Kakao)
 				.type(SecurityScheme.Type.OAUTH2)
 				.flows(new OAuthFlows()
 						.authorizationCode(new OAuthFlow()
-								.authorizationUrl("http://localhost:8080/oauth2/kakao/authorize")
-								.tokenUrl("http://localhost:8080/oauth2/kakao/token")
+								.authorizationUrl("http://localhost:8080/oauth2/authorization/kakao")
+								.tokenUrl("http://localhost:8080/login/oauth2/code/kakao")
 								.scopes(new Scopes()
 										.addString("client_id", kakaoClientId)
 										.addString("client_secret", kakaoClientSecret))));
 
-		// OAuth2 설정 2
+		// OAuth2 Naver 설정
 		String oauth2Naver = "OAuth2_Naver";
-		SecurityRequirement naverSecurityRequirement = new SecurityRequirement().addList(oauth2Naver);
+		SecurityRequirement naverRequirement = new SecurityRequirement().addList(oauth2Naver);
 		SecurityScheme naverScheme = new SecurityScheme()
 				.name(oauth2Naver)
 				.type(SecurityScheme.Type.OAUTH2)
 				.flows(new OAuthFlows()
 						.authorizationCode(new OAuthFlow()
-								.authorizationUrl("http://localhost:8080/oauth2/naver/authorize")
-								.tokenUrl("http://localhost:8080/oauth2/naver/token")
+								.authorizationUrl("http://localhost:8080/oauth2/authorization/naver")
+								.tokenUrl("http://localhost:8080/login/oauth2/code/naver")
 								.scopes(new Scopes()
 										.addString("client_id", naverClientId)
 										.addString("client_secret", naverClientSecret))));
 
-		// 서버 설정
+		// 서버 기본 URL
 		Server server = new Server();
 		server.setUrl("/");
 
-		// OpenAPI 구성
 		return new OpenAPI()
 				.servers(List.of(server))
-				.addSecurityItem(jwtSecurityRequirement)
-				.addSecurityItem(kakaoSecurityRequirement)
-				.addSecurityItem(naverSecurityRequirement)
+
+				// 보안 요구사항 순서대로 등록
+				.addSecurityItem(cookieRequirement)
+				.addSecurityItem(kakaoRequirement)
+				.addSecurityItem(naverRequirement)
+
+				// 컴포넌트에 스키마 등록
 				.components(new Components()
-						.addSecuritySchemes(jwt, jwtScheme)
+						.addSecuritySchemes(cookieAuth, cookieScheme)
 						.addSecuritySchemes(oauth2Kakao, kakaoScheme)
 						.addSecuritySchemes(oauth2Naver, naverScheme));
 	}

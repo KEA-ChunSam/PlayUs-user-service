@@ -6,6 +6,7 @@ import com.playus.userservice.domain.user.enums.Role;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,20 +41,27 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Access".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token != null) {
             try {
-                //
                 String jti = jwtUtil.getJti(token);
                 if (redisTemplate.hasKey("blacklist:" + jti)) {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
                 }
 
-                // Access Token이 유효하면 SecurityContext 설정
                 if (!jwtUtil.isExpired(token)) {
                     String userId = jwtUtil.getUserId(token);
-                    String role   = jwtUtil.getRole(token);
+                    String role = jwtUtil.getRole(token);
 
                     CustomOAuth2User principal = new CustomOAuth2User(
                             UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
