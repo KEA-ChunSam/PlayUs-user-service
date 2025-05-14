@@ -39,19 +39,4 @@ public class FavoriteTeamController {
                 .updateFavoriteTeams(userId, requests);
         return ResponseEntity.ok(resp);
     }
-
-    /**
-     * 요청 Body
-     *
-     * [
-     *   { "teamId": 2, "displayOrder": 1 },
-     *   { "teamId": 5, "displayOrder": 2 },
-     *   { "teamId": 9, "displayOrder": 3 }
-     * ]
-     *
-     * 반환
-     *
-     * { "success": true, "message": "선호팀 목록이 정상적으로 저장되었습니다." }
-     * { "success": false, "message": "최소 한 개의 선호팀은 선택해야 합니다." }
-     */
 }
