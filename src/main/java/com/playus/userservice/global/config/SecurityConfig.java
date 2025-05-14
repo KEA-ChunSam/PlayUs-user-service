@@ -1,6 +1,7 @@
 package com.playus.userservice.global.config;
 
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
+import com.playus.userservice.domain.oauth.handler.CustomFailureHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.jwt.JwtFilter;
 import com.playus.userservice.global.jwt.JwtUtil;
@@ -27,6 +28,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomFailureHandler customFailureHandler;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -75,6 +77,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler)
+                        .failureHandler(customFailureHandler)
                 )
 
                 // 인증/인가
