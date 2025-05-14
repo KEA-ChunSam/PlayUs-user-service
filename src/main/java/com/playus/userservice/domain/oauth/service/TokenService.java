@@ -24,17 +24,18 @@ public class TokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
+    private static final String ACCESS_COOKIE  = "Access";
     private static final String REFRESH_COOKIE  = "Refresh";
     private static final String REDIS_PREFIX    = "refresh:";
-    private static final String BEARER_PREFIX   = "Bearer ";
+    //private static final String BEARER_PREFIX   = "Bearer ";
 
-    public String resolveToken(HttpServletRequest req, TokenType type) {
+/*    public String resolveToken(HttpServletRequest req, TokenType type) {
         if (type == TokenType.ACCESS) {
             return extractAccessToken(req);
         } else {
             return extractRefreshToken(req);
         }
-    }
+    }*/
     /**
      * TokenService 는 “토큰 발급·재발급(+리프레시 토큰 파싱)”만 담당
      * reissue - refresh로 access만 재발급
@@ -52,7 +53,7 @@ public class TokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
         }
         // Redis 검증
-        String userId;
+        /*String userId;
         String role;
         try {
             userId = jwtUtil.getUserId(refresh);
@@ -63,7 +64,22 @@ public class TokenService {
         // 새 Access 토큰 발급
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
         res.setHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + newAccessToken);
-        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);*/
+
+        // 2) Redis 검증
+        String userId = jwtUtil.getUserId(refresh);
+        String role   = jwtUtil.getRole(refresh);
+
+        // 3) 새 Access 토큰 발급
+        String newAccessToken = jwtUtil.createAccessToken(userId, role);
+
+        // 4) Access 토큰을 HttpOnly 쿠키로 설정
+        Cookie accessCookie = new Cookie(ACCESS_COOKIE, newAccessToken);
+        accessCookie.setHttpOnly(true);
+        // accessCookie.setSecure(true);  // HTTPS 환경에서 활성화
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge((int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
+        res.addCookie(accessCookie);
     }
 
     /** Access 유효할 경우 Refresh 재발급 */
@@ -114,19 +130,30 @@ public class TokenService {
         }
     }
 
+    public String resolveToken(HttpServletRequest req, TokenType type) {
+        return type == TokenType.ACCESS
+                ? extractAccessToken(req)
+                : extractRefreshToken(req);
+    }
+
     private String extractAccessToken(HttpServletRequest req) {
-        String h = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (h != null && h.startsWith(BEARER_PREFIX)) {
-            return h.substring(BEARER_PREFIX.length());
+        Cookie[] cookies = req.getCookies();
+        if (cookies == null) return null;
+
+        for (Cookie c : cookies) {
+            if (ACCESS_COOKIE.equals(c.getName())) {
+                return c.getValue();
+            }
         }
         return null;
     }
 
     private String extractRefreshToken(HttpServletRequest req) {
-        if (req.getCookies() == null) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST");
         }
-        for (Cookie c : req.getCookies()) {
+        for (Cookie c : cookies) {
             if (REFRESH_COOKIE.equals(c.getName())) {
                 return c.getValue();
             }

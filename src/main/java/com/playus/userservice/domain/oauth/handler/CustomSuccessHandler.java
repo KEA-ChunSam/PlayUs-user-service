@@ -37,6 +37,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         try {
             CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
             String userId = customUser.getUserDto().getId().toString();
+            String role   = authentication.getAuthorities().iterator().next().getAuthority();
 
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             if (authorities == null || authorities.isEmpty()) {
@@ -44,7 +45,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "권한 정보 누락");
                 return;
             }
-            String role = authorities.iterator().next().getAuthority();
 
             // Access/Refresh 토큰 생성
             String accessToken  = jwtUtil.createAccessToken(userId, role);
@@ -67,8 +67,18 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             response.addCookie(refreshCookie);
 
             // Access Token -  Authorization 헤더
+            Cookie accessCookie = new Cookie("Access", accessToken);
+            accessCookie.setHttpOnly(true);
+            // accessCookie.setSecure(true);  // 운영 시 HTTPS 환경이면 활성화
+            accessCookie.setPath("/");
+            accessCookie.setMaxAge((int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
+            response.addCookie(accessCookie);
+
+            /*response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
             response.setHeader("Authorization", "Bearer " + accessToken);
-            response.setHeader("Access-Control-Expose-Headers", "Authorization");
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");*/
 
             // 로그인 후 프론트 페이지로 리다이렉트
             getRedirectStrategy().sendRedirect(request, response, redirectUri);
