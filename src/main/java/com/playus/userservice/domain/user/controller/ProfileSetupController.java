@@ -9,11 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.playus.userservice.domain.user.specification.ProfileSetupControllerSpecification;
 
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class ProfileSetupController {
+public class ProfileSetupController implements ProfileSetupControllerSpecification {
 
     private final ProfileSetupService setupService;
 
