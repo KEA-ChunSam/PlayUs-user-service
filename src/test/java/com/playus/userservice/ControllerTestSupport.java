@@ -1,8 +1,9 @@
 package com.playus.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.playus.userservice.domain.user.controller.FavoriteTeamController;
+import com.playus.userservice.domain.user.controller.ProfileSetupController;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
+import com.playus.userservice.domain.user.service.ProfileSetupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -16,11 +17,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import com.playus.userservice.global.jwt.JwtUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 
 
 @ActiveProfiles("test")
 @WebMvcTest(controllers = {
-        FavoriteTeamController.class
+        ProfileSetupController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class})
 public abstract class ControllerTestSupport {
@@ -34,6 +37,16 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected FavoriteTeamService favoriteTeamService;
+
+    @MockitoBean
+    protected ProfileSetupService profileSetupService;
+
+    @MockitoBean
+    protected JwtUtil jwtUtil;
+
+    @MockitoBean
+    protected RedisTemplate<String, String> redisTemplate;
+
 
     @TestConfiguration
     static class TestSecurityConfig {

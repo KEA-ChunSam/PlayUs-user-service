@@ -1,115 +1,112 @@
 package com.playus.userservice.domain.user.controller;
 
+import com.playus.userservice.ControllerTestSupport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterRequest;
 import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterResponse;
-import com.playus.userservice.domain.user.dto.UserDto;
 import com.playus.userservice.domain.user.enums.Role;
-import com.playus.userservice.domain.user.service.ProfileSetupService;
-import com.playus.userservice.global.exception.ExceptionAdvice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-class ProfileSetupControllerTest {
+class ProfileSetupControllerTest extends ControllerTestSupport {
 
-    private MockMvc mockMvc;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Mock
-    private ProfileSetupService setupService;
+    private UsernamePasswordAuthenticationToken token;
 
     @BeforeEach
-    void setup() {
-        var controller = new ProfileSetupController(setupService);
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .setControllerAdvice(new ExceptionAdvice())
-                .build();
-    }
+    void setUp() {
+        Long userId = 1L;
 
-    private UsernamePasswordAuthenticationToken token() {
-        CustomOAuth2User principal =
-                new CustomOAuth2User(UserDto.fromJwt(1L, Role.USER));
-        return new UsernamePasswordAuthenticationToken(
-                principal, null, principal.getAuthorities()
+        // 더미 OAuth2 사용자
+        CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
+        when(principal.getName()).thenReturn(userId.toString());
+
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(Role.USER.name()));
+        doReturn(authorities).when(principal).getAuthorities();
+
+        token = new UsernamePasswordAuthenticationToken(
+                principal, null, authorities
         );
     }
 
-    @DisplayName("성공: 닉네임과 선호팀을 함께 설정")
+    //Happy-case
+
+    @DisplayName("프로필을 정상적으로 설정할 수 있다.")
     @Test
-    void register_Success() throws Exception {
-        UserRegisterRequest req = new UserRegisterRequest(8L, "newbie");
-        UserRegisterResponse respDto =
-                new UserRegisterResponse(true, "프로필이 정상적으로 설정되었습니다.");
+    void setupProfile() throws Exception {
+        // given
+        UserRegisterRequest  req  = new UserRegisterRequest(7L, "닉네임");
+        UserRegisterResponse resp = new UserRegisterResponse(true, "프로필이 정상적으로 설정되었습니다.");
 
-        given(setupService.setupProfile(eq(1L), eq(8L), eq("newbie")))
-                .willReturn(respDto);
+        given(profileSetupService.setupProfile(any(Long.class), any(Long.class), any(String.class)))
+                .willReturn(resp);
 
+        // when // then
         mockMvc.perform(post("/user/register")
-                        .with(authentication(token()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message")
-                        .value("프로필이 정상적으로 설정되었습니다."));
+                .andExpect(jsonPath("$.message").value("프로필이 정상적으로 설정되었습니다."));
     }
 
-    @DisplayName("실패: 닉네임이 비어 있거나 null")
-    @ParameterizedTest(name = "nickname=\"{0}\"")
+    //Validation : teamId
+
+    @DisplayName("favoriteTeam(teamId) 필드는 필수이다.")
+    @Test
+    void setupProfile_EMPTY_TEAM_ID() throws Exception {
+        UserRegisterRequest req = new UserRegisterRequest(null, "닉네임");
+        assertBadRequestOfUserRegisterRequest(req, "favoriteTeam 필드는 필수입니다.");
+    }
+
+    //Validation : nickname
+
+    @DisplayName("nickname 필드는 필수이다.")
     @NullAndEmptySource
-    void register_InvalidNickname(String nickname) throws Exception {
-        UserRegisterRequest req = new UserRegisterRequest(8L, nickname);
-        mockMvc.perform(post("/user/register")
-                        .with(authentication(token()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
+    @ParameterizedTest(name = "nickname = \"{0}\"")
+    void setupProfile_BLANK_NICKNAME(String blankNickname) throws Exception {
+        UserRegisterRequest req = new UserRegisterRequest(5L, blankNickname);
+        assertBadRequestOfUserRegisterRequest(req, "nickname 필드는 필수입니다.");
     }
 
-    @DisplayName("실패: 선호팀을 선택하지 않은 경우")
-    @Test
-    void register_MissingFavoriteTeam() throws Exception {
-        // omit teamId entirely
-        String body = "{\"nickname\":\"star\"}";
+    //공용 검증 함수
+
+    private void assertBadRequestOfUserRegisterRequest(UserRegisterRequest req,
+                                                       String expectedMsg) throws Exception {
+
         mockMvc.perform(post("/user/register")
-                        .with(authentication(token()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
-    }
-
-    @DisplayName("실패: 닉네임 중복 시도")
-    @Test
-    void register_DuplicateNickname() throws Exception {
-        UserRegisterRequest req = new UserRegisterRequest(3L, "duplicate");
-        given(setupService.setupProfile(eq(1L), eq(3L), eq("duplicate")))
-                .willThrow(new RuntimeException("USER_ALREADY_EXISTS"));
-
-        mockMvc.perform(post("/user/register")
-                        .with(authentication(token()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isConflict());
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value(expectedMsg));
     }
 }

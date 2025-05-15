@@ -1,13 +1,15 @@
 package com.playus.userservice.global.exception;
 
-import com.playus.userservice.domain.oauth.controller.TokenController;
+import com.playus.userservice.domain.oauth.controller.AuthController;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
+import com.playus.userservice.domain.user.controller.ProfileSetupController;
 import com.playus.userservice.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,8 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
-        TokenController.class,
-        CustomOAuth2UserService.class
+        AuthController.class,
+        CustomOAuth2UserService.class,
+        ProfileSetupController.class
 })
 public class ExceptionAdvice {
 
@@ -62,4 +65,17 @@ public class ExceptionAdvice {
         log.error("Unexpected Error: {}", errorMessage);
         return ResponseEntity.internalServerError().body("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        ErrorResponse body = ErrorResponse.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(errorMessage)
+                .build();
+        log.warn("Validation Error: {}", errorMessage);
+        return ResponseEntity.badRequest().body(body);
+    }
+
 }
