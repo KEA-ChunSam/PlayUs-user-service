@@ -1,5 +1,6 @@
 package com.playus.userservice.domain.user.controller;
 
+import com.playus.userservice.domain.user.specification.UserControllerSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import com.playus.userservice.domain.user.service.UserService;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerSpecification {
 
     private final UserService userService;
 

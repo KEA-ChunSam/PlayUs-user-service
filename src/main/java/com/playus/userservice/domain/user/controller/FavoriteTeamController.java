@@ -3,6 +3,7 @@ package com.playus.userservice.domain.user.controller;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.FavoriteTeamDto;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
+import com.playus.userservice.domain.user.specification.FavoriteTeamControllerSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/favorite-teams")
 @RequiredArgsConstructor
-public class FavoriteTeamController {
+public class FavoriteTeamController implements FavoriteTeamControllerSpecification {
 
     private final FavoriteTeamService favoriteTeamService;
 

@@ -25,7 +25,7 @@ public class FavoriteTeamService {
             return new FavoriteTeamDto.FavoriteTeamResponse(false, "존재하지 않는 팀 ID입니다.");
         }
 
-        // 2) 기존 선호팀 여부 확인 후 update / insert
+        // 기존 선호팀 여부 확인 후 update / insert
         return favoriteTeamRepository.findByUserId(userId)
                 .map(ft -> {
                     ft.update(req.getTeamId(),
