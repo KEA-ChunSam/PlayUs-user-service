@@ -22,7 +22,6 @@ public class AuthController implements AuthControllerSpecification {
     @Override
     @PostMapping("/reissue")
     public ResponseEntity<Void> reissue() {
-        // 현재 스레드의 Request/Response 획득
         ServletRequestAttributes attrs =
                 (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpServletRequest  req = attrs.getRequest();
