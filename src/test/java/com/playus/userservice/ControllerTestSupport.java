@@ -1,9 +1,13 @@
 package com.playus.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.playus.userservice.domain.user.controller.FavoriteTeamController;
 import com.playus.userservice.domain.user.controller.ProfileSetupController;
+import com.playus.userservice.domain.user.controller.UserController;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
+import com.playus.userservice.domain.user.service.UserService;
+import com.playus.userservice.global.exception.ExceptionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -23,9 +27,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 @ActiveProfiles("test")
 @WebMvcTest(controllers = {
-        ProfileSetupController.class
+        ProfileSetupController.class,
+        FavoriteTeamController.class,
+        UserController.class
 })
-@Import({ControllerTestSupport.TestSecurityConfig.class})
+@Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {
 
 
@@ -40,6 +46,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected ProfileSetupService profileSetupService;
+
+    @MockitoBean
+    protected UserService userService;
 
     @MockitoBean
     protected JwtUtil jwtUtil;

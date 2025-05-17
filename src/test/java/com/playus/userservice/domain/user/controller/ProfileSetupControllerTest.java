@@ -32,7 +32,6 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
 
     @Autowired
     private ObjectMapper objectMapper;
-
     private UsernamePasswordAuthenticationToken token;
 
     @BeforeEach
