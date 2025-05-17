@@ -1,6 +1,7 @@
 package com.playus.userservice.global.config;
 
 import com.playus.userservice.domain.oauth.handler.CustomSuccessHandler;
+import com.playus.userservice.domain.oauth.handler.CustomFailureHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.jwt.JwtFilter;
 import com.playus.userservice.global.jwt.JwtUtil;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,6 +29,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomFailureHandler customFailureHandler;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -75,6 +78,14 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler)
+                        .failureHandler(customFailureHandler)
+                )
+
+                // JWT Resource Server 설정 추가
+                .oauth2ResourceServer(rs -> rs
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                        )
                 )
 
                 // 인증/인가
@@ -88,4 +99,11 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return jwtUtil.jwtDecoder();
+    }
+
+
 }
