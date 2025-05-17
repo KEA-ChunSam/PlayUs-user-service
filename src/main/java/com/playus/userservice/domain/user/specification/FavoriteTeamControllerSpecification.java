@@ -148,6 +148,16 @@ public interface FavoriteTeamControllerSpecification {
                     )
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "팀을 찾을 수 없음",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = "{\"code\":404,\"status\":\"NOT_FOUND\",\"message\":\"존재하지 않는 팀입니다.\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "500", description = "서버 내부 오류",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
