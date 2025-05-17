@@ -27,15 +27,7 @@ public class TokenService {
     private static final String ACCESS_COOKIE  = "Access";
     private static final String REFRESH_COOKIE  = "Refresh";
     private static final String REDIS_PREFIX    = "refresh:";
-    //private static final String BEARER_PREFIX   = "Bearer ";
 
-/*    public String resolveToken(HttpServletRequest req, TokenType type) {
-        if (type == TokenType.ACCESS) {
-            return extractAccessToken(req);
-        } else {
-            return extractRefreshToken(req);
-        }
-    }*/
     /**
      * TokenService 는 “토큰 발급·재발급(+리프레시 토큰 파싱)”만 담당
      * reissue - refresh로 access만 재발급
@@ -61,12 +53,14 @@ public class TokenService {
         String newAccessToken = jwtUtil.createAccessToken(userId, role);
 
         // 4) Access 토큰을 HttpOnly 쿠키로 설정
-        Cookie accessCookie = new Cookie(ACCESS_COOKIE, newAccessToken);
-        accessCookie.setHttpOnly(true);
-        // accessCookie.setSecure(true);  // HTTPS 환경에서 활성화
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge((int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
-        res.addCookie(accessCookie);
+        ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)
+                .httpOnly(true)
+                .secure(false)  // 운영환경(HTTPS)에서는 항상 true
+                .path("/")
+                .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
+                .sameSite("Lax")
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
 
     /** Access 유효할 경우 Refresh 재발급 */
@@ -88,8 +82,8 @@ public class TokenService {
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, newRefresh)
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(false)  // 운영환경(HTTPS)에서는 항상 true
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                 .build();
@@ -108,8 +102,8 @@ public class TokenService {
         } finally {
             ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
                     .httpOnly(true)
-                    .secure(true)
-                    .sameSite("None")
+                    .secure(false)  // 운영환경(HTTPS)에서는 항상 true
+                    .sameSite("Lax")
                     .path("/")
                     .maxAge(Duration.ZERO)
                     .build();

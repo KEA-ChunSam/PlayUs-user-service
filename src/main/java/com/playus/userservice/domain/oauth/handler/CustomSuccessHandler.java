@@ -3,18 +3,20 @@ package com.playus.userservice.domain.oauth.handler;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.global.jwt.JwtUtil;
-import jakarta.servlet.http.Cookie;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -59,21 +61,24 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             TimeUnit.MILLISECONDS);
 
 
-            // Refresh Token -  HttpOnly·Secure쿠키
-            Cookie refreshCookie = new Cookie("Refresh", refreshToken);
-            refreshCookie.setHttpOnly(true);
-            //refreshCookie.setSecure(true);         // HTTPS 환경에서는 반드시 true
-            refreshCookie.setPath("/");
-            refreshCookie.setMaxAge((int)(JwtUtil.REFRESH_EXPIRE_MS / 1000));
-            response.addCookie(refreshCookie);
+            ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)                           // 운영환경(HTTPS)에서는 항상 true
+                    .path("/")
+                    .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            // Access Token -  Authorization 헤더
-            Cookie accessCookie = new Cookie("Access", accessToken);
-            accessCookie.setHttpOnly(true);
-            // accessCookie.setSecure(true);  // 운영 시 HTTPS 환경이면 활성화
-            accessCookie.setPath("/");
-            accessCookie.setMaxAge((int)(JwtUtil.ACCESS_EXPIRE_MS / 1000));
-            response.addCookie(accessCookie);
+            // 4) Access Token 쿠키 (HttpOnly, Secure, SameSite)
+            ResponseCookie accessCookie = ResponseCookie.from("Access", accessToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
             // 로그인 후 프론트 페이지로 리다이렉트
             getRedirectStrategy().sendRedirect(request, response, redirectUri);
