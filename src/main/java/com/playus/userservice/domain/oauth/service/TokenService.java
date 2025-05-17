@@ -52,19 +52,6 @@ public class TokenService {
         if (expired) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
         }
-        // Redis 검증
-        /*String userId;
-        String role;
-        try {
-            userId = jwtUtil.getUserId(refresh);
-            role   = jwtUtil.getRole(refresh);
-            } catch (JwtException | IllegalArgumentException e) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_IN_REDIS");
-        }
-        // 새 Access 토큰 발급
-        String newAccessToken = jwtUtil.createAccessToken(userId, role);
-        res.setHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + newAccessToken);
-        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);*/
 
         // 2) Redis 검증
         String userId = jwtUtil.getUserId(refresh);
