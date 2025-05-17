@@ -37,7 +37,7 @@ class UserServiceTest extends IntegrationTestSupport {
         // given
         User savedUser = userRepository.save(
                 User.create(
-                        "oldNickname",
+                        "test1",
                         "010-1234-5678",
                         LocalDate.of(1990, 1, 1),
                         Gender.MALE,
@@ -47,7 +47,7 @@ class UserServiceTest extends IntegrationTestSupport {
                 )
         );
         Long userId = savedUser.getId();
-        NicknameRequest req = new NicknameRequest("  newNickname  ");
+        NicknameRequest req = new NicknameRequest("test2");
 
         // when
         NicknameResponse resp = userService.updateNickname(userId, req);
@@ -57,7 +57,7 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.getMessage()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
 
         User updated = userRepository.findById(userId).orElseThrow();
-        assertThat(updated.getNickname()).isEqualTo("newNickname");
+        assertThat(updated.getNickname()).isEqualTo("test2");
     }
 
     @DisplayName("존재하지 않는 유저의 닉네임 업데이트 시 NOT_FOUND 예외 발생")
@@ -103,7 +103,7 @@ class UserServiceTest extends IntegrationTestSupport {
                         "http://example.com/b.jpg"
                 )
         );
-        NicknameRequest req = new NicknameRequest("existNickname");
+        NicknameRequest req = new NicknameRequest("test1");
 
         // when / then
         assertThatThrownBy(() -> userService.updateNickname(other.getId(), req))
