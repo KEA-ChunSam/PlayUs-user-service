@@ -1,11 +1,14 @@
 package com.playus.userservice.global.config.sentry;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 import io.sentry.Sentry;
 import jakarta.annotation.PostConstruct;
+import org.springframework.context.annotation.Profile;
 
+@Profile({"prod", "dev"})
 @Configuration
 public class SentryConfig {
 
