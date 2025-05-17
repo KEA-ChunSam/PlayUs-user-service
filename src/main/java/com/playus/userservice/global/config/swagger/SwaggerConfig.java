@@ -36,7 +36,7 @@ public class SwaggerConfig {
 	@Bean
 	public OpenAPI openApi() {
 		// Cookie 기반 인증 (Access 토큰)
-		String cookieAuth = "CookieAuth";
+		String cookieAuth = "AccessCookie";
 		SecurityRequirement cookieRequirement = new SecurityRequirement().addList(cookieAuth);
 		SecurityScheme cookieScheme = new SecurityScheme()
 				.name("Access")
