@@ -5,8 +5,6 @@ import com.playus.userservice.domain.oauth.handler.CustomFailureHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.jwt.JwtFilter;
 import com.playus.userservice.global.jwt.JwtUtil;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,15 +13,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import javax.crypto.SecretKey;
 import java.util.Collections;
 import java.util.List;
 
@@ -107,9 +102,8 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder
-                .withSecretKey(jwtUtil.getKey())
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
+        return jwtUtil.jwtDecoder();
     }
+
+
 }
