@@ -54,7 +54,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(resp.success()).isTrue();
-        assertThat(resp.message()).isEqualTo("닉네임이 정상적으로 변경되었습니다.");
+        assertThat(resp.message()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
 
         User updated = userRepository.findById(userId).get();
         assertThat(updated.getNickname()).isEqualTo("test2");
