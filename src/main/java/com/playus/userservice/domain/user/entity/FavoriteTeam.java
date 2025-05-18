@@ -50,4 +50,5 @@ public class FavoriteTeam extends BaseTimeEntity {
         if (order == null || order < 1 || order > 10)
             throw new IllegalArgumentException("선호팀 우선순위는 1‑10 사이여야 합니다.");
     }
+
 }
