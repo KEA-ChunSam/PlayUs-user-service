@@ -11,31 +11,30 @@ import lombok.*;
         uniqueConstraints = @UniqueConstraint(name = "uk_user_display_order", columnNames = {"user_id", "display_order"}))
 public class FavoriteTeam extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
-
     @Builder
-    private FavoriteTeam(Long userId, Long teamId, Integer displayOrder) {
-        this.userId = userId;
+    private FavoriteTeam(User user, Long teamId, Integer displayOrder) {
+        this.user = user;
         this.teamId = teamId;
         this.displayOrder = displayOrder;
     }
 
-    public static FavoriteTeam create(Long userId, Long teamId, Integer order) {
+    public static FavoriteTeam create(User user, Long teamId, Integer order) {
         validateOrder(order);
         return FavoriteTeam.builder()
-                .userId(userId)
+                .user(user)
                 .teamId(teamId)
                 .displayOrder(order)
                 .build();
@@ -43,7 +42,7 @@ public class FavoriteTeam extends BaseTimeEntity {
 
     public void update(Long teamId, Integer order) {
         validateOrder(order);
-        this.teamId       = teamId;
+        this.teamId = teamId;
         this.displayOrder = order;
     }
 

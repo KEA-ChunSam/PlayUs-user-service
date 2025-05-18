@@ -56,7 +56,6 @@ public abstract class ControllerTestSupport {
     @MockitoBean
     protected RedisTemplate<String, String> redisTemplate;
 
-
     @TestConfiguration
     static class TestSecurityConfig {
 

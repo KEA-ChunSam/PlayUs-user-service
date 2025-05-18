@@ -1,5 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
+import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.specification.UserControllerSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.NicknameDto;
 import com.playus.userservice.domain.user.service.UserService;
 
 @RestController
@@ -21,12 +22,12 @@ public class UserController implements UserControllerSpecification {
 
 
     @PutMapping("/nickname")
-    public ResponseEntity<NicknameDto.NicknameResponse> updateNickname(
+    public ResponseEntity<NicknameResponse> updateNickname(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody NicknameDto.NicknameRequest request) {
+            @Valid @RequestBody NicknameRequest request) {
 
         Long userId = Long.parseLong(principal.getName());
-        NicknameDto.NicknameResponse resp = userService.updateNickname(userId, request);
+        NicknameResponse resp = userService.updateNickname(userId, request);
         return ResponseEntity.ok(resp);
     }
 

@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterResponse;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterResponse;
 import com.playus.userservice.domain.user.entity.FavoriteTeam;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.AuthProvider;
@@ -61,15 +61,15 @@ class ProfileSetupServiceTest extends IntegrationTestSupport {
         UserRegisterResponse resp = profileSetupService.setupProfile(userId, teamId, newNickname);
 
         // then
-        assertThat(resp.isSuccess()).isTrue();
-        assertThat(resp.getMessage()).isEqualTo("프로필이 정상적으로 설정되었습니다.");
+        assertThat(resp.success()).isTrue();
+        assertThat(resp.message()).isEqualTo("프로필이 정상적으로 설정되었습니다.");
 
         // 닉네임 반영
-        User updated = userRepository.findById(userId).orElseThrow();
+        User updated = userRepository.findById(userId).get();
         assertThat(updated.getNickname()).isEqualTo(newNickname);
 
         // 선호팀 저장
-        Optional<FavoriteTeam> ftOpt = favoriteTeamRepository.findByUserId(userId);
+        Optional<FavoriteTeam> ftOpt = favoriteTeamRepository.findByUser(updated);
         assertThat(ftOpt).isPresent();
         FavoriteTeam ft = ftOpt.get();
         assertThat(ft.getTeamId()).isEqualTo(teamId);

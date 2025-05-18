@@ -1,11 +1,13 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.FavoriteTeamDto;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamRequest;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamResponse;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import com.playus.userservice.domain.user.specification.FavoriteTeamControllerSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,24 +22,25 @@ public class FavoriteTeamController implements FavoriteTeamControllerSpecificati
     private final FavoriteTeamService favoriteTeamService;
 
     @PostMapping
-    public ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> saveOrUpdateOne(
+    public ResponseEntity<FavoriteTeamResponse> setFavoriteTeam(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody FavoriteTeamDto.FavoriteTeamRequest request) {
-
+            @Valid @RequestBody FavoriteTeamRequest request
+    ) {
         Long userId = Long.parseLong(principal.getName());
-        FavoriteTeamDto.FavoriteTeamResponse resp = favoriteTeamService
-                .setFavoriteTeam(userId, request);
-        return ResponseEntity.ok(resp);
+        FavoriteTeamResponse resp = favoriteTeamService.setFavoriteTeam(userId, request);
+
+        HttpStatus status = resp.created() ? HttpStatus.CREATED : HttpStatus.OK;
+        return ResponseEntity.status(status).body(resp);
     }
 
     @PutMapping
-    public ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> updateMany(
+    public ResponseEntity<FavoriteTeamResponse> updateFavoriteTeams(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody List<FavoriteTeamDto.FavoriteTeamRequest> requests) {
-
+            @Valid @RequestBody List<FavoriteTeamRequest> requests
+    ) {
         Long userId = Long.parseLong(principal.getName());
-        FavoriteTeamDto.FavoriteTeamResponse resp = favoriteTeamService
-                .updateFavoriteTeams(userId, requests);
+        FavoriteTeamResponse resp = favoriteTeamService.updateFavoriteTeams(userId, requests);
+
         return ResponseEntity.ok(resp);
     }
 }

@@ -1,8 +1,8 @@
 package com.playus.userservice.domain.user.specification;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterRequest;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterResponse;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterRequest;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

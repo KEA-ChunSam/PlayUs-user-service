@@ -1,9 +1,9 @@
 package com.playus.userservice.domain.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.NicknameDto;
+import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,9 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class UserControllerTest extends ControllerTestSupport {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private UsernamePasswordAuthenticationToken token;
 
@@ -57,9 +53,9 @@ class UserControllerTest extends ControllerTestSupport {
     @Test
     void updateNickname_success() throws Exception {
         // given
-        var req = new NicknameDto.NicknameRequest("newNick");
-        var resp = new NicknameDto.NicknameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
-        given(userService.updateNickname(eq(1L), any(NicknameDto.NicknameRequest.class)))
+        var req = new NicknameRequest("newNick");
+        var resp = new NicknameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
+        given(userService.updateNickname(eq(1L), any(NicknameRequest.class)))
                 .willReturn(resp);
 
         // when // then
@@ -76,9 +72,9 @@ class UserControllerTest extends ControllerTestSupport {
     @DisplayName("중복 닉네임은 409 Conflict")
     @Test
     void updateNickname_conflict() throws Exception {
-        var req = new NicknameDto.NicknameRequest("dupNick");
+        var req = new NicknameRequest("dupNick");
         willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."))
-                .given(userService).updateNickname(eq(1L), any(NicknameDto.NicknameRequest.class));
+                .given(userService).updateNickname(eq(1L), any(NicknameRequest.class));
 
         mockMvc.perform(put("/user/nickname")
                         .with(authentication(token))
@@ -94,9 +90,9 @@ class UserControllerTest extends ControllerTestSupport {
     @DisplayName("사용자가 없으면 404 Not Found")
     @Test
     void updateNickname_notFound() throws Exception {
-        var req = new NicknameDto.NicknameRequest("anyNick");
+        var req = new NicknameRequest("anyNick");
         willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."))
-                .given(userService).updateNickname(eq(1L), any(NicknameDto.NicknameRequest.class));
+                .given(userService).updateNickname(eq(1L), any(NicknameRequest.class));
 
         mockMvc.perform(put("/user/nickname")
                         .with(authentication(token))
@@ -113,7 +109,7 @@ class UserControllerTest extends ControllerTestSupport {
     @ParameterizedTest
     @NullAndEmptySource
     void updateNickname_blankNickname(String blank) throws Exception {
-        var req = new NicknameDto.NicknameRequest(blank);
+        var req = new NicknameRequest(blank);
 
         mockMvc.perform(put("/user/nickname")
                         .with(authentication(token))

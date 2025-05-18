@@ -30,7 +30,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(BindException.class)
     public ResponseEntity<String> bindExceptionHandler(BindException e) {
         String errorMessage = e.getAllErrors().get(0).getDefaultMessage();
-        log.warn("Validation Error: {}", errorMessage);
+        log.error("Validation Error: {}", errorMessage);
         return ResponseEntity.badRequest().body(errorMessage);
     }
 
@@ -44,7 +44,7 @@ public class ExceptionAdvice {
                 .status(status)
                 .message(message)
                 .build();
-        log.warn("API Error ({}): {}", status, message);
+        log.error("API Error ({}): {}", status, message);
         return ResponseEntity.status(status).body(body);
     }
 
@@ -61,7 +61,7 @@ public class ExceptionAdvice {
                 .status(status)
                 .message(e.getError().getDescription())
                 .build();
-        log.warn("OAuth2 Error ({}): {}", errorCode, body.message());
+        log.error("OAuth2 Error ({}): {}", errorCode, body.message());
         return ResponseEntity.status(status).body(body);
     }
 
@@ -80,7 +80,7 @@ public class ExceptionAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .message(errorMessage)
                 .build();
-        log.warn("Validation Error: {}", errorMessage);
+        log.error("Validation Error: {}", errorMessage);
         return ResponseEntity.badRequest().body(body);
     }
 }

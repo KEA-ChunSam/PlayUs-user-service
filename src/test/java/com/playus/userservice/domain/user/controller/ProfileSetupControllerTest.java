@@ -1,10 +1,9 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.ControllerTestSupport;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterRequest;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterResponse;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterRequest;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterResponse;
 import com.playus.userservice.domain.user.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -30,8 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ProfileSetupControllerTest extends ControllerTestSupport {
 
-    @Autowired
-    private ObjectMapper objectMapper;
     private UsernamePasswordAuthenticationToken token;
 
     @BeforeEach
@@ -57,7 +53,7 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
     @Test
     void setupProfile() throws Exception {
         // given
-        UserRegisterRequest  req  = new UserRegisterRequest(7L, "닉네임");
+        UserRegisterRequest req  = new UserRegisterRequest(7L, "닉네임");
         UserRegisterResponse resp = new UserRegisterResponse(true, "프로필이 정상적으로 설정되었습니다.");
 
         given(profileSetupService.setupProfile(any(Long.class), any(Long.class), any(String.class)))
@@ -95,8 +91,7 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
 
     //공용 검증 함수
 
-    private void assertBadRequestOfUserRegisterRequest(UserRegisterRequest req,
-                                                       String expectedMsg) throws Exception {
+    private void assertBadRequestOfUserRegisterRequest(UserRegisterRequest req, String expectedMsg) throws Exception {
 
         mockMvc.perform(post("/user/register")
                         .content(objectMapper.writeValueAsString(req))

@@ -2,7 +2,8 @@ package com.playus.userservice.domain.user.specification;
 
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.NicknameDto;
+import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -122,8 +123,8 @@ public interface UserControllerSpecification {
                     )
             )
     })
-    ResponseEntity<NicknameDto.NicknameResponse> updateNickname(
+    ResponseEntity<NicknameResponse> updateNickname(
             @Parameter(hidden = true) CustomOAuth2User principal,
-            @Parameter(description = "새 닉네임", required = true) NicknameDto.NicknameRequest request
+            @Parameter(description = "새 닉네임", required = true) NicknameRequest request
     );
 }

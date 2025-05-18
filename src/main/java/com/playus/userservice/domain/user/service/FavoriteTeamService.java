@@ -1,71 +1,96 @@
 package com.playus.userservice.domain.user.service;
 
-import com.playus.userservice.domain.user.dto.FavoriteTeamDto;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamRequest;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamResponse;
 import com.playus.userservice.domain.user.entity.FavoriteTeam;
+import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.Team;
 import com.playus.userservice.domain.user.repository.write.FavoriteTeamRepository;
+import com.playus.userservice.domain.user.repository.write.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FavoriteTeamService {
 
     private final FavoriteTeamRepository favoriteTeamRepository;
+    private final UserRepository userRepository;
 
+    /**
+     * 단일 선호팀 등록 or 수정
+     */
     @Transactional
-    public FavoriteTeamDto.FavoriteTeamResponse setFavoriteTeam(Long userId, FavoriteTeamDto.FavoriteTeamRequest req) {
+    public FavoriteTeamResponse setFavoriteTeam(Long userId, FavoriteTeamRequest req) {
 
-        // 팀 ID 검증 (Enum 기반)
-        Team team = Team.fromId(req.getTeamId());
-        if (team == null) {
-            return new FavoriteTeamDto.FavoriteTeamResponse(false, "존재하지 않는 팀 ID입니다.");
+        // 사용자 존재 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "사용자를 찾을 수 없습니다: " + userId
+                ));
+
+        // 팀 ID 검증
+        if (Team.fromId(req.teamId()) == null) {
+            return FavoriteTeamResponse.failure("존재하지 않는 팀 ID입니다: " + req.teamId());
         }
 
-        // 기존 선호팀 여부 확인 후 update / insert
-        return favoriteTeamRepository.findByUserId(userId)
-                .map(ft -> {
-                    ft.update(req.getTeamId(),
-                            req.getDisplayOrder() != null ? req.getDisplayOrder() : ft.getDisplayOrder());
-                    return new FavoriteTeamDto.FavoriteTeamResponse(true, "선호팀이 정상적으로 변경되었습니다.");
+        // 기존 선호팀이 있으면 업데이트, 없으면 생성
+        return favoriteTeamRepository.findByUser(user)
+                .map(existing -> {
+                    existing.update(
+                            req.teamId(),
+                            Optional.ofNullable(req.displayOrder()).orElse(existing.getDisplayOrder())
+                    );
+                    return FavoriteTeamResponse.updated("선호팀이 정상적으로 변경되었습니다.");
                 })
                 .orElseGet(() -> {
-                    int order = req.getDisplayOrder() != null ? req.getDisplayOrder() : 1;
-                    favoriteTeamRepository.save(
-                            FavoriteTeam.create(userId, req.getTeamId(), order));
-                    return new FavoriteTeamDto.FavoriteTeamResponse(true, "선호팀이 정상적으로 등록되었습니다.");
+                    favoriteTeamRepository.save(req.toEntity(user));
+                    return FavoriteTeamResponse.created("선호팀이 정상적으로 등록되었습니다.");
                 });
     }
 
+    /**
+     * 선호팀 목록 일괄 업데이트
+     */
     @Transactional
-    public FavoriteTeamDto.FavoriteTeamResponse updateFavoriteTeams(Long userId, List<FavoriteTeamDto.FavoriteTeamRequest> reqs) {
+    public FavoriteTeamResponse updateFavoriteTeams(Long userId, List<FavoriteTeamRequest> reqs) {
+        // 사용자 존재 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "사용자를 찾을 수 없습니다: " + userId
+                ));
 
+        // 요청 검증 -> 비어 있으면 실패
         if (reqs == null || reqs.isEmpty()) {
-            return new FavoriteTeamDto.FavoriteTeamResponse(false, "최소 한 개의 선호팀은 선택해야 합니다.");
+            return FavoriteTeamResponse.failure("최소 한 개의 선호팀은 선택해야 합니다.");
         }
 
-        // 우선순위 중복 체크
+        // 우선순위 중복 및 팀 ID 검증
         Set<Integer> orders = new HashSet<>();
-        for (FavoriteTeamDto.FavoriteTeamRequest r : reqs) {
-            if (!orders.add(r.getDisplayOrder())) {
-                return new FavoriteTeamDto.FavoriteTeamResponse(false, "우선순위가 중복되었습니다: " + r.getDisplayOrder());
+        for (var r : reqs) {
+            if (!orders.add(r.displayOrder())) {
+                return FavoriteTeamResponse.failure("우선순위가 중복되었습니다: " + r.displayOrder());
             }
-            // 팀 ID 유효성 검증
-            if (Team.fromId(r.getTeamId()) == null) {
-                return new FavoriteTeamDto.FavoriteTeamResponse(false, "존재하지 않는 팀 ID입니다: " + r.getTeamId());
+            if (Team.fromId(r.teamId()) == null) {
+                return FavoriteTeamResponse.failure("존재하지 않는 팀 ID입니다: " + r.teamId());
             }
         }
 
-        favoriteTeamRepository.deleteByUserId(userId);
-        // 새 목록으로 모두 저장
-        for (FavoriteTeamDto.FavoriteTeamRequest r : reqs) {
-            favoriteTeamRepository.save(
-                    FavoriteTeam.create(userId, r.getTeamId(), r.getDisplayOrder())
-            );
-        }
-        return new FavoriteTeamDto.FavoriteTeamResponse(true, "선호팀 목록이 정상적으로 저장되었습니다.");
+        // 기존 선호팀 삭제 후 전체 다시 저장
+        favoriteTeamRepository.deleteByUser(user);
+        List<FavoriteTeam> entities = reqs.stream()
+                .map(r -> r.toEntity(user))
+                .collect(Collectors.toList());
+        favoriteTeamRepository.saveAll(entities);
+
+        return FavoriteTeamResponse.updated("선호팀 목록이 정상적으로 저장되었습니다.");
     }
 }

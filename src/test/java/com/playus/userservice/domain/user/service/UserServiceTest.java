@@ -1,8 +1,8 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
-import com.playus.userservice.domain.user.dto.NicknameDto.NicknameRequest;
-import com.playus.userservice.domain.user.dto.NicknameDto.NicknameResponse;
+import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.AuthProvider;
 import com.playus.userservice.domain.user.enums.Gender;
@@ -53,10 +53,10 @@ class UserServiceTest extends IntegrationTestSupport {
         NicknameResponse resp = userService.updateNickname(userId, req);
 
         // then
-        assertThat(resp.isSuccess()).isTrue();
-        assertThat(resp.getMessage()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
+        assertThat(resp.success()).isTrue();
+        assertThat(resp.message()).isEqualTo("닉네임이 정상적으로 변경되었습니다.");
 
-        User updated = userRepository.findById(userId).orElseThrow();
+        User updated = userRepository.findById(userId).get();
         assertThat(updated.getNickname()).isEqualTo("test2");
     }
 
@@ -136,8 +136,8 @@ class UserServiceTest extends IntegrationTestSupport {
         NicknameResponse resp = userService.updateNickname(user.getId(), req);
 
         // then
-        assertThat(resp.isSuccess()).isTrue();
-        User updated = userRepository.findById(user.getId()).orElseThrow();
+        assertThat(resp.success()).isTrue();
+        User updated = userRepository.findById(user.getId()).get();
         assertThat(updated.getNickname()).isEqualTo("sameName");
     }
 }

@@ -1,8 +1,8 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterRequest;
-import com.playus.userservice.domain.user.dto.ProfileSetupDto.UserRegisterResponse;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterRequest;
+import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterResponse;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +27,8 @@ public class ProfileSetupController implements ProfileSetupControllerSpecificati
 
         UserRegisterResponse resp = setupService.setupProfile(
                 userId,
-                request.getTeamId(),
-                request.getNickname()
+                request.teamId(),
+                request.nickname()
         );
         return ResponseEntity.ok(resp);
     }

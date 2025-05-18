@@ -1,7 +1,8 @@
 package com.playus.userservice.domain.user.specification;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.FavoriteTeamDto;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamRequest;
+import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -38,24 +39,45 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    name  = "선호 팀 등록 요청 예시",
+                                    name  = "선호 팀 등록/수정 요청 예시",
                                     value = """
-                        {
-                          "teamId": 7,
-                          "displayOrder": 1
-                        }
-                        """
+                      {
+                        "teamId": 7,
+                        "displayOrder": 1
+                      }
+                      """
                             )
                     )
             )
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200", description = "처리 성공",
+                    responseCode = "201", description = "등록 성공",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"success\":true,\"message\":\"선호 팀이 성공적으로 저장되었습니다.\"}"
+                                    value = """
+                      {
+                        "success": true,
+                        "message": "선호 팀이 정상적으로 등록되었습니다.",
+                        "created": true
+                      }
+                      """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "200", description = "수정 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                      {
+                        "success": true,
+                        "message": "선호 팀이 정상적으로 변경되었습니다.",
+                        "created": false
+                      }
+                      """
                             )
                     )
             ),
@@ -64,7 +86,13 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":400,\"status\":\"BAD_REQUEST\",\"message\":\"teamId 필드는 필수입니다.\"}"
+                                    value = """
+                      {
+                        "code": 400,
+                        "status": "BAD_REQUEST",
+                        "message": "teamId 필드는 필수입니다."
+                      }
+                      """
                             )
                     )
             ),
@@ -73,7 +101,13 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":401,\"status\":\"UNAUTHORIZED\",\"message\":\"유효하지 않은 토큰입니다.\"}"
+                                    value = """
+                      {
+                        "code": 401,
+                        "status": "UNAUTHORIZED",
+                        "message": "유효하지 않은 토큰입니다."
+                      }
+                      """
                             )
                     )
             ),
@@ -82,14 +116,20 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":500,\"status\":\"INTERNAL_SERVER_ERROR\",\"message\":\"서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요.\"}"
+                                    value = """
+                      {
+                        "code": 500,
+                        "status": "INTERNAL_SERVER_ERROR",
+                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                      }
+                      """
                             )
                     )
             )
     })
-    ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> saveOrUpdateOne(
+    ResponseEntity<FavoriteTeamResponse> setFavoriteTeam(
             @Parameter(hidden = true) CustomOAuth2User principal,
-            @Valid FavoriteTeamDto.FavoriteTeamRequest request
+            @Valid FavoriteTeamRequest request
     );
 
     @Operation(
@@ -110,11 +150,11 @@ public interface FavoriteTeamControllerSpecification {
                             examples = @ExampleObject(
                                     name  = "선호 팀 일괄 변경 요청 예시",
                                     value = """
-                        [
-                          { "teamId": 7, "displayOrder": 1 },
-                          { "teamId": 8, "displayOrder": 2 }
-                        ]
-                        """
+                      [
+                        { "teamId": 7, "displayOrder": 1 },
+                        { "teamId": 8, "displayOrder": 2 }
+                      ]
+                      """
                             )
                     )
             )
@@ -125,7 +165,13 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"success\":true,\"message\":\"선호 팀이 성공적으로 업데이트되었습니다.\"}"
+                                    value = """
+                      {
+                        "success": true,
+                        "message": "선호 팀이 정상적으로 업데이트되었습니다.",
+                        "created": false
+                      }
+                      """
                             )
                     )
             ),
@@ -134,7 +180,13 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":400,\"status\":\"BAD_REQUEST\",\"message\":\"requests 필드는 필수입니다.\"}"
+                                    value = """
+                      {
+                        "code": 400,
+                        "status": "BAD_REQUEST",
+                        "message": "requests 필드는 필수입니다."
+                      }
+                      """
                             )
                     )
             ),
@@ -143,17 +195,28 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":401,\"status\":\"UNAUTHORIZED\",\"message\":\"유효하지 않은 토큰입니다.\"}"
+                                    value = """
+                      {
+                        "code": 401,
+                        "status": "UNAUTHORIZED",
+                        "message": "유효하지 않은 토큰입니다."
+                      }
+                      """
                             )
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "팀을 찾을 수 없음",
+                    responseCode = "404", description = "팀을 찾을 수 없음",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":404,\"status\":\"NOT_FOUND\",\"message\":\"존재하지 않는 팀입니다.\"}"
+                                    value = """
+                      {
+                        "code": 404,
+                        "status": "NOT_FOUND",
+                        "message": "존재하지 않는 팀입니다."
+                      }
+                      """
                             )
                     )
             ),
@@ -162,13 +225,19 @@ public interface FavoriteTeamControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    value = "{\"code\":500,\"status\":\"INTERNAL_SERVER_ERROR\",\"message\":\"서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요.\"}"
+                                    value = """
+                      {
+                        "code": 500,
+                        "status": "INTERNAL_SERVER_ERROR",
+                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                      }
+                      """
                             )
                     )
             )
     })
-    ResponseEntity<FavoriteTeamDto.FavoriteTeamResponse> updateMany(
+    ResponseEntity<FavoriteTeamResponse> updateFavoriteTeams(
             @Parameter(hidden = true) CustomOAuth2User principal,
-            @Valid List<FavoriteTeamDto.FavoriteTeamRequest> requests
+            @Valid List<FavoriteTeamRequest> requests
     );
 }
