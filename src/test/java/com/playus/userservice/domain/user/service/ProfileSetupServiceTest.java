@@ -69,7 +69,7 @@ class ProfileSetupServiceTest extends IntegrationTestSupport {
         assertThat(updated.getNickname()).isEqualTo(newNickname);
 
         // 선호팀 저장
-        Optional<FavoriteTeam> ftOpt = favoriteTeamRepository.findByUser(updated);
+        Optional<FavoriteTeam> ftOpt = favoriteTeamRepository.findOneByUser(updated);
         assertThat(ftOpt).isPresent();
         FavoriteTeam ft = ftOpt.get();
         assertThat(ft.getTeamId()).isEqualTo(teamId);

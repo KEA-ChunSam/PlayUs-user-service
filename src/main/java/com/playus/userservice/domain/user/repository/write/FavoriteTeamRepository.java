@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.List;
 
 public interface FavoriteTeamRepository extends JpaRepository<FavoriteTeam, Long> {
-    Optional<FavoriteTeam> findByUser(User user);
+    Optional<FavoriteTeam> findOneByUser(User user);
     List<FavoriteTeam> findAllByUser(User user);
     void deleteByUser(User user);
 }

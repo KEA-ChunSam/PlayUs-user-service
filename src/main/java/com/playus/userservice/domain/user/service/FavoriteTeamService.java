@@ -42,7 +42,7 @@ public class FavoriteTeamService {
         }
 
         // 기존 선호팀이 있으면 업데이트, 없으면 생성
-        return favoriteTeamRepository.findByUser(user)
+        return favoriteTeamRepository.findOneByUser(user)
                 .map(existing -> {
                     existing.update(
                             req.teamId(),

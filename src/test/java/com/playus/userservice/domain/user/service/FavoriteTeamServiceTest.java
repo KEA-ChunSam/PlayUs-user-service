@@ -75,7 +75,7 @@ class FavoriteTeamServiceTest extends IntegrationTestSupport {
         assertThat(resp.message()).contains("등록");
 
         User user = userRepository.findById(userId).get();
-        FavoriteTeam saved = favoriteTeamRepository.findByUser(user).get();
+        FavoriteTeam saved = favoriteTeamRepository.findOneByUser(user).get();
         assertThat(saved.getTeamId()).isEqualTo(teamId);
         assertThat(saved.getDisplayOrder()).isEqualTo(1);
     }
@@ -101,7 +101,7 @@ class FavoriteTeamServiceTest extends IntegrationTestSupport {
         assertThat(resp.created()).isFalse();
         assertThat(resp.message()).contains("변경");
 
-        FavoriteTeam updated = favoriteTeamRepository.findByUser(testUser).get();
+        FavoriteTeam updated = favoriteTeamRepository.findOneByUser(testUser).get();
         assertThat(updated.getTeamId()).isEqualTo(secondTeamId);
         assertThat(updated.getDisplayOrder()).isEqualTo(1);
         assertThat(favoriteTeamRepository.count()).isOne();
