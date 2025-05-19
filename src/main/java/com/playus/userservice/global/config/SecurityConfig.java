@@ -81,13 +81,6 @@ public class SecurityConfig {
                         .failureHandler(customFailureHandler)
                 )
 
-                // JWT Resource Server 설정 추가
-                .oauth2ResourceServer(rs -> rs
-                        .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                        )
-                )
-
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS)
@@ -99,11 +92,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return jwtUtil.jwtDecoder();
-    }
-
 
 }
