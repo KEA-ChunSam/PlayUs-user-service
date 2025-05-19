@@ -3,6 +3,7 @@ package com.playus.userservice.domain.user.controller;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.service.UserProfileReadService;
+import com.playus.userservice.domain.user.specification.UserProfileControllerSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-public class UserProfileController {
+public class UserProfileController implements UserProfileControllerSpecification {
 
     private final UserProfileReadService userProfileReadService;
 
