@@ -2,6 +2,7 @@ package com.playus.userservice.domain.oauth.handler;
 
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
+import com.playus.userservice.domain.user.repository.write.FavoriteTeamRepository;
 import com.playus.userservice.global.jwt.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,9 +30,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final FavoriteTeamRepository favoriteTeamRepository;
 
-    @Value("${app.frontend.success-redirect-uri}")
-    private String redirectUri;
+    @Value("${app.frontend.success-redirect-uri}")   // 프로필 미설정(=선호팀 없음)
+    private String redirectNeedSetup;
+
+    @Value("${app.frontend.success-redirect-uri2}")  // 선호팀 ≥ 1개
+    private String redirectHome;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -80,8 +85,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
-            // 로그인 후 프론트 페이지로 리다이렉트
-            getRedirectStrategy().sendRedirect(request, response, redirectUri);
+            boolean hasFavorite = favoriteTeamRepository.existsByUserId(Long.parseLong(userId));
+            String targetUri    = hasFavorite ? redirectHome : redirectNeedSetup;
+
+            getRedirectStrategy().sendRedirect(request, response, targetUri);
 
         } catch (Exception e) {
             log.error("로그인 성공 후 토큰 발급/리디렉션 중 예외 발생", e);
