@@ -31,10 +31,7 @@ public class FavoriteTeamService {
 
         // 사용자 존재 확인
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "사용자를 찾을 수 없습니다: " + userId
-                ));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         // 팀 ID 검증
         if (Team.fromId(req.teamId()) == null) {
@@ -63,10 +60,7 @@ public class FavoriteTeamService {
     public FavoriteTeamResponse updateFavoriteTeams(Long userId, List<FavoriteTeamRequest> reqs) {
         // 사용자 존재 확인
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "사용자를 찾을 수 없습니다: " + userId
-                ));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         // 요청 검증 -> 비어 있으면 실패
         if (reqs == null || reqs.isEmpty()) {
