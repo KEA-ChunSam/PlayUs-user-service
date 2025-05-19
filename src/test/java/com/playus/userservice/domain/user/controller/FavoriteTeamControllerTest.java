@@ -168,4 +168,16 @@ class FavoriteTeamControllerTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage));
     }
+
+    @DisplayName("teamId가 숫자가 아닌 문자열일 때 Bad Request 반환")
+    @Test
+    void saveOrUpdateOne_typeMismatch() throws Exception {
+        String body = "{\"teamId\":\"notANumber\",\"displayOrder\":1}";
+        mockMvc.perform(post("/user/favorite-teams")
+                        .with(authentication(token))
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

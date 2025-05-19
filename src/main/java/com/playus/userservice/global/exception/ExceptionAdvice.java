@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,6 +64,20 @@ public class ExceptionAdvice {
                 .build();
         log.error("OAuth2 Error ({}): {}", errorCode, body.message());
         return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        String message = "잘못된 요청 형식입니다.";
+        ErrorResponse body = ErrorResponse.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(message)
+                .build();
+        log.error("JSON parse error: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(body);
     }
 
     @ExceptionHandler(Exception.class)
