@@ -28,6 +28,7 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
         show_sql: true
+    open-in-view: false
 
   security:
     oauth2:
@@ -70,12 +71,6 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
-
 management:
   health:
     redis:
@@ -95,7 +90,9 @@ management:
 
 app:
   frontend:
-    redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
+    success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
+    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error
+
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}

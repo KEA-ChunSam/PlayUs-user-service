@@ -17,10 +17,9 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
-        // nickname은 사용자가 나중에 설정할 수도 있으므로 null 가능성 고려
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("id", userDto.getId());
-        //attributes.put("nickname", userDto.getNickname());
+        attributes.put("nickname", userDto.getNickname());
         attributes.put("birth", userDto.getBirth());
         attributes.put("gender", userDto.getGender());
         attributes.put("role", userDto.getRole());
