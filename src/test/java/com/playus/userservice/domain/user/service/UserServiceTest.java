@@ -140,4 +140,24 @@ class UserServiceTest extends IntegrationTestSupport {
         User updated = userRepository.findById(user.getId()).get();
         assertThat(updated.getNickname()).isEqualTo("sameName");
     }
+
+    @DisplayName("updateImage()는 썸네일 URL을 정상 반영한다")
+    @Test
+    void updateImage_success() {
+
+        // given
+        User user = userRepository.save(
+                User.create("test3", "010-3333-4444",
+                        LocalDate.of(2000, 3, 3),
+                        Gender.MALE, Role.USER,
+                        AuthProvider.KAKAO, "http://old.jpg"));
+        String newUrl = "http://brand-new.jpg";
+
+        // when
+        userService.updateImage(user.getId(), newUrl);
+
+        // then
+        User refreshed = userRepository.findById(user.getId()).get();
+        assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
+    }
 }

@@ -7,5 +7,8 @@ public record UserRegisterRequest(
         Long teamId,
 
         @NotBlank(message = "nickname 필드는 필수입니다.")
-        String nickname
+        String nickname,
+
+        @NotBlank(message = "thumbnailURL 필드는 필수입니다.")
+        String thumbnailURL
 ) {}

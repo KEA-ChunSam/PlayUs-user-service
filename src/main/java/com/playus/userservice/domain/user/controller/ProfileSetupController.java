@@ -1,6 +1,8 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
+import com.playus.userservice.domain.user.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.userservice.domain.user.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterRequest;
 import com.playus.userservice.domain.user.dto.profilesetup.UserRegisterResponse;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
@@ -28,8 +30,17 @@ public class ProfileSetupController implements ProfileSetupControllerSpecificati
         UserRegisterResponse resp = setupService.setupProfile(
                 userId,
                 request.teamId(),
-                request.nickname()
+                request.nickname(),
+                request.thumbnailURL()
         );
         return ResponseEntity.ok(resp);
     }
+
+    @PostMapping("/presigned-url")
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(
+            @Valid @RequestBody PresignedUrlForSaveImageRequest request) {
+
+        return setupService.generatePresignedUrlForSaveImage(request);
+    }
 }
+
