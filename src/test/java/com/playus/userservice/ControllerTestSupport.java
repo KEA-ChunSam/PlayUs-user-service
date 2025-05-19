@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.userservice.domain.user.controller.FavoriteTeamController;
 import com.playus.userservice.domain.user.controller.ProfileSetupController;
 import com.playus.userservice.domain.user.controller.UserController;
+import com.playus.userservice.domain.user.controller.UserProfileController;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
+import com.playus.userservice.domain.user.service.UserProfileReadService;
 import com.playus.userservice.domain.user.service.UserService;
 import com.playus.userservice.global.exception.ExceptionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,7 +32,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 @WebMvcTest(controllers = {
         ProfileSetupController.class,
         FavoriteTeamController.class,
-        UserController.class
+        UserController.class,
+        UserProfileController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {
@@ -49,6 +53,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected UserService userService;
+
+    @MockitoBean
+    protected UserProfileReadService userProfileReadService;
 
     @MockitoBean
     protected JwtUtil jwtUtil;
