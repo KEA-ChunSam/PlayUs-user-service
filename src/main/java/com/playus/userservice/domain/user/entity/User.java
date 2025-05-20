@@ -18,7 +18,6 @@ import java.time.Period;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE users SET activated = false WHERE id = ?")
-@Where(clause = "activated = true")
 @Table(name = "users")
 
 public class User extends BaseTimeEntity {

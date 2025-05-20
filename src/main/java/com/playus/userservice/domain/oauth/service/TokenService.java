@@ -53,7 +53,7 @@ public class TokenService {
         // 2) Redis 검증
         String userId = jwtUtil.getUserId(refresh);
         String role   = jwtUtil.getRole(refresh);
-        User user = userRepository.findById(Long.parseLong(userId))
+        User user = userRepository.findByIdAndActivatedTrue(Long.parseLong(userId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
 
         LocalDateTime bdt = user.getBirth().atStartOfDay();

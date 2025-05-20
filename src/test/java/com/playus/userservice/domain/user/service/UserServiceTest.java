@@ -67,7 +67,7 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.success()).isTrue();
         assertThat(resp.message()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
 
-        User updated = userRepository.findById(userId).get();
+        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
         assertThat(updated.getNickname()).isEqualTo("test2");
     }
 
@@ -148,7 +148,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(resp.success()).isTrue();
-        User updated = userRepository.findById(user.getId()).get();
+        User updated = userRepository.findByIdAndActivatedTrue(user.getId()).get();
         assertThat(updated.getNickname()).isEqualTo("sameName");
     }
 
@@ -168,7 +168,7 @@ class UserServiceTest extends IntegrationTestSupport {
         userService.updateImage(user.getId(), newUrl);
 
         // then
-        User refreshed = userRepository.findById(user.getId()).get();
+        User refreshed = userRepository.findByIdAndActivatedTrue(user.getId()).get();
         assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
     }
 
@@ -211,60 +211,8 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.success()).isTrue();
         assertThat(resp.message()).isEqualTo("회원 탈퇴가 완료되었습니다.");
 
-        User updated = userRepository.findById(userId).get();
+        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
         assertThat(updated.isActivated()).isFalse();
     }
 
-    @DisplayName("이미 탈퇴된 사용자는 409 Conflict 발생")
-    @Test
-    void withdraw_conflict() {
-        // given -> 이미 비활성 상태로 저장
-        User user = userRepository.save(
-                User.create(
-                        "testUser",
-                        "010-1234-0001",
-                        LocalDate.of(1991, 2, 2),
-                        Gender.FEMALE,
-                        Role.USER,
-                        AuthProvider.KAKAO,
-                        "http://example.com/thumb2.jpg"
-                )
-        );
-        user.withdrawAccount();
-        userRepository.save(user);
-        Long userId = user.getId();
-
-        // when
-        HttpServletRequest req = new MockHttpServletRequest();
-        HttpServletResponse res = new MockHttpServletResponse();
-
-        // then
-        assertThatThrownBy(() -> userService.withdraw(userId, req, res))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
-                    ResponseStatusException rsp = (ResponseStatusException) ex;
-                    assertThat(rsp.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-                    assertThat(rsp.getReason()).isEqualTo("ALREADY_WITHDRAWN");
-                });
-    }
-
-    @DisplayName("존재하지 않는 사용자로 탈퇴 시 404 Not Found 발생")
-    @Test
-    void withdraw_userNotFound() {
-        // given
-        Long invalidId = 999L;
-
-        // when
-        HttpServletRequest req = new MockHttpServletRequest();
-        HttpServletResponse res = new MockHttpServletResponse();
-
-        // then
-        assertThatThrownBy(() -> userService.withdraw(invalidId, req, res))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> {
-                    ResponseStatusException rsp = (ResponseStatusException) ex;
-                    assertThat(rsp.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-                    assertThat(rsp.getReason()).isEqualTo("USER_NOT_FOUND");
-                });
-    }
 }

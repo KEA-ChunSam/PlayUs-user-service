@@ -26,7 +26,7 @@ public class UserService {
     public NicknameResponse updateNickname(Long userId, NicknameRequest req) {
 
         // 사용자 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndActivatedTrue(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
@@ -44,7 +44,7 @@ public class UserService {
 
     @Transactional
     public void updateImage(Long userId, String thumbnailURL) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndActivatedTrue(userId)
                 .orElseThrow(() ->
                     new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         user.updateImage(thumbnailURL);
@@ -53,15 +53,13 @@ public class UserService {
     @Transactional
     public UserWithdrawResponse withdraw(Long userId, HttpServletRequest req, HttpServletResponse res) {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndActivatedTrue(userId)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        if (!user.isActivated()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 탈퇴된 사용자입니다.");
-        }
 
-        user.withdrawAccount(); // activated = false 로 변경
+
+        userRepository.delete(user);
 
         authService.logout(req, res);
 

@@ -62,7 +62,7 @@ class ProfileSetupServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(resp.success()).isTrue();
-        User updated = userRepository.findById(userId).get();
+        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
         assertThat(updated.getNickname()).isEqualTo(newNick);
         assertThat(updated.getThumbnailURL()).isEqualTo(newUrl);
 
@@ -77,13 +77,13 @@ class ProfileSetupServiceTest extends IntegrationTestSupport {
     void setupProfile_nicknameConflict() {
         // given
         userRepository.save(
-                User.create("dup", "010-0000-0001",
+                User.create("test1", "010-0000-0001",
                         LocalDate.of(1990, 1, 1),
                         Gender.FEMALE, Role.USER,
                         AuthProvider.KAKAO, "http://a.jpg"));
 
         User other = userRepository.save(
-                User.create("other", "010-0000-0002",
+                User.create("test2", "010-0000-0002",
                         LocalDate.of(1991, 2, 2),
                         Gender.MALE, Role.USER,
                         AuthProvider.KAKAO, "http://b.jpg"));
@@ -91,7 +91,7 @@ class ProfileSetupServiceTest extends IntegrationTestSupport {
         // when // then
         assertThatThrownBy(() ->
                 profileSetupService.setupProfile(
-                        other.getId(), Team.LG_TWINS.id(), "dup", "http://c.jpg"))
+                        other.getId(), Team.LG_TWINS.id(), "test1", "http://c.jpg"))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(e -> {
                     ResponseStatusException ex = (ResponseStatusException) e;
