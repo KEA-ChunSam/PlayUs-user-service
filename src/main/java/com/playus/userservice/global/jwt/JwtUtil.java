@@ -5,9 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -24,13 +21,6 @@ public class JwtUtil {
     public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
         byte[] byteSecretKey = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(byteSecretKey);
-    }
-
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder
-                .withSecretKey(key)
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
     }
 
     //엑세스토큰
