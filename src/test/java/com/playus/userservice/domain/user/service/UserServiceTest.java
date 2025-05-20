@@ -211,7 +211,7 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.success()).isTrue();
         assertThat(resp.message()).isEqualTo("회원 탈퇴가 완료되었습니다.");
 
-        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
+        User updated = userRepository.findById(userId).get();
         assertThat(updated.isActivated()).isFalse();
     }
 
