@@ -5,12 +5,14 @@ import com.playus.userservice.domain.user.enums.Type;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "notifications")
 @SQLDelete(sql = "UPDATE notifications SET activated = false WHERE id = ?")
+@Where(clause = "activated = true")
+@Table(name = "notifications")
 public class Notification extends BaseTimeEntity {
 
     @Id

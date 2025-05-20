@@ -5,14 +5,16 @@ import com.playus.userservice.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE user_tag SET activated = false WHERE id = ?")
+@Where(clause = "activated = true")
 @Table(name = "user_tag", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "tag_id"}, name = "uk_user_tag")
 })
-@SQLDelete(sql = "UPDATE user_tag SET activated = false WHERE id = ?")
 public class UserTag extends BaseTimeEntity {
 
     @Id
