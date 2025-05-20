@@ -3,6 +3,7 @@ package com.playus.userservice.domain.user.entity;
 import com.playus.userservice.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Getter
@@ -10,6 +11,7 @@ import lombok.*;
 @Table(name = "tag", uniqueConstraints = {
         @UniqueConstraint(columnNames = "tag_name", name = "uk_tag_name")
 })
+@SQLDelete(sql = "UPDATE tag SET activated = false WHERE id = ?")
 public class Tag extends BaseTimeEntity {
 
     @Id

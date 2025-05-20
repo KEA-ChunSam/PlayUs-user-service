@@ -3,12 +3,14 @@ package com.playus.userservice.domain.user.entity;
 import com.playus.userservice.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "favorite_team",
         uniqueConstraints = @UniqueConstraint(name = "uk_user_display_order", columnNames = {"user_id", "display_order"}))
+@SQLDelete(sql = "UPDATE favorite_team SET activated = false WHERE id = ?")
 public class FavoriteTeam extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

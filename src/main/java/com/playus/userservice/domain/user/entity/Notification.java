@@ -4,11 +4,13 @@ import com.playus.userservice.domain.common.BaseTimeEntity;
 import com.playus.userservice.domain.user.enums.Type;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "notifications")
+@SQLDelete(sql = "UPDATE notifications SET activated = false WHERE id = ?")
 public class Notification extends BaseTimeEntity {
 
     @Id

@@ -6,14 +6,19 @@ import lombok.*;
 import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.AuthProvider;
+import org.hibernate.annotations.SQLDelete;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE users SET activated = false WHERE id = ?")
 @Table(name = "users")
+
 public class User extends BaseTimeEntity {
 
     public static final float DEFAULT_SCORE = 0.3f;
