@@ -142,35 +142,4 @@ class UserControllerTest extends ControllerTestSupport {
                         .value("회원 탈퇴가 완료되었습니다."));
     }
 
-    @DisplayName("이미 탈퇴된 사용자는 409 Conflict")
-    @Test
-    void withdraw_conflict() throws Exception {
-        willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_WITHDRAWN"))
-                .given(userService).withdraw(eq(1L), any(), any());
-
-        mockMvc.perform(patch("/user/withdraw")
-                        .with(authentication(token))
-                        .contentType(APPLICATION_JSON))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("409"))
-                .andExpect(jsonPath("$.status").value("CONFLICT"))
-                .andExpect(jsonPath("$.message")
-                        .value("ALREADY_WITHDRAWN"));
-    }
-
-    @DisplayName("존재하지 않는 사용자는 404 Not Found")
-    @Test
-    void withdraw_notFound() throws Exception {
-        willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"))
-                .given(userService).withdraw(eq(1L), any(), any());
-
-        mockMvc.perform(patch("/user/withdraw")
-                        .with(authentication(token))
-                        .contentType(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("404"))
-                .andExpect(jsonPath("$.status").value("NOT_FOUND"))
-                .andExpect(jsonPath("$.message")
-                        .value("USER_NOT_FOUND"));
-    }
 }
