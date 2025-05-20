@@ -26,24 +26,5 @@ public class UserProfileController implements UserProfileControllerSpecification
         UserProfileResponse response = userProfileReadService.getProfile(userId);
         return ResponseEntity.ok(response);
     }
-}
 
-/**
- {
- "id":18,
- "nickname":"default_nickname",
- "phoneNumber":"+821079070479",
- "birth":"2000-04-26",
- "gender":"MALE",
- "role":"USER",
- "authProvider":"NAVER",
- "activated":true,
- "thumbnailURL":"default.png",
- "userScore":0.3,
- "blockOff":null,
- "favoriteTeams":[
- {"teamId":8,"displayOrder":1},
- {"teamId":1,"displayOrder":2}
- ]
- }
- */
+}

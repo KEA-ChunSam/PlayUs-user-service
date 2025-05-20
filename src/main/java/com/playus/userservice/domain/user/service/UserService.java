@@ -59,7 +59,7 @@ public class UserService {
 
 
 
-        userRepository.delete(user);
+        user.withdrawAccount();   // activated = false
 
         authService.logout(req, res);
 
