@@ -3,14 +3,10 @@ package com.playus.userservice.domain.user.entity;
 import com.playus.userservice.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE tag SET activated = false WHERE id = ?")
-@Where(clause = "activated = true")
 @Table(name = "tag", uniqueConstraints = {
         @UniqueConstraint(columnNames = "tag_name", name = "uk_tag_name")
 })

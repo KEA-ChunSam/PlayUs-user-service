@@ -7,12 +7,9 @@ import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.AuthProvider;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-
 
 @Entity
 @Getter
