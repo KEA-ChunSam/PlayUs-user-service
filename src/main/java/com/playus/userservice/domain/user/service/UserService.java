@@ -1,9 +1,13 @@
 package com.playus.userservice.domain.user.service;
 
+import com.playus.userservice.domain.oauth.service.AuthService;
+import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.http.HttpStatus;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AuthService authService;
 
     @Transactional
     public NicknameResponse updateNickname(Long userId, NicknameRequest req) {
@@ -43,5 +48,24 @@ public class UserService {
                 .orElseThrow(() ->
                     new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         user.updateImage(thumbnailURL);
+    }
+
+    @Transactional
+    public UserWithdrawResponse withdraw(Long userId, HttpServletRequest req, HttpServletResponse res) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
+
+        if (!user.isActivated()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_WITHDRAWN");
+        }
+
+        user.withdrawAccount();          // activated = false
+
+        // OAuth 토큰 무효화 (재사용 방지)
+        authService.logout(req, res);
+
+        return new UserWithdrawResponse(true, "회원 탈퇴가 완료되었습니다.");
     }
 }
