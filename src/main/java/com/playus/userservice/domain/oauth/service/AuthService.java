@@ -3,6 +3,7 @@ package com.playus.userservice.domain.oauth.service;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.oauth.enums.TokenType;
 import com.playus.userservice.domain.user.dto.UserDto;
+import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.global.jwt.JwtUtil;
 import io.jsonwebtoken.JwtException;
@@ -107,10 +108,12 @@ public class AuthService {
 
         String userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
+        int age = jwtUtil.getAge(token);
+        String gender = jwtUtil.getGender(token);
 
         CustomOAuth2User principal =
                 new CustomOAuth2User(
-                        UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
+                        UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
                 );
 
         Authentication auth = new UsernamePasswordAuthenticationToken(

@@ -2,6 +2,7 @@ package com.playus.userservice.global.jwt;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.UserDto;
+import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -61,9 +62,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (!jwtUtil.isExpired(token)) {
                     String userId = jwtUtil.getUserId(token);
                     String role = jwtUtil.getRole(token);
+                    int age = jwtUtil.getAge(token);
+                    String gender = jwtUtil.getGender(token);
 
                     CustomOAuth2User principal = new CustomOAuth2User(
-                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
+                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
                     );
                     Authentication auth = new UsernamePasswordAuthenticationToken(
                             principal, null, principal.getAuthorities()

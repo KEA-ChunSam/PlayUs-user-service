@@ -73,6 +73,14 @@ public class JwtUtil {
         return extractPayload(token).get("role", String.class);
     }
 
+    public int getAge(String token) {
+        return extractPayload(token).get("age", Integer.class);
+    }
+
+    public String getGender(String token) {
+        return extractPayload(token).get("gender", String.class);
+    }
+
     private Claims extractPayload(String token) {
         return Jwts
                 .parserBuilder()
