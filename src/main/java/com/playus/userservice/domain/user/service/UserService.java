@@ -55,15 +55,14 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         if (!user.isActivated()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_WITHDRAWN");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 탈퇴된 사용자입니다.");
         }
 
-        user.withdrawAccount();          // activated = false
+        user.withdrawAccount(); // activated = false 로 변경
 
-        // OAuth 토큰 무효화 (재사용 방지)
         authService.logout(req, res);
 
         return new UserWithdrawResponse(true, "회원 탈퇴가 완료되었습니다.");

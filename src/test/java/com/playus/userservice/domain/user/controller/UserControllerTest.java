@@ -2,6 +2,7 @@ package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
+import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.enums.Role;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class UserControllerTest extends ControllerTestSupport {
@@ -120,5 +122,55 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message")
                         .value("nickname 필드는 필수입니다."));
+    }
+
+    @DisplayName("회원 탈퇴가 정상적으로 처리된다")
+    @Test
+    void withdraw_success() throws Exception {
+        // given
+        var resp = new UserWithdrawResponse(true, "회원 탈퇴가 완료되었습니다.");
+        given(userService.withdraw(eq(1L), any(), any()))
+                .willReturn(resp);
+
+        // when // then
+        mockMvc.perform(patch("/user/withdraw")
+                        .with(authentication(token))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message")
+                        .value("회원 탈퇴가 완료되었습니다."));
+    }
+
+    @DisplayName("이미 탈퇴된 사용자는 409 Conflict")
+    @Test
+    void withdraw_conflict() throws Exception {
+        willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_WITHDRAWN"))
+                .given(userService).withdraw(eq(1L), any(), any());
+
+        mockMvc.perform(patch("/user/withdraw")
+                        .with(authentication(token))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("409"))
+                .andExpect(jsonPath("$.status").value("CONFLICT"))
+                .andExpect(jsonPath("$.message")
+                        .value("ALREADY_WITHDRAWN"));
+    }
+
+    @DisplayName("존재하지 않는 사용자는 404 Not Found")
+    @Test
+    void withdraw_notFound() throws Exception {
+        willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"))
+                .given(userService).withdraw(eq(1L), any(), any());
+
+        mockMvc.perform(patch("/user/withdraw")
+                        .with(authentication(token))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message")
+                        .value("USER_NOT_FOUND"));
     }
 }

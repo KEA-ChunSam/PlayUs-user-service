@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -76,6 +78,16 @@ public class AuthService {
                 redisTemplate.opsForValue().set("blacklist:" + jti, "", Duration.ofSeconds(ttlSeconds));
             }
         }
+        // 클라이언트 쿠키(Access) 만료 처리
+        ResponseCookie expiredAccess = ResponseCookie.from("Access", "")
+                .httpOnly(true)
+                .secure(false)   // 운영환경에선 true 로 변경
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
+
     }
 
     private boolean isExpired(String token) {
