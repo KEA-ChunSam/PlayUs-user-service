@@ -41,11 +41,11 @@ public interface FavoriteTeamControllerSpecification {
                             examples = @ExampleObject(
                                     name  = "선호 팀 등록/수정 요청 예시",
                                     value = """
-                      {
-                        "teamId": 7,
-                        "displayOrder": 1
-                      }
-                      """
+                                    {
+                                        "teamId": 7,
+                                        "displayOrder": 1
+                                    }
+                                    """
                             )
                     )
             )
@@ -57,12 +57,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "success": true,
-                        "message": "선호 팀이 정상적으로 등록되었습니다.",
-                        "created": true
-                      }
-                      """
+                                        {
+                                            "success": true,
+                                            "message": "선호 팀이 정상적으로 등록되었습니다.",
+                                            "created": true
+                                        }
+                                        """
                             )
                     )
             ),
@@ -72,12 +72,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "success": true,
-                        "message": "선호 팀이 정상적으로 변경되었습니다.",
-                        "created": false
-                      }
-                      """
+                                        {
+                                            "success": true,
+                                            "message": "선호 팀이 정상적으로 변경되었습니다.",
+                                            "created": false
+                                        }
+                                        """
                             )
                     )
             ),
@@ -87,12 +87,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 400,
-                        "status": "BAD_REQUEST",
-                        "message": "teamId 필드는 필수입니다."
-                      }
-                      """
+                                    {
+                                        "code": 400,
+                                        "status": "BAD_REQUEST",
+                                        "message": "teamId 필드는 필수입니다."
+                                    }
+                                    """
                             )
                     )
             ),
@@ -102,12 +102,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 401,
-                        "status": "UNAUTHORIZED",
-                        "message": "유효하지 않은 토큰입니다."
-                      }
-                      """
+                                    {
+                                        "code": 401,
+                                        "status": "UNAUTHORIZED",
+                                        "message": "유효하지 않은 토큰입니다."
+                                    }
+                                    """
                             )
                     )
             ),
@@ -117,12 +117,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 500,
-                        "status": "INTERNAL_SERVER_ERROR",
-                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
-                      }
-                      """
+                                    {
+                                        "code": 500,
+                                        "status": "INTERNAL_SERVER_ERROR",
+                                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                    }
+                                    """
                             )
                     )
             )
@@ -150,11 +150,11 @@ public interface FavoriteTeamControllerSpecification {
                             examples = @ExampleObject(
                                     name  = "선호 팀 일괄 변경 요청 예시",
                                     value = """
-                      [
-                        { "teamId": 7, "displayOrder": 1 },
-                        { "teamId": 8, "displayOrder": 2 }
-                      ]
-                      """
+                                        [
+                                            { "teamId": 7, "displayOrder": 1 },
+                                            { "teamId": 8, "displayOrder": 2 }
+                                        ]
+                                        """
                             )
                     )
             )
@@ -166,12 +166,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "success": true,
-                        "message": "선호 팀이 정상적으로 업데이트되었습니다.",
-                        "created": false
-                      }
-                      """
+                                {
+                                    "success": true,
+                                    "message": "선호 팀이 정상적으로 업데이트되었습니다.",
+                                    "created": false
+                                }
+                                """
                             )
                     )
             ),
@@ -181,12 +181,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 400,
-                        "status": "BAD_REQUEST",
-                        "message": "requests 필드는 필수입니다."
-                      }
-                      """
+                                    {
+                                        "code": 400,
+                                        "status": "BAD_REQUEST",
+                                        "message": "requests 필드는 필수입니다."
+                                    }
+                                    """
                             )
                     )
             ),
@@ -196,12 +196,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 401,
-                        "status": "UNAUTHORIZED",
-                        "message": "유효하지 않은 토큰입니다."
-                      }
-                      """
+                                    {
+                                        "code": 401,
+                                        "status": "UNAUTHORIZED",
+                                        "message": "유효하지 않은 토큰입니다."
+                                    }
+                                    """
                             )
                     )
             ),
@@ -211,12 +211,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 404,
-                        "status": "NOT_FOUND",
-                        "message": "존재하지 않는 팀입니다."
-                      }
-                      """
+                                    {
+                                        "code": 404,
+                                        "status": "NOT_FOUND",
+                                        "message": "존재하지 않는 팀입니다."
+                                    }
+                                    """
                             )
                     )
             ),
@@ -226,12 +226,12 @@ public interface FavoriteTeamControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
-                        "code": 500,
-                        "status": "INTERNAL_SERVER_ERROR",
-                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
-                      }
-                      """
+                                    {
+                                        "code": 500,
+                                        "status": "INTERNAL_SERVER_ERROR",
+                                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                    }
+                                    """
                             )
                     )
             )

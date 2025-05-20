@@ -38,7 +38,7 @@ public interface UserProfileControllerSpecification {
                             examples = @ExampleObject(
                                     name  = "프로필 조회 응답 예시",
                                     value = """
-                      {
+                    {
                         "id": 18,
                         "nickname": "default_nickname",
                         "phoneNumber": "+821079070479",
@@ -51,11 +51,11 @@ public interface UserProfileControllerSpecification {
                         "userScore": 0.3,
                         "blockOff": null,
                         "favoriteTeams": [
-                          { "teamId": 8, "displayOrder": 1 },
-                          { "teamId": 1, "displayOrder": 2 }
+                            { "teamId": 8, "displayOrder": 1 },
+                            { "teamId": 1, "displayOrder": 2 }
                         ]
-                      }
-                      """
+                    }
+                    """
                             )
                     )
             ),
@@ -65,12 +65,12 @@ public interface UserProfileControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
+                    {
                         "code": 401,
                         "status": "UNAUTHORIZED",
                         "message": "유효하지 않은 토큰입니다."
-                      }
-                      """
+                    }
+                    """
                             )
                     )
             ),
@@ -80,12 +80,12 @@ public interface UserProfileControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
+                    {
                         "code": 404,
                         "status": "NOT_FOUND",
                         "message": "사용자를 찾을 수 없습니다."
-                      }
-                      """
+                    }
+                    """
                             )
                     )
             ),
@@ -95,12 +95,12 @@ public interface UserProfileControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     value = """
-                      {
+                    {
                         "code": 500,
                         "status": "INTERNAL_SERVER_ERROR",
                         "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
-                      }
-                      """
+                    }
+                    """
                             )
                     )
             )
