@@ -5,6 +5,7 @@ import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.repository.write.FavoriteTeamRepository;
 import com.playus.userservice.global.jwt.JwtUtil;
 
+import com.playus.userservice.global.util.AgeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +48,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
             String userId = customUser.getUserDto().getId().toString();
             String role   = authentication.getAuthorities().iterator().next().getAuthority();
+            String gender         = customUser.getUserDto().getGender().name();
+            LocalDateTime bdt     = customUser.getUserDto().getBirth().atStartOfDay();
+            int age          = AgeUtils.calculateAgeGroup(bdt);
 
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             if (authorities == null || authorities.isEmpty()) {
@@ -55,7 +60,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             }
 
             // Access/Refresh 토큰 생성
-            String accessToken  = jwtUtil.createAccessToken(userId, role);
+            String accessToken  = jwtUtil.createAccessToken(userId, role, age, gender );
             String refreshToken = jwtUtil.createRefreshToken(userId, role);
 
             // Redis에 Refresh Token 저장 (key = refresh:{userId})

@@ -34,11 +34,13 @@ public class JwtUtil {
     }
 
     //엑세스토큰
-    public String createAccessToken(String userId, String role) {
+    public String createAccessToken(String userId, String role, int age, String gender) {
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(userId)
                 .claim("role", role)
+                .claim("age", age)
+                .claim("gender", gender)
                 .claim("type", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRE_MS))
