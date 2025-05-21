@@ -1,5 +1,6 @@
 package com.playus.userservice.domain.user.controller;
 
+import com.playus.userservice.domain.user.dto.partyuser.PartyApplicantsInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyUserThumbnailUrlListResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyWriterInfoFeignResponse;
 import com.playus.userservice.domain.user.service.UserProfileReadService;
@@ -29,6 +30,13 @@ public class PartyUserController implements PartyUserControllerSpecification {
             @RequestBody List<Long> writerIdList) {
 
         return userProfileReadService.fetchWriterInfos(writerIdList);
+    }
+
+    @PostMapping("/info")
+    public List<PartyApplicantsInfoFeignResponse> getPartyApplicantsInfo(
+            @RequestBody List<Long> userIdList) {
+
+        return userProfileReadService.fetchApplicantsInfos(userIdList);
     }
 
 }

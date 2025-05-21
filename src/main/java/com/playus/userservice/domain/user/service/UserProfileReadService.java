@@ -2,13 +2,14 @@ package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.domain.user.document.UserDocument;
 import com.playus.userservice.domain.user.dto.UserInfoResponse;
+import com.playus.userservice.domain.user.dto.partyuser.PartyApplicantsInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyWriterInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.profile.FavoriteTeamDto;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.dto.profile.UserPublicProfileResponse;
 import com.playus.userservice.domain.user.repository.read.FavoriteTeamReadOnlyRepository;
 import com.playus.userservice.domain.user.repository.read.UserReadOnlyRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.playus.userservice.global.util.AgeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,36 @@ public class UserProfileReadService {
 
     }
 
+    /**
+     * 직관팟 섬네일 조회:
+     * userIds 목록을 받아 각 사용자의 썸네일 URL 반환
+     */
+
+    public List<String> fetchThumbnailUrls(List<Long> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .map(UserDocument::getThumbnailURL)
+                .toList();
+    }
+
+    /**
+     * 직관팟 작성자 정보 조회:
+     * writerIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 썸네일 URL 반환
+     */
+    public List<PartyWriterInfoFeignResponse> fetchWriterInfos(List<Long> writerIds) {
+        return userRepository.findAllById(writerIds).stream()
+                .map(this::toFeignResponse)
+                .toList();
+    }
+
+    /**
+     * 직관팟 참가자 정보 조회:
+     * userIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 연령대, 썸네일 URL 반환
+     */
+    public List<PartyApplicantsInfoFeignResponse> fetchApplicantsInfos(List<Long> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .map(this::toApplicantsFeignResponse)
+                .toList();
+    }
 
     private UserDocument fetchUser(Long userId) {
         return userRepository.findById(userId)
@@ -104,32 +135,21 @@ public class UserProfileReadService {
                 .build();
     }
 
-    /**
-     * 직관팟 섬네일 조회:
-     * userIds 목록을 받아 각 사용자의 썸네일 URL 반환
-     */
-
-    public List<String> fetchThumbnailUrls(List<Long> userIds) {
-        return userRepository.findAllById(userIds).stream()
-                .map(UserDocument::getThumbnailURL)
-                .toList();
-    }
-
-    /**
-     * 직관팟 작성자 정보 조회:
-     * writerIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 썸네일 URL 반환
-     */
-    public List<PartyWriterInfoFeignResponse> fetchWriterInfos(List<Long> writerIds) {
-        return userRepository.findAllById(writerIds).stream()
-                .map(this::toFeignResponse)
-                .toList();
-    }
-
     private PartyWriterInfoFeignResponse toFeignResponse(UserDocument doc) {
         return PartyWriterInfoFeignResponse.of(
                 doc.getId(),
                 doc.getNickname(),
                 doc.getGender().name(),
+                doc.getThumbnailURL()
+        );
+    }
+
+    private PartyApplicantsInfoFeignResponse toApplicantsFeignResponse(UserDocument doc) {
+        int age = AgeUtils.calculateAge(doc.getBirth().atStartOfDay());
+        return PartyApplicantsInfoFeignResponse.of(
+                doc.getId(),
+                doc.getNickname(),   // ‘name’ 필드는 닉네임으로 매핑
+                age,
                 doc.getThumbnailURL()
         );
     }
