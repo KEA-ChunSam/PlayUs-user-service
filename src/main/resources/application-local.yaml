@@ -101,7 +101,7 @@ app:
   frontend:
     success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team      # 선호팀 없는 신규 유저
     success-redirect-uri2: http://localhost:3000/PlayUs-FE#/home           # 선호팀이 이미 있는 유저
-    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error
+    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login
 
 
 sentry:
@@ -115,3 +115,10 @@ logging:
 
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
+
+feign:
+  user:
+    url: http://twp-dummy
+
+  match:
+    url: http://match-dummy
