@@ -2,10 +2,7 @@ package com.playus.userservice.global.exception;
 
 import com.playus.userservice.domain.oauth.controller.AuthController;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
-import com.playus.userservice.domain.user.controller.FavoriteTeamController;
-import com.playus.userservice.domain.user.controller.ProfileSetupController;
-import com.playus.userservice.domain.user.controller.UserController;
-import com.playus.userservice.domain.user.controller.UserProfileController;
+import com.playus.userservice.domain.user.controller.*;
 import com.playus.userservice.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,7 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
         ProfileSetupController.class,
         FavoriteTeamController.class,
         UserProfileController.class,
-        UserController.class
+        UserController.class,
+        PartyUserController.class
 })
 public class ExceptionAdvice {
 

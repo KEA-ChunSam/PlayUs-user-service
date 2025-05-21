@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
 
 import java.time.LocalDate;
 
@@ -161,5 +162,94 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> userProfileReadService.getPublicProfile(requesterId, invalidId))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404 NOT_FOUND");
+    }
+
+    @DisplayName("userIds 목록으로 썸네일 URL 리스트를 조회한다")
+    @Test
+    void fetchThumbnailUrls_success() {
+        // given
+        Long id1 = 11L;
+        Long id2 = 22L;
+
+        userRepo.save(UserDocument.createUserDocument(
+                id1, "u1", "+8201", LocalDate.now(),
+                Gender.MALE, Role.USER, AuthProvider.KAKAO,
+                true, "u1.png", 0.1f, null));
+
+        userRepo.save(UserDocument.createUserDocument(
+                id2, "u2", "+8202", LocalDate.now(),
+                Gender.FEMALE, Role.USER, AuthProvider.NAVER,
+                true, "u2.png", 0.2f, null));
+
+        // when
+        var urls = userProfileReadService.fetchThumbnailUrls(List.of(id1, id2));
+
+        // then
+        assertThat(urls).containsExactlyInAnyOrder("u1.png", "u2.png");
+    }
+
+    @DisplayName("존재하지 않는 ID만 주면 썸네일 URL 리스트는 비어 있다")
+    @Test
+    void fetchThumbnailUrls_empty() {
+        // when
+        var urls = userProfileReadService.fetchThumbnailUrls(List.of(999L, 888L));
+
+        // then
+        assertThat(urls).isEmpty();
+    }
+
+    @DisplayName("writerIds 목록으로 작성자 정보(id·닉네임·성별·썸네일)를 조회한다")
+    @Test
+    void fetchWriterInfos_success() {
+        // given
+        Long w1 = 31L;
+        Long w2 = 32L;
+
+        userRepo.save(UserDocument.createUserDocument(
+                w1,
+                "writer1",
+                "+8201012341234",
+                LocalDate.now(),
+                Gender.MALE,
+                Role.USER,
+                AuthProvider.KAKAO,
+                true,
+                "w1.png",
+                1.0f,
+                null));
+
+        userRepo.save(UserDocument.createUserDocument(
+                w2,
+                "writer2",
+                "+8201045674567",
+                LocalDate.now(),
+                Gender.FEMALE,
+                Role.USER,
+                AuthProvider.NAVER,
+                true,
+                "w2.png",
+                2.0f,
+                null));
+
+        // when
+        var infos = userProfileReadService.fetchWriterInfos(List.of(w1, w2));
+
+        // then
+        assertThat(infos)
+                .extracting("id", "writerName", "writerGender", "writerThumbnailUrl")
+                .containsExactlyInAnyOrder(
+                        tuple(w1, "writer1", "MALE",   "w1.png"),
+                        tuple(w2, "writer2", "FEMALE", "w2.png")
+                );
+    }
+
+    @DisplayName("writerIds 중 존재하는 사용자가 없으면 빈 리스트를 반환한다")
+    @Test
+    void fetchWriterInfos_empty() {
+        // when
+        var infos = userProfileReadService.fetchWriterInfos(List.of(777L));
+
+        // then
+        assertThat(infos).isEmpty();
     }
 }
