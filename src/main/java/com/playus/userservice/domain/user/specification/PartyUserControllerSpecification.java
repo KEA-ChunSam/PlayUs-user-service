@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -30,10 +31,10 @@ public interface PartyUserControllerSpecification {
                                     name  = "썸네일 URL 리스트 응답 예시",
                                     value = """
                                     {
-                                      "thumbnailUrls": [
+                                        "thumbnailUrls": [
                                         "https://example.com/avatar1.png",
-                                          ]
-                                    "https://example.com/avatar2.png"
+                                        "https://example.com/avatar2.png"
+                                        ]
                                     }
                                     """
                             )
@@ -46,9 +47,9 @@ public interface PartyUserControllerSpecification {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "code": 400,
-                                      "status": "BAD_REQUEST",
-                                      "message": "userIdList는 필수입니다."
+                                        "code": 400,
+                                        "status": "BAD_REQUEST",
+                                        "message": "userIdList는 필수입니다."
                                     }
                                     """
                             )
@@ -62,9 +63,9 @@ public interface PartyUserControllerSpecification {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "code": 404,
-                                      "status": "NOT_FOUND",
-                                      "message": "사용자를 찾을 수 없습니다."
+                                        "code": 404,
+                                        "status": "NOT_FOUND",
+                                        "message": "사용자를 찾을 수 없습니다."
                                     }
                                     """
                             )
@@ -77,9 +78,9 @@ public interface PartyUserControllerSpecification {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "code": 500,
-                                      "status": "INTERNAL_SERVER_ERROR",
-                                      "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                        "code": 500,
+                                        "status": "INTERNAL_SERVER_ERROR",
+                                        "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
                                     }
                                     """
                             )
@@ -92,7 +93,7 @@ public interface PartyUserControllerSpecification {
                     description = "썸네일을 조회할 사용자 ID 목록",
                     required    = true
             )
-            List<Long> userIdList
+            @RequestBody List<Long> userIdList
     );
 
     @Operation(
@@ -108,18 +109,18 @@ public interface PartyUserControllerSpecification {
                                     name  = "작성자 정보 리스트 응답 예시",
                                     value = """
                                     [
-                                      {
+                                        {
                                         "id": 31,
                                         "nickname": "writer1",
                                         "gender": "MALE",
                                         "thumbnailURL": "https://example.com/w1.png"
-                                      },
-                                      {
+                                        },
+                                        {
                                         "id": 32,
                                         "nickname": "writer2",
                                         "gender": "FEMALE",
                                         "thumbnailURL": "https://example.com/w2.png"
-                                      }
+                                        }
                                     ]
                                     """
                             )
@@ -136,6 +137,6 @@ public interface PartyUserControllerSpecification {
                     description = "작성자 정보를 조회할 사용자 ID 목록",
                     required    = true
             )
-            List<Long> writerIdList
+            @RequestBody List<Long> writerIdList
     );
 }
