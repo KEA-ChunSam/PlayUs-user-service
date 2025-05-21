@@ -1,12 +1,14 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.domain.user.document.UserDocument;
+import com.playus.userservice.domain.user.dto.UserInfoResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyWriterInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.profile.FavoriteTeamDto;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.dto.profile.UserPublicProfileResponse;
 import com.playus.userservice.domain.user.repository.read.FavoriteTeamReadOnlyRepository;
 import com.playus.userservice.domain.user.repository.read.UserReadOnlyRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,17 @@ public class UserProfileReadService {
         UserDocument targetUser = fetchUser(targetUserId);
         List<FavoriteTeamDto> teams = fetchTeams(targetUserId);
         return toPublicResponse(targetUser, teams);
+    }
+
+    // 다른 사람 프로필 (nickname, profileImageUrl)
+    public UserInfoResponse getPublicProfileOnlyNicknameAndImageUrl(Long targetUserId) {
+
+        // 요청상 요청자 존재 확인x
+
+        // 조회 대상 사용자 존재 확인
+        UserDocument targetUser = fetchUser(targetUserId);
+        return new UserInfoResponse(targetUser.getNickname(), targetUser.getThumbnailURL());
+
     }
 
 

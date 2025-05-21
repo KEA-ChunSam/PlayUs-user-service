@@ -1,6 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
+import com.playus.userservice.domain.user.dto.UserInfoResponse;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.service.UserProfileReadService;
 import com.playus.userservice.domain.user.specification.UserProfileControllerSpecification;
@@ -32,12 +33,21 @@ public class UserProfileController implements UserProfileControllerSpecification
 
     // 다른 사람 프로필 조회
     @GetMapping("/profile/{user-id}")
-    public ResponseEntity<UserPublicProfileResponse> getOtherProfile(
+    public ResponseEntity<UserPublicProfileResponse> getPublicProfile(
             @AuthenticationPrincipal CustomOAuth2User principal,
             @PathVariable("user-id") Long targetUserId) {
 
         Long userId = Long.parseLong(principal.getName());
         UserPublicProfileResponse response = userProfileReadService.getPublicProfile(userId,targetUserId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 다른 사람 프로필 조회 (nickname, profileImageUrl)
+    @GetMapping("/profile/{user-id}")
+    public ResponseEntity<UserInfoResponse> getUserInfo (
+            @PathVariable("user-id") Long targetUserId) {
+
+        UserInfoResponse response = userProfileReadService.getPublicProfileOnlyNicknameAndImageUrl(targetUserId);
         return ResponseEntity.ok(response);
     }
 }

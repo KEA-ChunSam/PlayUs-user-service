@@ -199,7 +199,7 @@ public interface UserProfileControllerSpecification {
                     )
             )
     })
-    ResponseEntity<UserPublicProfileResponse> getOtherProfile(
+    ResponseEntity<UserPublicProfileResponse> getPublicProfile(
             @Parameter(hidden = true) CustomOAuth2User principal,
             @Parameter(name = "targetUserId", hidden = true) Long targetUserId
     );
