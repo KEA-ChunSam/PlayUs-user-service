@@ -4,6 +4,8 @@ import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.profile.FavoriteTeamDto;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
+import com.playus.userservice.domain.user.dto.profile.UserPublicProfileResponse;
+import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -95,5 +97,44 @@ class UserProfileControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.code").value("404"))
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("사용자를 찾을 수 없습니다."));
+    }
+
+    // 다른 사용자 프로필
+    @DisplayName("다른 사람 공개 프로필을 정상적으로 조회할 수 있다.")
+    @Test
+    void getOtherProfile_success() throws Exception {
+        // given
+        Long requesterId = 18L;
+        Long targetId    = 99L;
+
+        List<FavoriteTeamDto> favoriteTeams = List.of(
+                FavoriteTeamDto.builder()
+                        .teamId(3L)
+                        .displayOrder(1)
+                        .build()
+        );
+
+        UserPublicProfileResponse resp = UserPublicProfileResponse.builder()
+                .id(targetId)
+                .nickname("other_user")
+                .gender(Gender.FEMALE)
+                .thumbnailURL("other.png")
+                .userScore(2.5f)
+                .favoriteTeams(favoriteTeams)
+                .build();
+
+        given(userProfileReadService.getPublicProfile(eq(requesterId), eq(targetId)))
+                .willReturn(resp);
+
+        // when/then
+        mockMvc.perform(get("/user/profile/{user-id}", targetId)
+                        .with(authentication(token))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(targetId.intValue()))
+                .andExpect(jsonPath("$.nickname").value("other_user"))
+                .andExpect(jsonPath("$.thumbnailURL").value("other.png"))
+                .andExpect(jsonPath("$.favoriteTeams[0].teamId").value(3))
+                .andExpect(jsonPath("$.favoriteTeams[0].displayOrder").value(1));
     }
 }

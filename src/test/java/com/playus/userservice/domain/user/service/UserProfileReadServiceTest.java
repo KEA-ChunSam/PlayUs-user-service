@@ -4,6 +4,7 @@ import com.playus.userservice.IntegrationTestSupport;
 import com.playus.userservice.domain.user.document.FavoriteTeamDocument;
 import com.playus.userservice.domain.user.document.UserDocument;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
+import com.playus.userservice.domain.user.dto.profile.UserPublicProfileResponse;
 import com.playus.userservice.domain.user.enums.AuthProvider;
 import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
@@ -83,6 +84,81 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> userProfileReadService.getProfile(invalidId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("404 NOT_FOUND");
+    }
+
+
+    //다른 사용자 프로필
+
+    @DisplayName("요청자와 대상 사용자 문서를 모두 저장한 뒤 공개 프로필을 정상 조회한다")
+    @Test
+    void getPublicProfile_success() {
+        // given
+        Long requesterId = 18L;
+        Long targetId    = 99L;
+
+        userRepo.save(UserDocument.createUserDocument(
+                requesterId,
+                "me",
+                "+820101",
+                LocalDate.now(),
+                Gender.MALE,
+                Role.USER,
+                AuthProvider.KAKAO,
+                true,
+                "me.png",
+                1.0f,
+                null));
+
+        userRepo.save(UserDocument.createUserDocument(
+                targetId,
+                "other_user",
+                "+820102",
+                LocalDate.now(),
+                Gender.FEMALE,
+                Role.USER,
+                AuthProvider.NAVER,
+                true,
+                "other.png",
+                2.5f,
+                null));
+
+        teamRepo.save(FavoriteTeamDocument.createFavoriteTeamDocument(1L, targetId, 3L, 1));
+
+        // when
+        UserPublicProfileResponse result = userProfileReadService.getPublicProfile(requesterId, targetId);
+
+        // then
+        assertThat(result.id()).isEqualTo(targetId);
+        assertThat(result.nickname()).isEqualTo("other_user");
+        assertThat(result.favoriteTeams())
+                .extracting("teamId", "displayOrder")
+                .containsExactly(tuple(3L, 1));
+    }
+
+    @DisplayName("대상 사용자 문서가 없으면 404 ResponseStatusException")
+    @Test
+    void getPublicProfile_targetNotFound() {
+        // given
+        Long requesterId = 18L;
+        Long invalidId   = 999L;
+
+        userRepo.save(UserDocument.createUserDocument(
+                requesterId,
+                "me",
+                "+820101",
+                LocalDate.now(),
+                Gender.MALE,
+                Role.USER,
+                AuthProvider.KAKAO,
+                true,
+                "me.png",
+                1.0f,
+                null));
+
+        // when // then
+        assertThatThrownBy(() -> userProfileReadService.getPublicProfile(requesterId, invalidId))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404 NOT_FOUND");
     }
