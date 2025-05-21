@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = {
         "feign.twp.url=http://localhost:${wiremock.server.port}",
         "feign.community.url=http://localhost:${wiremock.server.port}",
+        "feign.match.url=http://localhost:${wiremock.server.port}"
 })
 public abstract class OpenFeignClientTestSupport {
 
