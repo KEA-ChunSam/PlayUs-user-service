@@ -133,7 +133,7 @@ slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
 feign:
-  user:
+  twp:
     url: http://twp-dummy
 
   match:

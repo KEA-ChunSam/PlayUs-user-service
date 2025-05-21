@@ -148,7 +148,7 @@ public class UserProfileReadService {
         int age = AgeUtils.calculateAge(doc.getBirth().atStartOfDay());
         return PartyApplicantsInfoFeignResponse.of(
                 doc.getId(),
-                doc.getNickname(),   // ‘name’ 필드는 닉네임으로 매핑
+                doc.getNickname(),
                 age,
                 doc.getThumbnailURL()
         );
