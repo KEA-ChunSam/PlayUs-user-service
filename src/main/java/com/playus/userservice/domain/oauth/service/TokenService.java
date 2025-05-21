@@ -1,7 +1,10 @@
 package com.playus.userservice.domain.oauth.service;
 
 import com.playus.userservice.domain.oauth.enums.TokenType;
+import com.playus.userservice.domain.user.entity.User;
+import com.playus.userservice.domain.user.repository.write.UserRepository;
 import com.playus.userservice.global.jwt.JwtUtil;
+import com.playus.userservice.global.util.AgeUtils;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +27,7 @@ public class TokenService {
 
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final UserRepository userRepository;
 
     private static final String ACCESS_COOKIE  = "Access";
     private static final String REFRESH_COOKIE  = "Refresh";
@@ -48,9 +53,15 @@ public class TokenService {
         // 2) Redis 검증
         String userId = jwtUtil.getUserId(refresh);
         String role   = jwtUtil.getRole(refresh);
+        User user = userRepository.findByIdAndActivatedTrue(Long.parseLong(userId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
+
+        LocalDateTime bdt = user.getBirth().atStartOfDay();
+        int age = AgeUtils.calculateAgeGroup(bdt);
+        String gender = user.getGender().name();
 
         // 3) 새 Access 토큰 발급
-        String newAccessToken = jwtUtil.createAccessToken(userId, role);
+        String newAccessToken = jwtUtil.createAccessToken(userId, role, age, gender);
 
         // 4) Access 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)

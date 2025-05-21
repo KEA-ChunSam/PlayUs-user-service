@@ -5,9 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -26,19 +23,14 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder
-                .withSecretKey(key)
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
-    }
-
     //엑세스토큰
-    public String createAccessToken(String userId, String role) {
+    public String createAccessToken(String userId, String role, int age, String gender) {
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(userId)
                 .claim("role", role)
+                .claim("age", age)
+                .claim("gender", gender)
                 .claim("type", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRE_MS))
@@ -69,6 +61,14 @@ public class JwtUtil {
 
     public String getRole(String token) {
         return extractPayload(token).get("role", String.class);
+    }
+
+    public int getAge(String token) {
+        return extractPayload(token).get("age", Integer.class);
+    }
+
+    public String getGender(String token) {
+        return extractPayload(token).get("gender", String.class);
     }
 
     private Claims extractPayload(String token) {

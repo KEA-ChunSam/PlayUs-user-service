@@ -25,6 +25,7 @@ public class UserDto {
     private Float userScore;
     private LocalDateTime blockOff;
     private LocalDateTime createdAt;
+    private int age;
 
     public UserDto(User user) {
         this.id = user.getId();
@@ -41,10 +42,12 @@ public class UserDto {
     }
 
     //JWT필터에서 사용
-    public static UserDto fromJwt(Long id, Role role) {
+    public static UserDto fromJwt(Long id, Role role, int age ,Gender gender) {
         UserDto dto = new UserDto();
         dto.id = id;
         dto.role = role;
+        dto.age = age;
+        dto.gender = gender;
         return dto;
     }
 }

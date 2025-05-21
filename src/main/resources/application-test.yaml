@@ -60,4 +60,5 @@ logging:
 app:
   frontend:
     success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
+    success-redirect-uri2: http://localhost:3000/PlayUs-FE#/home
     fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error

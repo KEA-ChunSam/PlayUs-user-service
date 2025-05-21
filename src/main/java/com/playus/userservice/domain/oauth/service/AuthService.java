@@ -3,6 +3,7 @@ package com.playus.userservice.domain.oauth.service;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.oauth.enums.TokenType;
 import com.playus.userservice.domain.user.dto.UserDto;
+import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.global.jwt.JwtUtil;
 import io.jsonwebtoken.JwtException;
@@ -10,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -75,6 +78,16 @@ public class AuthService {
                 redisTemplate.opsForValue().set("blacklist:" + jti, "", Duration.ofSeconds(ttlSeconds));
             }
         }
+        // 클라이언트 쿠키(Access) 만료 처리
+        ResponseCookie expiredAccess = ResponseCookie.from("Access", "")
+                .httpOnly(true)
+                .secure(false)   // 운영환경에선 true 로 변경
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
+
     }
 
     private boolean isExpired(String token) {
@@ -107,10 +120,12 @@ public class AuthService {
 
         String userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
+        int age = jwtUtil.getAge(token);
+        String gender = jwtUtil.getGender(token);
 
         CustomOAuth2User principal =
                 new CustomOAuth2User(
-                        UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
+                        UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
                 );
 
         Authentication auth = new UsernamePasswordAuthenticationToken(

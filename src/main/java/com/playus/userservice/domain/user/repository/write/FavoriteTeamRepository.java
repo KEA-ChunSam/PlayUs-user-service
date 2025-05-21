@@ -10,4 +10,5 @@ public interface FavoriteTeamRepository extends JpaRepository<FavoriteTeam, Long
     Optional<FavoriteTeam> findOneByUser(User user);
     List<FavoriteTeam> findAllByUser(User user);
     void deleteByUser(User user);
+    boolean existsByUserId(Long userId);
 }

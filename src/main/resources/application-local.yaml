@@ -71,6 +71,15 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
+cloud:
+  aws:
+    credentials:
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
+    s3:
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
+
 management:
   health:
     redis:
@@ -90,7 +99,8 @@ management:
 
 app:
   frontend:
-    success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team
+    success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team      # 선호팀 없는 신규 유저
+    success-redirect-uri2: http://localhost:3000/PlayUs-FE#/home           # 선호팀이 이미 있는 유저
     fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error
 
 

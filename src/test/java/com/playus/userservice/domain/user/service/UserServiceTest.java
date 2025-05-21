@@ -1,6 +1,8 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
+import com.playus.userservice.domain.oauth.service.AuthService;
+import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
@@ -8,15 +10,24 @@ import com.playus.userservice.domain.user.enums.AuthProvider;
 import com.playus.userservice.domain.user.enums.Gender;
 import com.playus.userservice.domain.user.enums.Role;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 class UserServiceTest extends IntegrationTestSupport {
 
@@ -56,7 +67,7 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.success()).isTrue();
         assertThat(resp.message()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
 
-        User updated = userRepository.findById(userId).get();
+        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
         assertThat(updated.getNickname()).isEqualTo("test2");
     }
 
@@ -137,7 +148,71 @@ class UserServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(resp.success()).isTrue();
-        User updated = userRepository.findById(user.getId()).get();
+        User updated = userRepository.findByIdAndActivatedTrue(user.getId()).get();
         assertThat(updated.getNickname()).isEqualTo("sameName");
     }
+
+    @DisplayName("updateImage()는 썸네일 URL을 정상 반영한다")
+    @Test
+    void updateImage_success() {
+
+        // given
+        User user = userRepository.save(
+                User.create("test3", "010-3333-4444",
+                        LocalDate.of(2000, 3, 3),
+                        Gender.MALE, Role.USER,
+                        AuthProvider.KAKAO, "http://old.jpg"));
+        String newUrl = "http://brand-new.jpg";
+
+        // when
+        userService.updateImage(user.getId(), newUrl);
+
+        // then
+        User refreshed = userRepository.findByIdAndActivatedTrue(user.getId()).get();
+        assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
+    }
+
+    /**
+     * @SQLDelete(sql = "UPDATE users SET activated = false WHERE id = ?")
+     * @Where(clause = "activated = true") 주석 처리후 실행
+     */
+
+    @DisplayName("회원 탈퇴가 정상적으로 처리된다")
+    @Test
+    void withdraw_success() {
+
+        AuthService authMock = mock(AuthService.class);
+        ReflectionTestUtils.setField(userService, "authService", authMock);
+
+        // logout()이 호출되더라도 예외 없이 통과하도록 스텁
+        doNothing().when(authMock)
+                .logout(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        // given
+        User user = userRepository.save(
+                User.create(
+                        "testUser",
+                        "010-1234-0000",
+                        LocalDate.of(1990, 1, 1),
+                        Gender.MALE,
+                        Role.USER,
+                        AuthProvider.KAKAO,
+                        "http://example.com/thumb.jpg"
+                )
+        );
+        Long userId = user.getId();
+
+        // when
+        HttpServletRequest req = new MockHttpServletRequest();
+        HttpServletResponse res = new MockHttpServletResponse();
+        UserWithdrawResponse resp = userService.withdraw(userId, req, res);
+
+        // then
+        assertThat(resp.success()).isTrue();
+        assertThat(resp.message()).isEqualTo("회원 탈퇴가 완료되었습니다.");
+
+        User updated = userRepository.findById(userId).get();
+        assertThat(updated.isActivated()).isFalse();
+    }
+
 }
