@@ -27,7 +27,7 @@ spring:
               - birthday
               - birthyear
           naver:
-            client-id: NAVER_CLIENT_ID
+            client-id: NAVER_CLIENT_IDㅌ
             client-secret: NAVER_CLIENT_SECRET
             redirect-uri: NAVER_REDIRECT_URI
             authorization-grant-type: authorization_code
