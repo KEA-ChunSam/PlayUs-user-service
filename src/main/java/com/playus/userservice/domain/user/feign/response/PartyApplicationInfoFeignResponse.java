@@ -2,45 +2,43 @@ package com.playus.userservice.domain.user.feign.response;
 
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
 public record PartyApplicationInfoFeignResponse(
-        List<String> filters,
+        List <String> partyAgeGroup,
+        String partyGender,
         String title,
         String writer,
-        LocalDateTime date,
-        String status,
-        Long chatRoomId
+        String matchDate,
+        String partyJoinRequestStatus
 ) {
 
     public static PartyApplicationInfoFeignResponse of(
-            List<String> filters,
+            List <String> partyAgeGroup,
+            String partyGender,
             String title,
             String writer,
-            LocalDateTime date,
-            String status,
-            Long chatRoomId
+            String matchDate,
+            String partyJoinRequestStatus
     ) {
         return PartyApplicationInfoFeignResponse.builder()
-                .filters(filters)
+                .partyAgeGroup(partyAgeGroup)
+                .partyGender(partyGender)
                 .title(title)
                 .writer(writer)
-                .date(date)
-                .status(status)
-                .chatRoomId(chatRoomId)
+                .matchDate(matchDate)
+                .partyJoinRequestStatus(partyJoinRequestStatus)
                 .build();
     }
 
     public static PartyApplicationInfoFeignResponse withServiceUnavailable() {
         return PartyApplicationInfoFeignResponse.builder()
-                .filters(List.of())
+                .partyAgeGroup(List.of())
+                .partyGender("")
                 .title("정보를 불러올 수 없습니다.")
                 .writer("")
-                .date(null)
-                .status("UNKNOWN")
-                .chatRoomId(null)
+                .partyJoinRequestStatus("UNKNOWN")
                 .build();
     }
 }
