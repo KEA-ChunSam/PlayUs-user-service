@@ -101,8 +101,24 @@ app:
   frontend:
     success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team      # 선호팀 없는 신규 유저
     success-redirect-uri2: http://localhost:3000/PlayUs-FE#/home           # 선호팀이 이미 있는 유저
-    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login?=error
+    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        max-wait-duration-in-half-open-state: 0s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s
+    instances:
+      circuit:
+        base-config: default
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}
@@ -115,3 +131,10 @@ logging:
 
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
+
+feign:
+  twp:
+    url: http://twp-dummy
+
+  match:
+    url: http://match-dummy

@@ -1,10 +1,7 @@
 package com.playus.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.playus.userservice.domain.user.controller.FavoriteTeamController;
-import com.playus.userservice.domain.user.controller.ProfileSetupController;
-import com.playus.userservice.domain.user.controller.UserController;
-import com.playus.userservice.domain.user.controller.UserProfileController;
+import com.playus.userservice.domain.user.controller.*;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
 import com.playus.userservice.domain.user.service.UserProfileReadService;
@@ -32,7 +29,8 @@ import org.springframework.data.redis.core.RedisTemplate;
         ProfileSetupController.class,
         FavoriteTeamController.class,
         UserController.class,
-        UserProfileController.class
+        UserProfileController.class,
+        PartyUserController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {

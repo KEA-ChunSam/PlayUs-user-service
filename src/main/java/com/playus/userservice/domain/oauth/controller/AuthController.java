@@ -31,7 +31,6 @@ public class AuthController implements AuthControllerSpecification {
         return ResponseEntity.ok().build();
     }
 
-    /** 로그아웃 */
     @Override
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {

@@ -60,6 +60,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (existing.isPresent()) {
             User user = existing.get();
 
+            // 탈퇴(activated=false) 처리
+            if (!user.isActivated()) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("user_deactivated", user.getNickname(), null));
+            }
+
             // 공급자가 일치 → 바로 로그인
             if (user.getAuthProvider() == currentProvider) {
                 return new CustomOAuth2User(new UserDto(user));
