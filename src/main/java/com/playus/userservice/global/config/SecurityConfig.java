@@ -41,6 +41,8 @@ public class SecurityConfig {
             "/error",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/user/api/**",
+            "/community/api/**",
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
             "/oauth2/authorization/naver",

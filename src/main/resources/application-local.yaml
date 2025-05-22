@@ -134,10 +134,10 @@ slack:
 
 feign:
   twp:
-    url: http://twp-dummy
+    url: http://localhost:8081
 
   match:
     url: http://match-dummy
 
   commnuity:
-    url: http://community-dummy
+    url: http://localhost:8082
