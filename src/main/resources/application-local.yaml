@@ -138,3 +138,6 @@ feign:
 
   match:
     url: http://match-dummy
+
+  commnuity:
+    url: http://community-dummy
