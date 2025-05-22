@@ -30,10 +30,10 @@ public class NotificationService {
 	/** 1시간 (밀리초) */
 	private static final Long DEFAULT_TIMEOUT = 60L * 60 * 1000;
 
-	private final UserRepository          userRepository;
-	private final NotificationRepository  notificationRepository;
-	private final EmitterRepository       emitterRepository;
-	private final CommunityFeignClient    communityFeignClient;
+	private final UserRepository userRepository;
+	private final NotificationRepository notificationRepository;
+	private final EmitterRepository emitterRepository;
+	private final CommunityFeignClient communityFeignClient;
 
 	/* ===============================  SSE 연결  =============================== */
 
@@ -74,16 +74,18 @@ public class NotificationService {
 				.orElseThrow(() -> new ResponseStatusException(
 						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-		Notification notification = notificationRepository.save(
-				Notification.create(
-						receiver,
-						commentId,
-						String.format("제목: %s", info.content()),
-						NotificationType.COMMENT
-				)
-		);
+		Notification notification = Notification.builder()
+				.receiver(receiver)
+				.title("새 댓글이 등록되었습니다.")
+				.content(info.content())
+				.commentId(commentId)
+				.partyId(null)
+				.actorId(null)
+				.isRead(false)
+				.type(NotificationType.COMMENT)
+				.build();
 
-		dispatchToClient(receiver.getId(), notification, info.postId());
+		dispatchToClient(receiver.getId(), notification);
 	}
 
 
@@ -120,7 +122,7 @@ public class NotificationService {
 						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
 		return notificationRepository.findAllByReceiver(user).stream()
-				.map(n -> NotificationResponse.from(n, null))
+				.map(NotificationResponse::from)
 				.collect(Collectors.toList());
 	}
 
@@ -132,7 +134,7 @@ public class NotificationService {
 						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
 		return notificationRepository.findTop3ByReceiverOrderByCreatedAtDesc(user).stream()
-				.map(n -> NotificationResponse.from(n, null))
+				.map(NotificationResponse::from)
 				.collect(Collectors.toList());
 	}
 
@@ -143,13 +145,13 @@ public class NotificationService {
 
 
 
-	private void dispatchToClient(Long receiverId, Notification notification, Long boardId) {
+	private void dispatchToClient(Long receiverId, Notification notification) {
 		String prefix = receiverId.toString();
 		Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(prefix);
 
 		emitters.forEach((key, emitter) -> {
 			emitterRepository.saveEventCache(key, notification);
-			if (send(emitter, key, NotificationResponse.from(notification, boardId))) {
+			if (send(emitter, key, NotificationResponse.from(notification))) {
 				log.warn("알림 전송 실패 - emitterId: {}", key);
 			}
 		});

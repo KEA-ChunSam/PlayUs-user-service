@@ -12,19 +12,19 @@ public record NotificationResponse(
 	String title,
 	String content,
 	Long commentId,
-	Long boardId,
+	Long partyId,
 	NotificationType type,
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
 	LocalDateTime createdAt,
 	boolean isRead
 ) {
-	public static NotificationResponse from(Notification entity, Long boardId) {
+	public static NotificationResponse from(Notification entity) {
 		return new NotificationResponse(
 				entity.getId(),
 				entity.getTitle(),
 				entity.getContent(),
 				entity.getCommentId(),
-				boardId,
+				entity.getPartyId(),
 				entity.getType(),
 				entity.getCreatedAt(),
 				entity.isRead()

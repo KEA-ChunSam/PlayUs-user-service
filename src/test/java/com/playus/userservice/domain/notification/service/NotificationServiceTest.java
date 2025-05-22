@@ -135,7 +135,7 @@ class NotificationServiceTest {
     @DisplayName("읽음 처리: 소유자가 다르면 400")
     void readNotification_forbidden_throws() {
         // given
-        Notification n = Notification.create(dummyUser, null, "msg", NotificationType.COMMENT);
+        Notification n = Notification.create(dummyUser, "테스트 댓글", "a", null,null, null, NotificationType.COMMENT);
         ReflectionTestUtils.setField(n, "id", 5L);
         given(notificationRepository.findById(5L)).willReturn(Optional.of(n));
 
@@ -149,7 +149,7 @@ class NotificationServiceTest {
     @DisplayName("읽음 처리: 정상 호출이면 isRead=true")
     void readNotification_success() {
         // given
-        Notification n = Notification.create(dummyUser, null, "msg", NotificationType.COMMENT);
+        Notification n = Notification.create(dummyUser, "테스트 댓글", "b", null,null, null, NotificationType.COMMENT);
         ReflectionTestUtils.setField(n, "id", 7L);
         given(notificationRepository.findById(7L)).willReturn(Optional.of(n));
 
@@ -176,7 +176,7 @@ class NotificationServiceTest {
     @DisplayName("전체 조회: 정상 호출이면 DTO 리스트 리턴")
     void getNotifications_success() {
         // given
-        Notification n = Notification.create(dummyUser, null, "hey", NotificationType.COMMENT);
+        Notification n = Notification.create(dummyUser, "테스트 댓글", "c", null,null, null, NotificationType.COMMENT);
         given(userRepository.findById(1L)).willReturn(Optional.of(dummyUser));
         given(notificationRepository.findAllByReceiver(dummyUser))
                 .willReturn(List.of(n));
@@ -188,7 +188,7 @@ class NotificationServiceTest {
         assertThat(list).hasSize(1)
                 .first()
                 .usingRecursiveComparison()
-                .isEqualTo(NotificationResponse.from(n, null));
+                .isEqualTo(NotificationResponse.from(n));
     }
 
     @Test
@@ -197,10 +197,17 @@ class NotificationServiceTest {
         // given
         given(userRepository.findById(1L)).willReturn(Optional.of(dummyUser));
         List<Notification> four = List.of(
-                Notification.create(dummyUser, null, "a", NotificationType.COMMENT),
-                Notification.create(dummyUser, null, "b", NotificationType.COMMENT),
-                Notification.create(dummyUser, null, "c", NotificationType.COMMENT),
-                Notification.create(dummyUser, null, "d", NotificationType.COMMENT)
+                // 이제 7개 인자를 모두 넘겨야 합니다.
+                Notification.create(dummyUser,
+                        "테스트 댓글",  // title
+                        "a",           // content
+                        null,          // commentId
+                        null,          // partyId
+                        null,          // actorId
+                        NotificationType.COMMENT),
+                Notification.create(dummyUser, "테스트 댓글", "b", null, null, null, NotificationType.COMMENT),
+                Notification.create(dummyUser, "테스트 댓글", "c", null, null, null, NotificationType.COMMENT),
+                Notification.create(dummyUser, "테스트 댓글", "d", null, null, null, NotificationType.COMMENT)
         );
         given(notificationRepository.findTop3ByReceiverOrderByCreatedAtDesc(dummyUser))
                 .willReturn(four.subList(0, 3));
