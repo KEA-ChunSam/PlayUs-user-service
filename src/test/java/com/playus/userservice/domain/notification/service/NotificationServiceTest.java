@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.notification.service;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
-import com.playus.userservice.domain.notification.repository.NotificationRepository;
+import com.playus.userservice.domain.user.repository.write.NotificationRepository;
 import com.playus.userservice.domain.notification.repository.EmitterRepository;
 import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.entity.User;

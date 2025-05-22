@@ -2,6 +2,7 @@ package com.playus.userservice.domain.notification.controller;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
 import com.playus.userservice.domain.notification.service.NotificationService;
+import com.playus.userservice.domain.notification.specification.NotificationControllerSpecification;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationController implements NotificationControllerSpecification {
 
 	private final NotificationService notificationService;
 
