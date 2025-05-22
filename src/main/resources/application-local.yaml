@@ -139,5 +139,5 @@ feign:
   match:
     url: http://match-dummy
 
-  commnuity:
+  community:
     url: http://localhost:8082

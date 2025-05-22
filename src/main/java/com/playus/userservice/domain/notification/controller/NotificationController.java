@@ -1,10 +1,8 @@
 package com.playus.userservice.domain.notification.controller;
 
-import com.daruda.darudaserver.domain.notification.dto.request.NoticeRequest;
-import com.daruda.darudaserver.domain.notification.dto.response.NotificationResponse;
-import com.daruda.darudaserver.domain.notification.service.NotificationService;
-import com.daruda.darudaserver.global.common.response.ApiResponse;
-import com.daruda.darudaserver.global.error.code.SuccessCode;
+import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
+import com.playus.userservice.domain.notification.service.NotificationService;
+import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/notification")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class NotificationController {
 
@@ -26,43 +24,55 @@ public class NotificationController {
 	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	@Operation(summary = "SSE 연결", description = "실시간 알림을 위한 SSE(Server-Sent Events)에 연결합니다.")
 	public ResponseEntity<SseEmitter> subscribe(
-		@AuthenticationPrincipal Long userId,
-		@Parameter(description = "EventStream이 끊어 젔을 경우, Web에서 수신한 마지막 ID 값", example = "2_1747732045603")
-		@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-		return ResponseEntity.ok(notificationService.subscribe(userId, lastEventId));
+			@AuthenticationPrincipal CustomOAuth2User principal,
+			@Parameter(description = "EventStream이 끊어졌을 때, 클라이언트가 보관한 마지막 ID", example = "2_1747732045603")
+			@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+
+		Long userId = Long.parseLong(principal.getName());
+		SseEmitter emitter = notificationService.subscribe(userId, lastEventId);
+		return ResponseEntity
+				.ok()
+				.contentType(MediaType.TEXT_EVENT_STREAM)  // 여기서 헤더 명시
+				.body(emitter);
 	}
 
 	@PatchMapping("/read/{notification-id}")
-	@Operation(summary = "알림 읽음", description = "알림을 읽음 처리 합니다.")
-	public ResponseEntity<ApiResponse<?>> readNotification(
-		@AuthenticationPrincipal Long userId,
-		@Parameter(description = "notification Id", example = "1")
-		@PathVariable(name = "notification-id") Long notificationId) {
+	@Operation(summary = "알림 읽음 처리", description = "특정 알림을 읽음 상태로 변경합니다.")
+	public ResponseEntity<Void> readNotification(
+			@AuthenticationPrincipal CustomOAuth2User principal,
+			@Parameter(description = "notification Id", example = "1")
+			@PathVariable("notification-id") Long notificationId) {
+
+		Long userId = Long.parseLong(principal.getName());
 		notificationService.readNotification(userId, notificationId);
-		return ResponseEntity.ok(ApiResponse.ofSuccess(SuccessCode.SUCCESS_UPDATE));
+		return ResponseEntity.ok().build();
 	}
 
 	@GetMapping
-	@Operation(summary = "전체 알림 목록 조회", description = "전체 알림을 목록으로 조회합니다.")
-	public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(
-		@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(
-			ApiResponse.ofSuccessWithData(notificationService.getNotifications(userId), SuccessCode.SUCCESS_FETCH));
+	@Operation(summary = "전체 알림 조회", description = "사용자의 모든 알림을 반환합니다.")
+	public ResponseEntity<List<NotificationResponse>> getNotifications(
+			@AuthenticationPrincipal CustomOAuth2User principal) {
+
+		Long userId = Long.parseLong(principal.getName());
+		return ResponseEntity.ok(notificationService.getNotifications(userId));
 	}
 
 	@GetMapping("/recent")
-	@Operation(summary = "최근 알림 목록 조회", description = "최근 3개의 알림을 목록으로 조회합니다.")
-	public ResponseEntity<ApiResponse<List<NotificationResponse>>> getRecentNotifications(
-		@AuthenticationPrincipal Long userId) {
-		return ResponseEntity.ok(
-			ApiResponse.ofSuccessWithData(notificationService.getRecentNotifications(userId),
-				SuccessCode.SUCCESS_FETCH));
+	@Operation(summary = "최근 알림 3건 조회", description = "가장 최근 3개의 알림을 반환합니다.")
+	public ResponseEntity<List<NotificationResponse>> getRecentNotifications(
+			@AuthenticationPrincipal CustomOAuth2User principal) {
+
+		Long userId = Long.parseLong(principal.getName());
+		return ResponseEntity.ok(notificationService.getRecentNotifications(userId));
 	}
 
-	@PostMapping("/notice")
-	@Operation(summary = "공지 발송(관리자)", description = "모든 사용자에게 공지를 발송합니다.")
-	public ResponseEntity<ApiResponse<?>> notice(@RequestBody NoticeRequest noticeRequest) {
-		notificationService.sendNotice(noticeRequest);
-		return ResponseEntity.ok(ApiResponse.ofSuccess(SuccessCode.SUCCESS_SEND_NOTICE));
+	@DeleteMapping("/comment/{comment-id}")
+	@Operation(summary = "댓글 삭제 시 연관 알림 삭제", description = "커뮤니티 서비스에서 댓글 삭제 후 알림을 정리할 때 호출합니다.")
+	public ResponseEntity<Void> deleteByCommentId(
+			@PathVariable("comment-id") Long commentId) {
+
+		notificationService.deleteByCommentId(commentId);
+		return ResponseEntity.noContent().build();  // 204 No Content
 	}
+
 }

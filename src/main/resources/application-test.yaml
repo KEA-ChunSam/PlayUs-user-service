@@ -11,6 +11,9 @@ spring:
           time_zone: Asia/Seoul
     show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
+  cloud:
+    openfeign:
+      enabled: false
   security:
     oauth2:
       client:

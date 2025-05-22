@@ -17,35 +17,47 @@ public class NotificationDocument extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    @Field("receiver_id")
-    private Long receiverId;
+    @Field("title")
+    @Size(min = 1, max = 255)
+    private String title;
 
     @NotNull
-    @Size(min = 1, max = 255)
-    private String message;
+    @Field("content")
+    private String content;
+
+    @Field("comment_id")
+    private Long commentId;
+
+    @NotNull
+    @Field("receiver_id")
+    private Long receiverId;
 
     @Field("is_read")
     private boolean isRead;
 
     @NotNull
-    private NotificationType notificationType;
+    private NotificationType type;
 
     @Builder
-    private NotificationDocument(Long id, Long receiverId, String message, boolean isRead, NotificationType notificationType) {
+    private NotificationDocument(Long id, String title, String content, Long commentId, Long receiverId, boolean isRead, NotificationType type) {
         this.id = id;
+        this.title = title;
+        this.content = content;
+        this.commentId = commentId;
         this.receiverId = receiverId;
-        this.message = message;
         this.isRead = isRead;
-        this.notificationType = notificationType;
+        this.type = type;
     }
 
-    public static NotificationDocument createNotificationDocument(Long id, Long receiverId, String message, boolean isRead, NotificationType notificationType) {
+    public static NotificationDocument createNotificationDocument(Long id, String title, String content, Long commentId, Long receiverId, boolean isRead, NotificationType type) {
         return NotificationDocument.builder()
                 .id(id)
+                .title(title)
+                .content(content)
+                .commentId(commentId)
                 .receiverId(receiverId)
-                .message(message)
                 .isRead(isRead)
-                .type(notificationType)
+                .type(type)
                 .build();
     }
 }

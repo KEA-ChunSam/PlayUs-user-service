@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "twpFeignClient", url = "${feign.twp.url}", path = "/twp/api", fallback = TwpFeignClient.class)
+@FeignClient(name = "twpFeignClient", url = "${feign.twp.url}", path = "/twp/api", fallback = TwpFeignFallback.class)
 @CircuitBreaker(name = "circuit")
 public interface TwpFeignClient {
 

@@ -1,6 +1,5 @@
 package com.playus.userservice.domain.notification.repository;
 
-import com.playus.userservice.domain.user.entity.Comment;
 import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +11,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 	void deleteAllByReceiver(User receiver);
 
-	void deleteAllByComment(Comment comment);
+	void deleteAllByCommentId(Long commentId);
 
 	List<Notification> findTop3ByReceiverOrderByCreatedAtDesc(User receiver);
 }
