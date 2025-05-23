@@ -1,13 +1,13 @@
 package com.playus.userservice.domain.notification.controller;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
-import com.playus.userservice.domain.notification.dto.response.PartyNotificationRequest;
 import com.playus.userservice.domain.notification.service.NotificationService;
 import com.playus.userservice.domain.notification.specification.NotificationControllerSpecification;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
+import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
+import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/notifications")
+@RequestMapping("/notifications")
 @RequiredArgsConstructor
 public class NotificationController implements NotificationControllerSpecification {
 
@@ -79,15 +79,21 @@ public class NotificationController implements NotificationControllerSpecificati
 		return ResponseEntity.noContent().build();  // 204 No Content
 	}
 
+	// community
+	@PostMapping("/comment")
+	public ResponseEntity<Void> createCommentNotification(
+			@RequestBody CommentNotificationEvent event) {
+
+		notificationService.sendCommentNotification(event);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
 
 	// twp
-	@PostMapping
-	@Operation(summary = "직관팟 알림 수신(내부용)",
-			description = "TWP 서비스에서 호출해 직관팟 관련 알림을 등록합니다.")
+	@PostMapping("/party")
 	public ResponseEntity<Void> createPartyNotification(
-			@RequestBody @Valid PartyNotificationRequest request) {
+			@RequestBody PartyNotificationEvent event) {
 
-		notificationService.createPartyNotification(request);
+		notificationService.createPartyNotification(event);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 

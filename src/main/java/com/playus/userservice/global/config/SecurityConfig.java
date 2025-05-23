@@ -37,6 +37,10 @@ public class SecurityConfig {
             "http://localhost:3000"
     );
 
+    private static final String [] INTERNAL_PATHS = {
+            "user/api/**",
+    };
+
     private static final String[] WHITELISTED_PATHS = {
             "/error",
             "/swagger-ui/**",
@@ -86,6 +90,8 @@ public class SecurityConfig {
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS)
+                        .permitAll()
+                        .requestMatchers(INTERNAL_PATHS)
                         .permitAll()
                         .anyRequest().authenticated()
                 )

@@ -2,12 +2,13 @@ package com.playus.userservice.domain.notification.service;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
 import com.playus.userservice.domain.notification.repository.EmitterRepository;
+import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import com.playus.userservice.domain.user.repository.write.NotificationRepository;
 import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.NotificationType;
 import com.playus.userservice.domain.user.feign.client.CommunityFeignClient;
-import com.playus.userservice.domain.user.feign.response.CommentInfo;
+import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,6 @@ public class NotificationService {
 	private final UserRepository userRepository;
 	private final NotificationRepository notificationRepository;
 	private final EmitterRepository emitterRepository;
-	private final CommunityFeignClient communityFeignClient;
 
 	/* ===============================  SSE 연결  =============================== */
 
@@ -59,35 +59,6 @@ public class NotificationService {
 
 		return emitter;
 	}
-
-	/* ============================  알림 비즈니스  ============================ */
-
-	/** 댓글 알림 발송 */
-	@Transactional
-	public void sendCommentNotification(Long commentId) {
-		CommentInfo info = communityFeignClient.getComment(commentId);
-		if (info == null || !info.activated()) {
-			return; // 비활성 댓글 · 장애 시 무시
-		}
-
-		User receiver = userRepository.findById(info.writerId())
-				.orElseThrow(() -> new ResponseStatusException(
-						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-
-		Notification notification = Notification.builder()
-				.receiver(receiver)
-				.title("새 댓글이 등록되었습니다.")
-				.content(info.content())
-				.commentId(commentId)
-				.partyId(null)
-				.actorId(null)
-				.isRead(false)
-				.type(NotificationType.COMMENT)
-				.build();
-
-		dispatchToClient(receiver.getId(), notification);
-	}
-
 
 	/** 특정 유저의 모든 알림 삭제 + SSE 연결 종료 */
 	@Transactional
@@ -138,12 +109,82 @@ public class NotificationService {
 				.collect(Collectors.toList());
 	}
 
+	// community
+	@Transactional
+	public void sendCommentNotification(CommentNotificationEvent e) {
+
+		if (!e.activated()) return;
+
+		User receiver = userRepository.findById(e.writerId())
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
+		Notification n = Notification.builder()
+				.receiver(receiver)
+				.title("새 댓글이 등록되었습니다.")
+				.content(e.content())
+				.commentId(e.commentId())
+				.partyId(null)
+				.actorId(e.writerId())
+				.isRead(false)
+				.type(NotificationType.COMMENT)
+				.build();
+
+		notificationRepository.save(n);
+		dispatchToClient(receiver.getId(), n);
+	}
+
 	@Transactional
 	public void deleteByCommentId(Long commentId) {
 		notificationRepository.deleteAllByCommentId(commentId);
 	}
 
 
+	// twp
+	@Transactional
+	public void createPartyNotification(PartyNotificationEvent e) {
+
+		User receiver = userRepository.findById(e.receiverId())
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
+		Notification n = Notification.builder()
+				.receiver(receiver)
+				.title(switch (e.type()) {
+					case PARTY_REQUEST  -> "새 참가 요청이 도착했습니다.";
+					case PARTY_JOINED   -> "새로운 참가자가 입장했습니다.";
+					case PARTY_APPROVED -> "직관팟 가입이 승인되었습니다.";
+					case PARTY_REFUSED  -> "직관팟 가입이 거절되었습니다.";
+					default             -> "";
+				})
+				.content(buildContent(e))
+				.commentId(null)
+				.partyId(e.partyId())
+				.actorId(e.actorId())
+				.isRead(false)
+				.type(e.type())
+				.build();
+
+		notificationRepository.save(n);
+		dispatchToClient(receiver.getId(), n);
+	}
+
+	/** Party 알림 본문 생성 로직 */
+	private String buildContent(PartyNotificationEvent e) {
+		return switch (e.type()) {
+			case PARTY_REQUEST  -> String.format("'%s' 직관팟에 참가 요청이 왔습니다. 메시지: %s", e.partyTitle(), nullToDash(e.requireMessage()));
+			case PARTY_JOINED   -> String.format("'%s' 직관팟에 새로운 참가자가 입장했습니다.", e.partyTitle());
+			case PARTY_APPROVED -> String.format("'%s' 직관팟 가입이 승인되었습니다.", e.partyTitle());
+			case PARTY_REFUSED  -> String.format("'%s' 직관팟 가입이 거절되었습니다.", e.partyTitle());
+			default             -> "";
+		};
+	}
+
+
+
+	private String nullToDash(String s) {
+		return (s == null || s.isBlank()) ? "-" : s;
+	}
 
 	private void dispatchToClient(Long receiverId, Notification notification) {
 		String prefix = receiverId.toString();

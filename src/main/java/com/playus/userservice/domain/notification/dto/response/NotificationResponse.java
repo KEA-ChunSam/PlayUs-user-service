@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.enums.NotificationType;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public record NotificationResponse(

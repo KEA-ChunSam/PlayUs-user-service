@@ -69,13 +69,6 @@ public class Notification extends BaseTimeEntity {
                 .build();
     }
 
-    public void updateContent(String title, String content, boolean isRead, NotificationType type) {
-        this.title   = title;
-        this.content = content;
-        this.isRead = isRead;
-        this.type = type;
-    }
-
     public void markAsRead() {
         this.isRead = true;
     }
