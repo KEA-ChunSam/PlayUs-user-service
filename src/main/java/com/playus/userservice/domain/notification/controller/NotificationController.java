@@ -6,8 +6,6 @@ import com.playus.userservice.domain.notification.specification.NotificationCont
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
 import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @RestController
-@RequestMapping({ "", "/user" })
+@RequestMapping({ "", "/notifications" })
 @RequiredArgsConstructor
 public class NotificationController {
 

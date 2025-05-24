@@ -53,6 +53,8 @@ public class SecurityConfig {
             "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
             "/api/v1/auth/logout",
+            "/notifications/party",
+            "/notifications/comment"
     };
 
     @Bean
