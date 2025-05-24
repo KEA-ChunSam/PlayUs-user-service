@@ -23,6 +23,7 @@ public class NotificationDocument extends BaseTimeEntity {
 
     @NotNull
     @Field("content")
+    @Size(min = 1, max = 500)
     private String content;
 
     @Field("comment_id")
