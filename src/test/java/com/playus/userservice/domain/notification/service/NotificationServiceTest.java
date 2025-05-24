@@ -6,12 +6,14 @@ import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.*;
 import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
+import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import com.playus.userservice.domain.user.repository.write.NotificationRepository;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,10 +56,6 @@ class NotificationServiceTest {
         ReflectionTestUtils.setField(dummyUser, "id", 1L);
     }
 
-    /* --------------------------------------------------------------------- */
-    /*  SSE                                                                  */
-    /* --------------------------------------------------------------------- */
-
     @Test
     @DisplayName("SSE 구독: 신규 emitter 생성 후 반환")
     void subscribe_createsAndReturnsEmitter() {
@@ -73,10 +71,6 @@ class NotificationServiceTest {
         then(emitterRepository).should()
                 .save(argThat(id -> id.startsWith("1_")), any(SseEmitter.class));
     }
-
-    /* --------------------------------------------------------------------- */
-    /*  댓글 알림                                                             */
-    /* --------------------------------------------------------------------- */
 
     @Test
     @DisplayName("댓글 알림: 활성화된 이벤트면 저장 · dispatch")
@@ -109,7 +103,6 @@ class NotificationServiceTest {
         CommentNotificationEvent event = CommentNotificationEvent.of(
                 5L, 1L, 1L, "", false
         );
-
         // when (예외 없이 반환)
         notificationService.sendCommentNotification(event);
 
@@ -117,10 +110,6 @@ class NotificationServiceTest {
         then(notificationRepository).shouldHaveNoInteractions();
         then(emitterRepository).shouldHaveNoInteractions();
     }
-
-    /* --------------------------------------------------------------------- */
-    /*  읽음 처리                                                             */
-    /* --------------------------------------------------------------------- */
 
     @Test
     @DisplayName("읽음 처리: 존재하지 않는 알림이면 404")
@@ -157,10 +146,6 @@ class NotificationServiceTest {
 
         assertThat(n.isRead()).isTrue();
     }
-
-    /* --------------------------------------------------------------------- */
-    /*  전체·최근 알림 조회                                                   */
-    /* --------------------------------------------------------------------- */
 
     @Test
     @DisplayName("전체 조회: 유저가 없으면 404")
@@ -204,14 +189,44 @@ class NotificationServiceTest {
         assertThat(list).hasSize(3);
     }
 
-    /* --------------------------------------------------------------------- */
-    /*  댓글 ID 기반 삭제                                                     */
-    /* --------------------------------------------------------------------- */
-
     @Test
     @DisplayName("댓글 ID 삭제: repository 호출")
     void deleteByCommentId_success() {
         notificationService.deleteByCommentId(55L);
         then(notificationRepository).should().deleteAllByCommentId(55L);
+    }
+
+    @Test
+    @DisplayName("파티 알림: 신청 요청 저장 · dispatch")
+    void createPartyNotification_request_success() {
+        // given
+        PartyNotificationEvent event = PartyNotificationEvent.request(
+                300L,   // partyId
+                "직관팟",  // title
+                dummyUser.getId(),  // receiver (작성자)
+                99L,    // applicantId (actor)
+                "WAIT", // 상태
+                null    // 메시지
+        );
+
+        given(userRepository.findById(dummyUser.getId())).willReturn(Optional.of(dummyUser));
+        given(notificationRepository.save(any(Notification.class)))
+                .willAnswer(inv -> inv.getArgument(0));
+        given(emitterRepository.findAllEmitterStartWithByUserId("1"))
+                .willReturn(Map.of("1_456", new SseEmitter()));
+
+        // when
+        notificationService.createPartyNotification(event);
+
+        // then
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        then(notificationRepository).should().save(captor.capture());
+        Notification saved = captor.getValue();
+        assertThat(saved.getPartyId()).isEqualTo(300L);
+        assertThat(saved.getType()).isEqualTo(NotificationType.PARTY_REQUEST);
+        assertThat(saved.getTitle()).contains("새 참가 요청이 도착했습니다");
+        assertThat(saved.getContent()).contains("-");
+
+        then(emitterRepository).should().saveEventCache(eq("1_456"), any(Notification.class));
     }
 }
