@@ -21,7 +21,6 @@ public interface NotificationApiControllerSpecification {
     @Operation(
             summary     = "댓글 삭제 → 관련 알림 삭제",
             description = "커뮤니티 서비스에서 댓글 삭제 후 관련 알림을 정리합니다.",
-            security    = @SecurityRequirement(name = "InternalServiceKey"),
             parameters  = @Parameter(
                     name        = "comment-id",
                     description = "삭제된 댓글 ID",
@@ -39,8 +38,7 @@ public interface NotificationApiControllerSpecification {
 
     @Operation(
             summary     = "댓글 알림 생성",
-            description = "커뮤니티 서비스에서 댓글 작성 시 알림을 생성합니다.",
-            security    = @SecurityRequirement(name = "InternalServiceKey")
+            description = "커뮤니티 서비스에서 댓글 작성 시 알림을 생성합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "생성 완료"),
@@ -54,8 +52,7 @@ public interface NotificationApiControllerSpecification {
 
     @Operation(
             summary     = "직관팟 알림 생성",
-            description = "TWP 서비스에서 직관팟 이벤트 발생 시 알림을 생성합니다.",
-            security    = @SecurityRequirement(name = "InternalServiceKey")
+            description = "TWP 서비스에서 직관팟 이벤트 발생 시 알림을 생성합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "생성 완료"),
