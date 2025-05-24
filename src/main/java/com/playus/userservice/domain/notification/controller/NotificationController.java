@@ -4,10 +4,7 @@ import com.playus.userservice.domain.notification.dto.response.NotificationRespo
 import com.playus.userservice.domain.notification.service.NotificationService;
 import com.playus.userservice.domain.notification.specification.NotificationControllerSpecification;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
-import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @RestController
-@RequestMapping({ "", "/notifications" })
+@RequestMapping("/user/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
@@ -56,32 +53,6 @@ public class NotificationController {
 
 		Long userId = Long.parseLong(principal.getName());
 		return ResponseEntity.ok(notificationService.getRecentNotifications(userId));
-	}
-
-	@DeleteMapping("/comment/{comment-id}")
-	public ResponseEntity<Void> deleteByCommentId(
-			@PathVariable("comment-id") Long commentId) {
-
-		notificationService.deleteByCommentId(commentId);
-		return ResponseEntity.noContent().build();  // 204 No Content
-	}
-
-	// community
-	@PostMapping("/comment")
-	public ResponseEntity<Void> createCommentNotification(
-			@RequestBody CommentNotificationEvent event) {
-
-		notificationService.sendCommentNotification(event);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
-	}
-
-	// twp
-	@PostMapping("/party")
-	public ResponseEntity<Void> createPartyNotification(
-			@RequestBody PartyNotificationEvent event) {
-
-		notificationService.createPartyNotification(event);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 }

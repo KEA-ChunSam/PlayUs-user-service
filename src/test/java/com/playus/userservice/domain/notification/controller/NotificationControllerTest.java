@@ -14,8 +14,6 @@ import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.enums.Role;
-import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
-import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +48,7 @@ class NotificationControllerTest extends ControllerTestSupport {
                 .willReturn(emitter);
 
         // 2) 요청 → asyncStarted() 확인 후 MvcResult 확보
-        var mvcResult = mockMvc.perform(get("/user/connect")
+        var mvcResult = mockMvc.perform(get("/user/notifications/connect")
                         .with(authentication(token))
                         .accept(MediaType.TEXT_EVENT_STREAM))
                 .andExpect(request().asyncStarted())
@@ -72,7 +70,7 @@ class NotificationControllerTest extends ControllerTestSupport {
         // given
         Long notificationId = 1L;
 
-        mockMvc.perform(patch("/user/read/{notification-id}", notificationId)
+        mockMvc.perform(patch("/user/notifications/read/{notification-id}", notificationId)
                         .with(authentication(token)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
@@ -87,7 +85,7 @@ class NotificationControllerTest extends ControllerTestSupport {
         List<NotificationResponse> stubList = List.of();   // 내용 없는 더미 리스트
         given(notificationService.getNotifications(anyLong())).willReturn(stubList);
 
-        mockMvc.perform(get("/user")
+        mockMvc.perform(get("/user/notifications")
                         .with(authentication(token)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -101,57 +99,12 @@ class NotificationControllerTest extends ControllerTestSupport {
         List<NotificationResponse> stubList = List.of();
         given(notificationService.getRecentNotifications(anyLong())).willReturn(stubList);
 
-        mockMvc.perform(get("/user/recent")
+        mockMvc.perform(get("/user/notifications/recent")
                         .with(authentication(token)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    @Test
-    @DisplayName("커뮤니티 댓글 알림 생성 요청 성공")
-    void createCommentNotification_ShouldReturnCreated() throws Exception {
-        // given
-        CommentNotificationEvent event = CommentNotificationEvent.of(
-                100L,  // commentId
-                200L,  // postId
-                1L,    // writerId
-                "새 댓글이 등록되었습니다.", // content
-                true   // activated
-        );
-
-        // when & then
-        mockMvc.perform(post("/comment")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
-                .andExpect(status().isCreated());
-
-        then(notificationService).should()
-                .sendCommentNotification(any(CommentNotificationEvent.class));
-    }
-
-    @Test
-    @DisplayName("직관팟 파티 알림 생성 요청 성공")
-    void createPartyNotification_ShouldReturnCreated() throws Exception {
-        // given
-        PartyNotificationEvent event = PartyNotificationEvent.request(
-                300L,                  // partyId
-                "직관팟 제목",            // partyTitle
-                2L,                    // receiverId
-                3L,                    // applicantId (actorId)
-                "WAIT",              // requestStatus
-                "참여 요청합니다."      // requireMessage
-        );
-
-        // when & then
-        mockMvc.perform(post("/party")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
-                .andExpect(status().isCreated());
-
-        then(notificationService).should()
-                .createPartyNotification(any(PartyNotificationEvent.class));
     }
 
 }

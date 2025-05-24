@@ -38,7 +38,7 @@ public class SecurityConfig {
     );
 
     private static final String [] INTERNAL_PATHS = {
-            "user/api/**",
+            "/user/api/**",
     };
 
     private static final String[] WHITELISTED_PATHS = {
@@ -52,9 +52,7 @@ public class SecurityConfig {
             "/oauth2/authorization/naver",
             "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
-            "/api/v1/auth/logout",
-            "/notifications/party",
-            "/notifications/comment"
+            "/api/v1/auth/logout"
     };
 
     @Bean
