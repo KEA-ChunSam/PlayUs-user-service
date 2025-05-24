@@ -1,6 +1,8 @@
 package com.playus.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.playus.userservice.domain.notification.controller.NotificationController;
+import com.playus.userservice.domain.notification.service.NotificationService;
 import com.playus.userservice.domain.user.controller.*;
 import com.playus.userservice.domain.user.service.FavoriteTeamService;
 import com.playus.userservice.domain.user.service.ProfileSetupService;
@@ -30,7 +32,8 @@ import org.springframework.data.redis.core.RedisTemplate;
         FavoriteTeamController.class,
         UserController.class,
         UserProfileController.class,
-        PartyUserController.class
+        PartyUserController.class,
+        NotificationController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {
@@ -53,6 +56,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected UserProfileReadService userProfileReadService;
+
+    @MockitoBean
+    protected NotificationService notificationService;
 
     @MockitoBean
     protected JwtUtil jwtUtil;

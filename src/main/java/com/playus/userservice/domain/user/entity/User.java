@@ -57,8 +57,11 @@ public class User extends BaseTimeEntity {
 
     private LocalDateTime blockOff;
 
+    @Column(name = "withdrawn_at")
+    private LocalDateTime withdrawnAt;
+
     @Builder
-    private User(String nickname,String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, LocalDateTime blockOff, String thumbnailURL, Float userScore) {
+    private User(String nickname,String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, LocalDateTime blockOff, LocalDateTime withdrawnAt, String thumbnailURL, Float userScore) {
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         this.birth = birth;
@@ -67,6 +70,7 @@ public class User extends BaseTimeEntity {
         this.authProvider = authProvider;
         this.activated = activated;
         this.blockOff = blockOff;
+        this.withdrawnAt = withdrawnAt;
         this.thumbnailURL = thumbnailURL;
         this.userScore = userScore;
     }
@@ -81,6 +85,7 @@ public class User extends BaseTimeEntity {
                 .authProvider(authProvider)
                 .activated(true)
                 .blockOff(null)
+                .withdrawnAt(null)
                 .thumbnailURL(thumbnailURL)
                 .userScore(DEFAULT_SCORE)
                 .build();
@@ -102,6 +107,16 @@ public class User extends BaseTimeEntity {
 
     public void withdrawAccount() {
         this.activated = false;
+        this.withdrawnAt = LocalDateTime.now();
     }
 
+    public boolean enableReactivate(int days) {
+        return withdrawnAt != null &&
+                withdrawnAt.isAfter(LocalDateTime.now().minusDays(days));
+    }
+
+    public void reactivate() {
+        this.activated   = true;
+        this.withdrawnAt = null;
+    }
 }

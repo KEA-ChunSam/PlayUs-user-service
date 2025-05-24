@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.document;
 
 import com.playus.userservice.domain.common.BaseTimeEntity;
-import com.playus.userservice.domain.user.enums.Type;
+import com.playus.userservice.domain.user.enums.NotificationType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,33 +17,46 @@ public class NotificationDocument extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    @Field("receiver_id")
-    private Long receiverId;
+    @Field("title")
+    @Size(min = 1, max = 255)
+    private String title;
 
     @NotNull
-    @Size(min = 1, max = 255)
-    private String message;
+    @Field("content")
+    @Size(min = 1, max = 500)
+    private String content;
+
+    @Field("comment_id")
+    private Long commentId;
+
+    @NotNull
+    @Field("receiver_id")
+    private Long receiverId;
 
     @Field("is_read")
     private boolean isRead;
 
     @NotNull
-    private Type type;
+    private NotificationType type;
 
     @Builder
-    private NotificationDocument(Long id, Long receiverId, String message, boolean isRead, Type type) {
+    private NotificationDocument(Long id, String title, String content, Long commentId, Long receiverId, boolean isRead, NotificationType type) {
         this.id = id;
+        this.title = title;
+        this.content = content;
+        this.commentId = commentId;
         this.receiverId = receiverId;
-        this.message = message;
         this.isRead = isRead;
         this.type = type;
     }
 
-    public static NotificationDocument createNotificationDocument(Long id, Long receiverId, String message, boolean isRead, Type type) {
+    public static NotificationDocument createNotificationDocument(Long id, String title, String content, Long commentId, Long receiverId, boolean isRead, NotificationType type) {
         return NotificationDocument.builder()
                 .id(id)
+                .title(title)
+                .content(content)
+                .commentId(commentId)
                 .receiverId(receiverId)
-                .message(message)
                 .isRead(isRead)
                 .type(type)
                 .build();

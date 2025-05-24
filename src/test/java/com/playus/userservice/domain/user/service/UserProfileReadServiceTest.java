@@ -55,6 +55,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "default.png",
                 0.3f,
+                null,
                 null
         );
         userRepo.save(userDoc);
@@ -110,6 +111,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "me.png",
                 1.0f,
+                null,
                 null));
 
         userRepo.save(UserDocument.createUserDocument(
@@ -123,6 +125,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "other.png",
                 2.5f,
+                null,
                 null));
 
         teamRepo.save(FavoriteTeamDocument.createFavoriteTeamDocument(1L, targetId, 3L, 1));
@@ -156,6 +159,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "me.png",
                 1.0f,
+                null,
                 null));
 
         // when // then
@@ -174,12 +178,12 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
         userRepo.save(UserDocument.createUserDocument(
                 id1, "u1", "+8201", LocalDate.now(),
                 Gender.MALE, Role.USER, AuthProvider.KAKAO,
-                true, "u1.png", 0.1f, null));
+                true, "u1.png", 0.1f, null, null));
 
         userRepo.save(UserDocument.createUserDocument(
                 id2, "u2", "+8202", LocalDate.now(),
                 Gender.FEMALE, Role.USER, AuthProvider.NAVER,
-                true, "u2.png", 0.2f, null));
+                true, "u2.png", 0.2f, null, null));
 
         // when
         var urls = userProfileReadService.fetchThumbnailUrls(List.of(id1, id2));
@@ -216,6 +220,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "w1.png",
                 1.0f,
+                null,
                 null));
 
         userRepo.save(UserDocument.createUserDocument(
@@ -229,6 +234,7 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
                 true,
                 "w2.png",
                 2.0f,
+                null,
                 null));
 
         // when

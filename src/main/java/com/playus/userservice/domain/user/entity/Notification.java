@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.entity;
 
 import com.playus.userservice.domain.common.BaseTimeEntity;
-import com.playus.userservice.domain.user.enums.Type;
+import com.playus.userservice.domain.user.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,41 +15,58 @@ public class Notification extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private User user;
+    @Column(nullable = false)
+    private String title;
 
-    @Column(nullable = false, length = 255)
-    private String message;
+    @Column(nullable = false)
+    private String content;
+
+    /** 댓글 알림일 때만 사용 */
+    @Column(name = "comment_id")
+    private Long commentId;
+
+    /** 직관팟 알림일 때만 사용 */
+    @Column(name = "party_id")
+    private Long partyId;
+
+    /** 알림을 발생시킨 사용자(참가자·작성자 등) */
+    @Column(name = "actor_id")
+    private Long actorId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User receiver;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type;
 
     @Column(nullable = false, name = "is_read")
     private boolean isRead;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Type type;
-
     @Builder
-    private Notification(User user, String message, boolean isRead, Type type) {
-        this.user = user;
-        this.message = message;
+    private Notification(User receiver, String title, String content, Long commentId, Long partyId, Long actorId, boolean isRead, NotificationType type) {
+        this.receiver = receiver;
+        this.title     = title;
+        this.content = content;
+        this.commentId = commentId;
+        this.partyId    = partyId;
+        this.actorId    = actorId;
         this.isRead = isRead;
         this.type = type;
     }
 
-    public static Notification create(User user, String message, Type type) {
+    public static Notification create(User receiver, String title, String content, Long commentId, Long partyId, Long actorId, NotificationType type) {
         return Notification.builder()
-                .user(user)
-                .message(message)
+                .receiver(receiver)
+                .title(title)
+                .content(content)
+                .commentId(commentId)
+                .partyId(partyId)
+                .actorId(actorId)
                 .isRead(false)
                 .type(type)
                 .build();
-    }
-
-    public void updateContent(String message, boolean isRead, Type type) {
-        this.message = message;
-        this.isRead = isRead;
-        this.type = type;
     }
 
     public void markAsRead() {

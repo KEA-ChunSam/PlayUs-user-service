@@ -82,7 +82,7 @@ public class UserProfileReadService {
 
     /**
      * 직관팟 참가자 정보 조회:
-     * userIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 연령대, 썸네일 URL 반환
+     * userIds 목록을 받아 각 작성자의 id, 닉네임, 연령대, 썸네일 URL 반환
      */
     public List<PartyApplicantsInfoFeignResponse> fetchApplicantsInfos(List<Long> userIds) {
         return userRepository.findAllById(userIds).stream()

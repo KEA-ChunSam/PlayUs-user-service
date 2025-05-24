@@ -133,8 +133,9 @@ slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
 feign:
-  twp:
-    url: http://twp-dummy
 
   match:
     url: http://match-dummy
+
+  community:
+    url: http://localhost:8082
