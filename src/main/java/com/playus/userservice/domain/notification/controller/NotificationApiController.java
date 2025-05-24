@@ -1,6 +1,7 @@
 package com.playus.userservice.domain.notification.controller;
 
 import com.playus.userservice.domain.notification.service.NotificationService;
+import com.playus.userservice.domain.notification.specification.NotificationApiControllerSpecification;
 import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
 import com.playus.userservice.domain.user.feign.response.PartyNotificationEvent;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user/api")
 @RequiredArgsConstructor
-public class NotificationApiController {
+public class NotificationApiController implements NotificationApiControllerSpecification {
 
 	private final NotificationService notificationService;
 

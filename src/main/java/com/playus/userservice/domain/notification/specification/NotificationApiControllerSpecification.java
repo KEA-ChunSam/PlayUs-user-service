@@ -18,8 +18,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Tag(name = "Notification-Internal", description = "커뮤니티/TWP 서비스 → 알림 API (내부 호출)")
 public interface NotificationApiControllerSpecification {
 
-    /* ======================  댓글 삭제 시 알림 제거  ====================== */
-
     @Operation(
             summary     = "댓글 삭제 → 관련 알림 삭제",
             description = "커뮤니티 서비스에서 댓글 삭제 후 관련 알림을 정리합니다.",
@@ -39,8 +37,6 @@ public interface NotificationApiControllerSpecification {
     })
     ResponseEntity<Void> deleteByCommentId(Long commentId);
 
-    /* ======================  댓글 알림 생성  ====================== */
-
     @Operation(
             summary     = "댓글 알림 생성",
             description = "커뮤니티 서비스에서 댓글 작성 시 알림을 생성합니다.",
@@ -55,8 +51,6 @@ public interface NotificationApiControllerSpecification {
             @Parameter(description = "댓글 알림 이벤트", required = true)
             CommentNotificationEvent event
     );
-
-    /* ======================  직관팟 알림 생성  ====================== */
 
     @Operation(
             summary     = "직관팟 알림 생성",

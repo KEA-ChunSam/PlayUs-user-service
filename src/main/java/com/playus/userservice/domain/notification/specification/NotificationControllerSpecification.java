@@ -22,8 +22,6 @@ import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 @Tag(name = "Notification", description = "실시간 알림 스트림 및 조회 API")
 public interface NotificationControllerSpecification {
 
-    /* =========================  SSE 구독  ========================= */
-
     @Operation(
             summary     = "SSE 구독",
             description = "Server-Sent Events 스트림을 시작하여 실시간 알림을 수신합니다.",
@@ -56,9 +54,9 @@ public interface NotificationControllerSpecification {
                             mediaType = APPLICATION_JSON_VALUE,
                             examples  = @ExampleObject(value = """
                             {
-                              "code": 401,
-                              "status": "UNAUTHORIZED",
-                              "message": "유효하지 않은 토큰입니다."
+                                "code": 401,
+                                "status": "UNAUTHORIZED",
+                                "message": "유효하지 않은 토큰입니다."
                             }""")
                     )
             )
@@ -67,8 +65,6 @@ public interface NotificationControllerSpecification {
             @Parameter(hidden = true) CustomOAuth2User principal,
             String lastEventId
     );
-
-    /* ======================  알림 읽음 처리  ====================== */
 
     @Operation(
             summary     = "알림 읽음 처리",
@@ -106,8 +102,6 @@ public interface NotificationControllerSpecification {
             @Parameter(hidden = true) CustomOAuth2User principal,
             Long notificationId
     );
-
-    /* ======================  전체 / 최근 알림 조회  ====================== */
 
     @Operation(
             summary     = "전체 알림 목록",

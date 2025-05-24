@@ -2,6 +2,7 @@ package com.playus.userservice.domain.notification.controller;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
 import com.playus.userservice.domain.notification.service.NotificationService;
+import com.playus.userservice.domain.notification.specification.NotificationApiControllerSpecification;
 import com.playus.userservice.domain.notification.specification.NotificationControllerSpecification;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
@@ -16,17 +17,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/notifications")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationController implements NotificationControllerSpecification {
 
 	private final NotificationService notificationService;
 
 	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public SseEmitter subscribe(
+	public ResponseEntity<SseEmitter> subscribe(
 			@AuthenticationPrincipal CustomOAuth2User principal,
 			@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 
 		Long userId = Long.parseLong(principal.getName());
-		return notificationService.subscribe(userId, lastEventId);
+		SseEmitter emitter = notificationService.subscribe(userId, lastEventId);
+		return ResponseEntity.ok(emitter);
 	}
 
 	@PatchMapping("/read/{notification-id}")
