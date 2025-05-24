@@ -7,7 +7,6 @@ import com.playus.userservice.domain.user.repository.write.NotificationRepositor
 import com.playus.userservice.domain.user.entity.Notification;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.NotificationType;
-import com.playus.userservice.domain.user.feign.client.CommunityFeignClient;
 import com.playus.userservice.domain.user.feign.response.CommentNotificationEvent;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
 import jakarta.transaction.Transactional;
