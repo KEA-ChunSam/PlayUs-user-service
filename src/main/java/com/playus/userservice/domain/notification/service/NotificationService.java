@@ -34,9 +34,7 @@ public class NotificationService {
 	private final NotificationRepository notificationRepository;
 	private final EmitterRepository emitterRepository;
 
-	/* ===============================  SSE 연결  =============================== */
-
-	/** SSE 구독 (CONNECT) */
+	// SSE 구독 (CONNECT)
 	public SseEmitter subscribe(Long userId, String lastEventId) {
 		String emitterId = userId + "_" + System.currentTimeMillis();
 		SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
@@ -59,7 +57,7 @@ public class NotificationService {
 		return emitter;
 	}
 
-	/** 특정 유저의 모든 알림 삭제 + SSE 연결 종료 */
+	// 특정 유저의 모든 알림 삭제 + SSE 연결 종료
 	@Transactional
 	public void delete(Long userId) {
 		User user = userRepository.findById(userId)
@@ -70,7 +68,7 @@ public class NotificationService {
 		notificationRepository.deleteAllByReceiver(user);
 	}
 
-	/** 알림 읽음 처리 */
+	// 알림 읽음 처리
 	@Transactional
 	public void readNotification(Long userId, Long notificationId) {
 		Notification n = notificationRepository.findById(notificationId)
@@ -84,7 +82,7 @@ public class NotificationService {
 		n.markAsRead();
 	}
 
-	/** 전체 알림 조회 */
+	// 전체 알림 조회
 	@Transactional
 	public List<NotificationResponse> getNotifications(Long userId) {
 		User user = userRepository.findById(userId)
@@ -96,7 +94,7 @@ public class NotificationService {
 				.collect(Collectors.toList());
 	}
 
-	/** 최근 3개 알림 조회 */
+	// 최근 3개 알림 조회
 	@Transactional
 	public List<NotificationResponse> getRecentNotifications(Long userId) {
 		User user = userRepository.findById(userId)
@@ -168,7 +166,7 @@ public class NotificationService {
 		dispatchToClient(receiver.getId(), n);
 	}
 
-	/** Party 알림 본문 생성 로직 */
+
 	private String buildContent(PartyNotificationEvent e) {
 		return switch (e.type()) {
 			case PARTY_REQUEST  -> String.format("'%s' 직관팟에 참가 요청이 왔습니다. 메시지: %s", e.partyTitle(), nullToDash(e.requireMessage()));
@@ -178,8 +176,6 @@ public class NotificationService {
 			default             -> "";
 		};
 	}
-
-
 
 	private String nullToDash(String s) {
 		return (s == null || s.isBlank()) ? "-" : s;
