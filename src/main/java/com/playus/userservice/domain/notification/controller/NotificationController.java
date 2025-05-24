@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping({ "", "/user" })
 @RequiredArgsConstructor
 public class NotificationController {
 
