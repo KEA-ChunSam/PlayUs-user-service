@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.userservice.domain.notification.controller.NotificationController;
 import com.playus.userservice.domain.notification.service.NotificationService;
 import com.playus.userservice.domain.user.controller.*;
-import com.playus.userservice.domain.user.service.FavoriteTeamService;
-import com.playus.userservice.domain.user.service.ProfileSetupService;
-import com.playus.userservice.domain.user.service.UserProfileReadService;
-import com.playus.userservice.domain.user.service.UserService;
+import com.playus.userservice.domain.user.service.*;
 import com.playus.userservice.global.exception.ExceptionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,7 +30,8 @@ import org.springframework.data.redis.core.RedisTemplate;
         UserController.class,
         UserProfileController.class,
         PartyUserController.class,
-        NotificationController.class
+        NotificationController.class,
+        UserReviewController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {
@@ -59,6 +57,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected NotificationService notificationService;
+
+    @MockitoBean
+    protected UserReviewService userReviewService;
 
     @MockitoBean
     protected JwtUtil jwtUtil;

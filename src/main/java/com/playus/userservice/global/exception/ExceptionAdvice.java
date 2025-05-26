@@ -24,7 +24,8 @@ import org.springframework.web.server.ResponseStatusException;
         FavoriteTeamController.class,
         UserProfileController.class,
         UserController.class,
-        PartyUserController.class
+        PartyUserController.class,
+        UserReviewController.class
 })
 public class ExceptionAdvice {
 
