@@ -31,9 +31,12 @@ public class UserTagReadService {
         userReadOnlyRepository.findById(viewerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        long total = userTagRepository.countByUserId(userId);
-        long negativeTag = userTagRepository.countByUserIdAndTagId(userId, NoTAG_ID);
-        long positiveTag = total - negativeTag;
+        userReadOnlyRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "조회하려는 사용자를 찾을 수 없습니다."));
+
+        long totalCount = userTagRepository.countByUserId(userId);
+        long negativeTagCount = userTagRepository.countByUserIdAndTagId(userId, NoTAG_ID);
+        long positiveTagCount = totalCount - negativeTagCount;
 
         // 좋은태그 가진 목록 가져와서 빈도 계산
         List<UserTagDocument> docs = userTagRepository.findByUserIdAndTagIdNot(userId, NoTAG_ID);
@@ -60,6 +63,6 @@ public class UserTagReadService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        return new UserTagSummaryResponse(total, positiveTag, topTagNames);
+        return new UserTagSummaryResponse(totalCount, positiveTagCount, topTagNames);
     }
 }

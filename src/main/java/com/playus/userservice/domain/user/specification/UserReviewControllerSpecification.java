@@ -27,7 +27,7 @@ public interface UserReviewControllerSpecification {
             description = """
                 직관팟 종료 후 인증된 사용자가 다수의 유저에 대해 한 번에 평가를 제출합니다.
                 `positive=true`  → 대상 유저의 점수를 +0.01 하고, 태그를 user_tag 에 저장  
-                `positive=false` → 대상 유저의 점수를 –0.01 (태그 저장 없음)
+                `positive=false` → 대상 유저의 점수를 –0.01 하고, 태그를 user_tag 에 저장 (tag_id=2) 
                 """,
             security    = @SecurityRequirement(name = "AccessCookie"),
             parameters  = @Parameter(

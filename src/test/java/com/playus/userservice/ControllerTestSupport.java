@@ -31,7 +31,8 @@ import org.springframework.data.redis.core.RedisTemplate;
         UserProfileController.class,
         PartyUserController.class,
         NotificationController.class,
-        UserReviewController.class
+        UserReviewController.class,
+        UserTagReadController.class
 })
 @Import({ControllerTestSupport.TestSecurityConfig.class, ExceptionAdvice.class})
 public abstract class ControllerTestSupport {
@@ -60,6 +61,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected UserReviewService userReviewService;
+
+    @MockitoBean
+    protected UserTagReadService userTagReadService;
 
     @MockitoBean
     protected JwtUtil jwtUtil;

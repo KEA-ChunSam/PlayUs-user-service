@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users/{userId}/tags")
 @RequiredArgsConstructor
-public class UserTagReadController  {
+public class UserTagReadController implements UserTagReadControllerSpecification  {
 
     private final UserTagReadService userTagReadService;
 
