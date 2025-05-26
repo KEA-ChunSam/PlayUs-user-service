@@ -37,16 +37,22 @@ public class SecurityConfig {
             "http://localhost:3000"
     );
 
+    private static final String [] INTERNAL_PATHS = {
+            "/user/api/**",
+    };
+
     private static final String[] WHITELISTED_PATHS = {
             "/error",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/user/api/**",
+            "/community/api/**",
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
             "/oauth2/authorization/naver",
             "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
-            "/api/v1/auth/logout",
+            "/api/v1/auth/logout"
     };
 
     @Bean
@@ -84,6 +90,8 @@ public class SecurityConfig {
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITELISTED_PATHS)
+                        .permitAll()
+                        .requestMatchers(INTERNAL_PATHS)
                         .permitAll()
                         .anyRequest().authenticated()
                 )

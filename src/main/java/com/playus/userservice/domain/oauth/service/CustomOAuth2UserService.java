@@ -60,10 +60,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (existing.isPresent()) {
             User user = existing.get();
 
-            // 탈퇴(activated=false) 처리
             if (!user.isActivated()) {
+
+                // 30일 이내면 즉시 재활성화
+                if (user.enableReactivate(30)) {
+                    user.reactivate();
+                    return new CustomOAuth2User(new UserDto(user));
+                }
+
+                // 30일이 지났으면 오류 반환
                 throw new OAuth2AuthenticationException(
-                        new OAuth2Error("user_deactivated", user.getNickname(), null));
+                        new OAuth2Error("user_deactivated",
+                                "탈퇴 후 30일이 지나 재가입이 불가합니다.", null));
             }
 
             // 공급자가 일치 → 바로 로그인

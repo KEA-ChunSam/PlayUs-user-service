@@ -53,8 +53,11 @@ public class UserDocument extends BaseTimeEntity {
     @Field("block_off")
     private LocalDateTime blockOff;
 
+    @Field("withdrawn_at")
+    private LocalDateTime withdrawnAt;
+
     @Builder
-    private UserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
+    private UserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff, LocalDateTime withdrawnAt) {
         this.id = id;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
@@ -66,9 +69,10 @@ public class UserDocument extends BaseTimeEntity {
         this.thumbnailURL = thumbnailURL;
         this.userScore = userScore;
         this.blockOff = blockOff;
+        this.withdrawnAt = withdrawnAt;
     }
 
-    public static UserDocument createUserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff) {
+    public static UserDocument createUserDocument(Long id, String nickname, String phoneNumber, LocalDate birth, Gender gender, Role role, AuthProvider authProvider, boolean activated, String thumbnailURL, Float userScore, LocalDateTime blockOff, LocalDateTime withdrawnAt) {
         return UserDocument.builder()
                 .id(id)
                 .nickname(nickname)
@@ -81,6 +85,8 @@ public class UserDocument extends BaseTimeEntity {
                 .thumbnailURL(thumbnailURL)
                 .userScore(userScore)
                 .blockOff(blockOff)
+                .withdrawnAt(withdrawnAt)
                 .build();
     }
+
 }

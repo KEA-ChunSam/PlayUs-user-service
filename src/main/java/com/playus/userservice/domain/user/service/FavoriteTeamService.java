@@ -80,6 +80,7 @@ public class FavoriteTeamService {
 
         // 기존 선호팀 삭제 후 전체 다시 저장
         favoriteTeamRepository.deleteByUser(user);
+        favoriteTeamRepository.flush();
         List<FavoriteTeam> entities = reqs.stream()
                 .map(r -> r.toEntity(user))
                 .collect(Collectors.toList());
