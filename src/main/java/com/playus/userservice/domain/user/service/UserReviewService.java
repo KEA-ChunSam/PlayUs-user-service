@@ -30,16 +30,15 @@ public class UserReviewService {
             User user = userRepository.findById(dto.userId())
                     .orElseThrow(() -> new IllegalArgumentException("리뷰 대상 유저가 존재하지 않습니다. id=" + dto.userId()));
 
+            Tag tag = tagRepository.findById(dto.tagId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 태그입니다. id=" + dto.tagId()));
+
             if (dto.positive()) {
-
                 user.updateUserScore(user.getUserScore() + score);
-                Tag tag = tagRepository.findById(dto.tagId())
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 태그입니다. id=" + dto.tagId()));
-                userTagRepository.save(UserTag.create(user, tag));
-
             } else {
                 user.updateUserScore(user.getUserScore() - score);
             }
+            userTagRepository.save(UserTag.create(user, tag));
         }
 
         return requests;

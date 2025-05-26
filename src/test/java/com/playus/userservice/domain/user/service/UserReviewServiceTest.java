@@ -43,7 +43,7 @@ class UserReviewServiceTest extends IntegrationTestSupport {
 
         List<UserReviewRequest> reqs = List.of(
                 new UserReviewRequest(target.getId(), tag.getId(), true),   // +0.01, 태그 저장
-                new UserReviewRequest(target.getId(), tag.getId(), false)   // -0.01, 태그 저장 X
+                new UserReviewRequest(target.getId(), tag.getId(), false)   // -0.01, 태그 저장
         );
 
         // when
@@ -55,7 +55,7 @@ class UserReviewServiceTest extends IntegrationTestSupport {
         // 점수 +0.01 후 -0.01 → 원점
         User refreshed = userRepository.findById(target.getId()).get();
         assertThat(refreshed.getUserScore()).isEqualTo(User.DEFAULT_SCORE);
-        assertThat(userTagRepository.findAll()).hasSize(1);
+        assertThat(userTagRepository.findAll()).hasSize(2);
     }
 
     @DisplayName("존재하지 않는 reviewerId 이면 예외 발생")
