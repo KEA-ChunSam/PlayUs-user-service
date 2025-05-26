@@ -3,6 +3,7 @@ package com.playus.userservice.domain.user.controller;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.UserReviewRequest;
 import com.playus.userservice.domain.user.service.UserReviewService;
+import com.playus.userservice.domain.user.specification.UserReviewControllerSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users/reviews")
 @RequiredArgsConstructor
-public class UserReviewController {
+public class UserReviewController implements UserReviewControllerSpecification {
 
     private final UserReviewService userReviewService;
 
