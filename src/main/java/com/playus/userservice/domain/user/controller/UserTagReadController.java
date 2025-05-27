@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{userId}/tags")
+@RequestMapping("/users/{user-id}/tags")
 @RequiredArgsConstructor
 public class UserTagReadController implements UserTagReadControllerSpecification  {
 
@@ -19,7 +19,7 @@ public class UserTagReadController implements UserTagReadControllerSpecification
     @GetMapping("/summary")
     public ResponseEntity<UserTagSummaryResponse> getUserTagSummary(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @PathVariable Long userId) {
+            @PathVariable("user-id") Long userId) {
 
         Long authUserId = Long.parseLong(principal.getName());
         UserTagSummaryResponse resp = userTagReadService.getUserTagSummary(authUserId,userId);

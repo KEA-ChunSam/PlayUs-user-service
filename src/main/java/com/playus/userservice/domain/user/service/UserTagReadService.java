@@ -26,20 +26,20 @@ public class UserTagReadService {
 
     private static final long NoTAG_ID = 2L;
 
-    public UserTagSummaryResponse getUserTagSummary(Long viewerId, Long userId) {
-
-        userReadOnlyRepository.findById(viewerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+    public UserTagSummaryResponse getUserTagSummary(Long userId, Long targetId) {
 
         userReadOnlyRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
+        userReadOnlyRepository.findById(targetId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "조회하려는 사용자를 찾을 수 없습니다."));
 
-        long totalCount = userTagRepository.countByUserId(userId);
-        long negativeTagCount = userTagRepository.countByUserIdAndTagId(userId, NoTAG_ID);
+        long totalCount = userTagRepository.countByUserId(targetId);
+        long negativeTagCount = userTagRepository.countByUserIdAndTagId(targetId, NoTAG_ID);
         long positiveTagCount = totalCount - negativeTagCount;
 
         // 좋은태그 가진 목록 가져와서 빈도 계산
-        List<UserTagDocument> docs = userTagRepository.findByUserIdAndTagIdNot(userId, NoTAG_ID);
+        List<UserTagDocument> docs = userTagRepository.findByUserIdAndTagIdNot(targetId, NoTAG_ID);
 
         Map<Long, Long> freq = docs.stream()
                 .collect(Collectors.groupingBy(UserTagDocument::getTagId, Collectors.counting()));

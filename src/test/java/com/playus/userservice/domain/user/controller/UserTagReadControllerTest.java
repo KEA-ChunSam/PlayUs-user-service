@@ -19,19 +19,20 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class UserTagReadControllerTest extends ControllerTestSupport {
 
     private UsernamePasswordAuthenticationToken token;
-    private final Long viewerId = 1L;
+    private CustomOAuth2User principal;
 
     @BeforeEach
     void setUp() {
-        CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
-        Mockito.when(principal.getName()).thenReturn(viewerId.toString());
+        Long userId = 1L;
+        principal = Mockito.mock(CustomOAuth2User.class);
+        Mockito.when(principal.getName()).thenReturn(userId.toString());
 
         List<SimpleGrantedAuthority> authorities =
                 List.of(new SimpleGrantedAuthority(Role.USER.name()));
@@ -43,6 +44,7 @@ class UserTagReadControllerTest extends ControllerTestSupport {
     @DisplayName("유저 태그 요약을 정상적으로 조회한다")
     @Test
     void getUserTagSummary_success() throws Exception {
+        Long userId = 1L;
         Long targetId = 7L;
         var resp = new UserTagSummaryResponse(
                 5L,
@@ -53,54 +55,53 @@ class UserTagReadControllerTest extends ControllerTestSupport {
                         "상대방에 대한 배려심이 깊어요."
                 )
         );
-        given(userTagReadService.getUserTagSummary(eq(viewerId), eq(targetId)))
+        given(userTagReadService.getUserTagSummary(eq(userId), eq(targetId)))
                 .willReturn(resp);
 
-        mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
-                        .with(authentication(token))
-                        .accept(APPLICATION_JSON))
+        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+                        .with(oauth2Login().oauth2User(principal))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCount").value(5))
                 .andExpect(jsonPath("$.positiveTagCount").value(4))
-                .andExpect(jsonPath("$.topTags[0]")
-                        .value("시간 약속을 잘 지켜요."));
+                .andExpect(jsonPath("$.topTags[0]").value("시간 약속을 잘 지켜요."));
     }
 
     @DisplayName("조회자를 찾을 수 없으면 404")
     @Test
     void getUserTagSummary_viewerNotFound() throws Exception {
+        Long userId = 1L;
         Long targetId = 7L;
         willThrow(new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."))
                 .given(userTagReadService)
-                .getUserTagSummary(eq(viewerId), eq(targetId));
+                .getUserTagSummary(eq(userId), eq(targetId));
 
-        mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
-                        .with(authentication(token))
-                        .accept(APPLICATION_JSON))
+        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+                        .with(oauth2Login().oauth2User(principal))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("404"))
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
-                .andExpect(jsonPath("$.message")
-                        .value("사용자를 찾을 수 없습니다."));
+                .andExpect(jsonPath("$.message").value("사용자를 찾을 수 없습니다."));
     }
 
     @DisplayName("조회 대상 사용자를 찾을 수 없으면 404")
     @Test
     void getUserTagSummary_targetNotFound() throws Exception {
+        Long userId = 1L;
         Long targetId = 999L;
         willThrow(new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "조회하려는 사용자를 찾을 수 없습니다."))
                 .given(userTagReadService)
-                .getUserTagSummary(eq(viewerId), eq(targetId));
+                .getUserTagSummary(eq(userId), eq(targetId));
 
-        mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
-                        .with(authentication(token))
-                        .accept(APPLICATION_JSON))
+        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+                        .with(oauth2Login().oauth2User(principal))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("404"))
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
-                .andExpect(jsonPath("$.message")
-                        .value("조회하려는 사용자를 찾을 수 없습니다."));
+                .andExpect(jsonPath("$.message").value("조회하려는 사용자를 찾을 수 없습니다."));
     }
 }
