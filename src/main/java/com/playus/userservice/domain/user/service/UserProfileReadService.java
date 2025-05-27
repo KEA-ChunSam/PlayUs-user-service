@@ -75,7 +75,8 @@ public class UserProfileReadService {
      * writerIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 썸네일 URL 반환
      */
     public List<PartyWriterInfoFeignResponse> fetchWriterInfos(List<Long> writerIds) {
-        return userRepository.findAllById(writerIds).stream()
+        List<UserDocument> allById = userRepository.findAllById(writerIds);
+        return allById.stream()
                 .map(this::toFeignResponse)
                 .toList();
     }
@@ -140,6 +141,7 @@ public class UserProfileReadService {
                 doc.getId(),
                 doc.getNickname(),
                 doc.getGender().name(),
+                AgeUtils.calculateAgeGroup(doc.getBirth().atStartOfDay()),
                 doc.getThumbnailURL()
         );
     }
