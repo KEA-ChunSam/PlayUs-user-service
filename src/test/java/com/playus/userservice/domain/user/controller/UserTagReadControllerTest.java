@@ -57,8 +57,7 @@ class UserTagReadControllerTest extends ControllerTestSupport {
                 .willReturn(resp);
 
         mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
-                        .with(authentication(token))   // SecurityContext
-                        .principal(token)              // request.getUserPrincipal()
+                        .with(authentication(token))
                         .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCount").value(5))
@@ -78,7 +77,6 @@ class UserTagReadControllerTest extends ControllerTestSupport {
 
         mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
                         .with(authentication(token))
-                        .principal(token)
                         .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("404"))
@@ -98,7 +96,6 @@ class UserTagReadControllerTest extends ControllerTestSupport {
 
         mockMvc.perform(get("/users/{userId}/tags/summary", targetId)
                         .with(authentication(token))
-                        .principal(token)
                         .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("404"))
