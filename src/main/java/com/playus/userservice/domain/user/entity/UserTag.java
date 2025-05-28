@@ -8,9 +8,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_tag", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "tag_id"}, name = "uk_user_tag")
-})
+@Table(name = "user_tag")
 public class UserTag extends BaseTimeEntity {
 
     @Id

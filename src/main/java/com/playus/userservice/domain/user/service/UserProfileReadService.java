@@ -75,7 +75,8 @@ public class UserProfileReadService {
      * writerIds 목록을 받아 각 작성자의 id, 닉네임, 성별, 썸네일 URL 반환
      */
     public List<PartyWriterInfoFeignResponse> fetchWriterInfos(List<Long> writerIds) {
-        return userRepository.findAllById(writerIds).stream()
+        List<UserDocument> allById = userRepository.findAllById(writerIds);
+        return allById.stream()
                 .map(this::toFeignResponse)
                 .toList();
     }
@@ -136,16 +137,28 @@ public class UserProfileReadService {
     }
 
     private PartyWriterInfoFeignResponse toFeignResponse(UserDocument doc) {
+        int age = AgeUtils.calculateAge(doc.getBirth().atStartOfDay());
+
+        if (age < 0 || age > 120) {
+            throw new IllegalArgumentException("계산된 나이가 비정상 값(" + age + "세)이어서 처리할 수 없습니다.");
+        }
+
         return PartyWriterInfoFeignResponse.of(
                 doc.getId(),
                 doc.getNickname(),
                 doc.getGender().name(),
+                age,
                 doc.getThumbnailURL()
         );
     }
 
     private PartyApplicantsInfoFeignResponse toApplicantsFeignResponse(UserDocument doc) {
         int age = AgeUtils.calculateAge(doc.getBirth().atStartOfDay());
+
+        if (age < 0 || age > 120) {
+            throw new IllegalArgumentException("계산된 나이가 비정상 값(" + age + "세)이어서 처리할 수 없습니다.");
+        }
+
         return PartyApplicantsInfoFeignResponse.of(
                 doc.getId(),
                 doc.getNickname(),
