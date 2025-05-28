@@ -38,12 +38,13 @@ class UserReviewServiceTest extends IntegrationTestSupport {
     void processReviews_success() {
         // given ─ reviewer, 대상 유저, 태그 저장
         User reviewer = userRepository.save(dummyUser("reviewer"));
-        User target   = userRepository.save(dummyUser("target"));
-        Tag  tag      = tagRepository.save(Tag.create("시간 약속을 잘 지켜요"));
+        User target = userRepository.save(dummyUser("target"));
+        Tag tag = tagRepository.save(Tag.create("시간 약속을 잘 지켜요"));
+        Tag tag2 = tagRepository.save(Tag.create("경기 직관이 열정적이에요"));
 
         List<UserReviewRequest> reqs = List.of(
                 new UserReviewRequest(target.getId(), tag.getId(), true),   // +0.01, 태그 저장
-                new UserReviewRequest(target.getId(), tag.getId(), false)   // -0.01, 태그 저장
+                new UserReviewRequest(target.getId(), tag2.getId(), false)   // -0.01, 태그 저장
         );
 
         // when
@@ -64,9 +65,7 @@ class UserReviewServiceTest extends IntegrationTestSupport {
         // given
         long invalidReviewerId = 999L;
 
-        List<UserReviewRequest> reqs = List.of(
-                new UserReviewRequest(1L, 1L, true)
-        );
+        List<UserReviewRequest> reqs = List.of(new UserReviewRequest(1L, 1L, true));
 
         // when / then
         assertThatThrownBy(() ->
@@ -80,7 +79,7 @@ class UserReviewServiceTest extends IntegrationTestSupport {
     void processReviews_targetNotFound() {
         // given
         User reviewer = userRepository.save(dummyUser("review"));
-        Tag  tag      = tagRepository.save(Tag.create("매너가 좋아요"));
+        Tag tag = tagRepository.save(Tag.create("매너가 좋아요"));
 
         List<UserReviewRequest> reqs = List.of(
                 new UserReviewRequest(999L, tag.getId(), true)   // 잘못된 targetId
