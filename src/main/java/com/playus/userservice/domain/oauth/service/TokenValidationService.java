@@ -31,9 +31,12 @@ public class TokenValidationService {
 
             return redisTemplate.hasKey("blacklist:" + jti);
 
-        } catch (Exception e) {
-            log.error("토큰 블랙리스트 확인 중 오류 발생: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
             throw e;
+
+        } catch (Exception e) {
+            log.error("토큰 블랙리스트 확인 중 오류 발생", e);
+            throw new RuntimeException("토큰 검증 서비스 오류", e);
         }
     }
 }
