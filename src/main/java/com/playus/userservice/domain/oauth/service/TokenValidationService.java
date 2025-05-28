@@ -18,6 +18,11 @@ public class TokenValidationService {
 
     public boolean isBlacklisted(String token) {
 
+        if (token == null || token.trim().isEmpty()) {
+            log.warn("토큰이 null이거나 비어있습니다");
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다");
+        }
+
         try {
             String jti = jwtUtil.getJti(token);
 
@@ -25,15 +30,12 @@ public class TokenValidationService {
                 log.warn("JWT에서 jti를 추출할 수 없습니다");
                 throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다");
             }
+
             return redisTemplate.hasKey("blacklist:" + jti);
 
-        } catch (JwtException jwtEx) {
-            log.error("JWT 파싱 오류: {}", jwtEx.getMessage());
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다");
-
-        } catch (RedisConnectionFailureException redisEx) {
-            log.error("Redis 연결 실패: {}", redisEx.getMessage());
-            throw new IllegalStateException("토큰 블랙리스트 확인 서비스에 문제가 발생했습니다");
+        } catch (Exception e) {
+            log.error("토큰 블랙리스트 확인 중 오류 발생: {}", e.getMessage());
+            throw e;
         }
     }
 }
