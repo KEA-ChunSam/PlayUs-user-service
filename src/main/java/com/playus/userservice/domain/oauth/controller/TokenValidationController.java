@@ -2,6 +2,7 @@ package com.playus.userservice.domain.oauth.controller;
 
 
 import com.playus.userservice.domain.oauth.service.TokenValidationService;
+import com.playus.userservice.domain.oauth.specification.TokenValidationControllerSpecification;
 import com.playus.userservice.global.request.TokenValidationRequest;
 import com.playus.userservice.global.response.TokenValidationResponse;
 import io.jsonwebtoken.JwtException;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user/api/token")
 @RequiredArgsConstructor
-public class TokenValidationController {
+public class TokenValidationController implements TokenValidationControllerSpecification {
 
     private final TokenValidationService tokenValidationService;
 
