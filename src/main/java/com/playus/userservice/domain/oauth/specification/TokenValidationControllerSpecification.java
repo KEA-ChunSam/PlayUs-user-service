@@ -71,7 +71,9 @@ public interface TokenValidationControllerSpecification {
                                     name  = "유효하지 않은 토큰 예시",
                                     value = """
                                     {
-                                        "blacklisted": true
+                                        "code": 400,
+                                        "status": "BAD_REQUEST",
+                                        "message": "유효하지 않은 토큰입니다."
                                     }
                                     """
                             )
