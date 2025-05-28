@@ -130,9 +130,8 @@ slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
 feign:
-
   match:
     url: ${FEIGN_MATCH_URL}
 
   community:
-    url: ${FEIGN_COMMNUNITY_URL}
+    url: ${FEIGN_COMMUNITY_URL}
