@@ -201,15 +201,28 @@ public interface UserProfileControllerSpecification {
                     responseCode = "500", description = "서버 내부 오류",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                    {
-                      "code": 500,
-                      "status": "INTERNAL_SERVER_ERROR",
-                      "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
-                    }
-                    """
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "serverError",
+                                            value = """
+                                            {
+                                                "code": 500,
+                                                "status": "INTERNAL_SERVER_ERROR",
+                                                "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "invalidAge",
+                                            value = """
+                                            {
+                                                "code": 500,
+                                                "status": "INTERNAL_SERVER_ERROR",
+                                                "message": "계산된 나이가 비정상 값(-1세)이어서 처리할 수 없습니다."
+                                            }
+                                            """
+                                    )
+                            }
                     )
             )
     })
