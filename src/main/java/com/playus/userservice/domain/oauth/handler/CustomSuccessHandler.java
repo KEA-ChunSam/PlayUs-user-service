@@ -86,7 +86,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .secure(false)
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
-                    .sameSite("None")
+                    .sameSite("Lax")
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
