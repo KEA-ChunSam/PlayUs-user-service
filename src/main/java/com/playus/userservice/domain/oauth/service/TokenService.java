@@ -69,7 +69,7 @@ public class TokenService {
                 .secure(false)  // 운영환경(HTTPS)에서는 항상 true
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
@@ -94,7 +94,7 @@ public class TokenService {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, newRefresh)
                 .httpOnly(true)
                 .secure(false)  // 운영환경(HTTPS)에서는 항상 true
-                .sameSite("None")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                 .build();
@@ -114,7 +114,7 @@ public class TokenService {
             ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
                     .httpOnly(true)
                     .secure(false)  // 운영환경(HTTPS)에서는 항상 true
-                    .sameSite("None")
+                    .sameSite("Lax")
                     .path("/")
                     .maxAge(Duration.ZERO)
                     .build();
