@@ -78,7 +78,7 @@ class PartyUserControllerTest extends ControllerTestSupport {
     void getWriters_success() throws Exception {
         List<PartyWriterInfoFeignResponse> writerInfos = List.of(
                 new PartyWriterInfoFeignResponse(1L, "nick1",20, "MALE", "url1"),
-                new PartyWriterInfoFeignResponse(2L, "nick2", 26, "FEMALE", "url2")
+                new PartyWriterInfoFeignResponse(2L, "nick2", 30, "FEMALE", "url2")
         );
         given(userProfileReadService.fetchWriterInfos(eq(List.of(1L, 2L))))
                 .willReturn(writerInfos);
