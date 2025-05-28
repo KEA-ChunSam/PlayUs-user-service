@@ -69,20 +69,32 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
+cloud:
+  aws:
+    credentials:
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
+    s3:
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
 
 management:
   health:
     redis:
       enabled: false
 
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health           # 애플리케이션 상태 확인
+          - prometheus       # 메트릭 데이터 노출
+
 app:
   frontend:
-    redirect-uri: ${FRONT_REDIRECT_URI}
+    success-redirect-uri: ${FRONT_SUCCESS_REDIRECT_URI}
+    success-redirect-uri2: ${FRONT_SUCCESS_REDIRECT_URI2}
+    fail-redirect-uri: ${FRONT_FAIL_REDIRECT_URI}
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}

@@ -68,11 +68,14 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
+cloud:
+  aws:
+    credentials:
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
+    s3:
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
 
 management:
   health:
@@ -84,6 +87,7 @@ management:
       exposure:
         include:
           - health           # 애플리케이션 상태 확인
+          - info             # 애플리케이션 정보
           - prometheus       # 메트릭 데이터 노출
 
   endpoint:
@@ -92,7 +96,26 @@ management:
 
 app:
   frontend:
-    redirect-uri: ${FRONT_REDIRECT_URI}
+    success-redirect-uri: ${FRONT_SUCCESS_REDIRECT_URI}
+    success-redirect-uri2: ${FRONT_SUCCESS_REDIRECT_URI2}
+    fail-redirect-uri: ${FRONT_FAIL_REDIRECT_URI}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        max-wait-duration-in-half-open-state: 0s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s
+    instances:
+      circuit:
+        base-config: default
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}
@@ -105,3 +128,11 @@ logging:
 
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
+
+feign:
+
+  match:
+    url: ${FEIGN_MATCH_URL}
+
+  community:
+    url: ${FEIGN_COMMNUNITY_URL}
