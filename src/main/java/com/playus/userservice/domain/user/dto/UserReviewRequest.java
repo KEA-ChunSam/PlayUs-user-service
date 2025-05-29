@@ -8,4 +8,4 @@ public record UserReviewRequest(
         @NotNull(message = "tagId는 필수입니다.")
         Long tagId,
         boolean positive    // true면, +0.01, false면 –0.01
-) { }
+) {}
