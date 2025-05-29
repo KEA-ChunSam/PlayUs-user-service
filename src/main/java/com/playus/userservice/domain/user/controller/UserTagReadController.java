@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{user-id}/tags")
+@RequestMapping("/user/{user-id}/tags")
 @RequiredArgsConstructor
 public class UserTagReadController implements UserTagReadControllerSpecification  {
 
