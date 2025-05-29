@@ -50,7 +50,7 @@ public class TokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
         }
 
-        // 2) Redis 검증
+        // Redis 검증
         String userId = jwtUtil.getUserId(refresh);
         String role   = jwtUtil.getRole(refresh);
         User user = userRepository.findByIdAndActivatedTrue(Long.parseLong(userId))
@@ -60,10 +60,10 @@ public class TokenService {
         int age = AgeUtils.calculateAgeGroup(bdt);
         String gender = user.getGender().name();
 
-        // 3) 새 Access 토큰 발급
+        // 새 Access 토큰 발급
         String newAccessToken = jwtUtil.createAccessToken(userId, role, age, gender);
 
-        // 4) Access 토큰을 HttpOnly 쿠키로 설정
+        // Access 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)
                 .secure(false)  // 운영환경(HTTPS)에서는 항상 true
                 .path("/")
