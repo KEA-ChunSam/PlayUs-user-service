@@ -43,7 +43,7 @@ public class UserProfileController implements UserProfileControllerSpecification
     }
 
     // 다른 사람 프로필 조회 (nickname, profileImageUrl)
-    @GetMapping("/simple-profile/{user-id}")
+    @GetMapping("/api/simple-profile/{user-id}")
     public ResponseEntity<UserInfoResponse> getUserInfo (
             @PathVariable("user-id") Long targetUserId) {
 
