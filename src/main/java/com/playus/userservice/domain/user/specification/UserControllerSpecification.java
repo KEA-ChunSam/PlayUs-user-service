@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.specification;
 
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import io.swagger.v3.oas.annotations.Operation;

@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserReviewRequest;
+import com.playus.userservice.domain.user.dto.review.UserReviewRequest;
 import com.playus.userservice.domain.user.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package com.playus.userservice.domain.user.dto;
+package com.playus.userservice.domain.user.dto.review;
 
 import jakarta.validation.constraints.NotNull;
 

@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
 import com.playus.userservice.domain.oauth.service.AuthService;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;

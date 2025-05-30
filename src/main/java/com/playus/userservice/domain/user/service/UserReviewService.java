@@ -1,6 +1,6 @@
 package com.playus.userservice.domain.user.service;
 
-import com.playus.userservice.domain.user.dto.UserReviewRequest;
+import com.playus.userservice.domain.user.dto.review.UserReviewRequest;
 import com.playus.userservice.domain.user.entity.*;
 import com.playus.userservice.domain.user.repository.write.*;
 import lombok.RequiredArgsConstructor;

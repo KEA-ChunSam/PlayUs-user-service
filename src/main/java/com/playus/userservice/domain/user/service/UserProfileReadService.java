@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.domain.user.document.UserDocument;
-import com.playus.userservice.domain.user.dto.UserInfoResponse;
+import com.playus.userservice.domain.user.dto.profile.UserInfoResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyApplicantsInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.partyuser.PartyWriterInfoFeignResponse;
 import com.playus.userservice.domain.user.dto.profile.FavoriteTeamDto;

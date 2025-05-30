@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.enums.Role;

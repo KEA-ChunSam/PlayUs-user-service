@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserTagSummaryResponse;
+import com.playus.userservice.domain.user.dto.review.UserTagSummaryResponse;
 import com.playus.userservice.domain.user.service.UserTagReadService;
 import com.playus.userservice.domain.user.specification.UserTagReadControllerSpecification;
 import lombok.RequiredArgsConstructor;
