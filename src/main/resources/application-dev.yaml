@@ -14,8 +14,14 @@ spring:
         uri: ${SPRING_DATA_MONGODB_READ_URI}
 
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      cluster:
+        nodes: ${REDIS_CLUSTER_NODES}
+      timeout: 5s
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 1
 
   jpa:
     database: mysql
