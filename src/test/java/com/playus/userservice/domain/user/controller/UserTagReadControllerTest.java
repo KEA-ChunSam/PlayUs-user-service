@@ -58,7 +58,7 @@ class UserTagReadControllerTest extends ControllerTestSupport {
         given(userTagReadService.getUserTagSummary(eq(userId), eq(targetId)))
                 .willReturn(resp);
 
-        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+        mockMvc.perform(get("/user/{user-Id}/tags/summary", targetId)
                         .with(oauth2Login().oauth2User(principal))
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class UserTagReadControllerTest extends ControllerTestSupport {
                 .given(userTagReadService)
                 .getUserTagSummary(eq(userId), eq(targetId));
 
-        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+        mockMvc.perform(get("/user/{user-Id}/tags/summary", targetId)
                         .with(oauth2Login().oauth2User(principal))
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -96,7 +96,7 @@ class UserTagReadControllerTest extends ControllerTestSupport {
                 .given(userTagReadService)
                 .getUserTagSummary(eq(userId), eq(targetId));
 
-        mockMvc.perform(get("/users/{user-Id}/tags/summary", targetId)
+        mockMvc.perform(get("/user/{user-Id}/tags/summary", targetId)
                         .with(oauth2Login().oauth2User(principal))
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
