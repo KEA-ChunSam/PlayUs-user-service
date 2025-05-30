@@ -171,11 +171,6 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
     }
 
-    /**
-     * @SQLDelete(sql = "UPDATE users SET activated = false WHERE id = ?")
-     * @Where(clause = "activated = true") 주석 처리후 실행
-     */
-
     @DisplayName("회원 탈퇴가 정상적으로 처리된다")
     @Test
     void withdraw_success() {

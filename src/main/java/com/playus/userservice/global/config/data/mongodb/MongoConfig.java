@@ -42,4 +42,3 @@ public class MongoConfig {
         return context;
     }
 }
-

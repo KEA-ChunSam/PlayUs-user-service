@@ -1,7 +1,6 @@
 package com.playus.userservice.global.config.sentry;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 import io.sentry.Sentry;

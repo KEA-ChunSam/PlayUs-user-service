@@ -72,14 +72,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
             ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
-                    .secure(false)                           // 운영환경(HTTPS)에서는 항상 true
+                    .secure(false)      // 운영환경(HTTPS)에서는 항상 true
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                     .sameSite("Lax")
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            // 4) Access Token 쿠키 (HttpOnly, Secure, SameSite)
+            // Access Token 쿠키
             ResponseCookie accessCookie = ResponseCookie.from("Access", accessToken)
                     .secure(false)
                     .path("/")

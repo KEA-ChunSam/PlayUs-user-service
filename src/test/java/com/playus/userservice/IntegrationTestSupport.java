@@ -1,7 +1,5 @@
 package com.playus.userservice;
 
-
-import com.playus.userservice.domain.oauth.service.AuthService;
 import com.playus.userservice.global.s3.S3Service;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

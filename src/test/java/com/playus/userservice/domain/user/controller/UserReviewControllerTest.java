@@ -31,7 +31,6 @@ class UserReviewControllerTest extends ControllerTestSupport {
     @BeforeEach
     void setUp() {
         Long reviewerId = 1L;
-
         CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
         Mockito.when(principal.getName()).thenReturn(reviewerId.toString());
 

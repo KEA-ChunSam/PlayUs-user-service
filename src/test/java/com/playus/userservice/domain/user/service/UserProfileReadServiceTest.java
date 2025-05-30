@@ -92,7 +92,6 @@ class UserProfileReadServiceTest extends IntegrationTestSupport {
 
 
     //다른 사용자 프로필
-
     @DisplayName("요청자와 대상 사용자 문서를 모두 저장한 뒤 공개 프로필을 정상 조회한다")
     @Test
     void getPublicProfile_success() {

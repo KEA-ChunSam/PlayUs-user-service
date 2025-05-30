@@ -34,12 +34,12 @@ public class TokenService {
     private static final String REDIS_PREFIX    = "refresh:";
 
     /**
-     * TokenService 는 “토큰 발급·재발급(+리프레시 토큰 파싱)”만 담당
+     * TokenService 는 “토큰 발급,재발급만 담당
      * reissue - refresh로 access만 재발급
     */
     public void reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
         String refresh = extractRefreshToken(req);
-        // 만료/변조 체크
+        // 만료,변조 체크
         boolean expired;
         try {
             expired = jwtUtil.isExpired(refresh);

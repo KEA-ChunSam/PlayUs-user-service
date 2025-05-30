@@ -37,8 +37,6 @@ class UserControllerTest extends ControllerTestSupport {
     @BeforeEach
     void setUp() {
         Long userId = 1L;
-
-        // 더미 OAuth2 사용자
         CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
         when(principal.getName()).thenReturn(userId.toString());
 

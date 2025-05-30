@@ -110,7 +110,6 @@ class UserReviewServiceTest extends IntegrationTestSupport {
                 .hasMessageContaining("존재하지 않는 태그입니다");
     }
 
-    // ────────────────────────── 헬퍼 ──────────────────────────
     private User dummyUser(String nick) {
         return User.create(
                 nick,

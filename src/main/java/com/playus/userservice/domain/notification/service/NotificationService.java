@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationService {
 
-	/** 1시간 (밀리초) */
+	/** 1시간  */
 	private static final Long DEFAULT_TIMEOUT = 60L * 60 * 1000;
 
 	private final UserRepository userRepository;
@@ -43,7 +43,7 @@ public class NotificationService {
 		emitter.onCompletion(() -> cleanup(emitterId));
 		emitter.onTimeout   (() -> cleanup(emitterId));
 
-		// 더미 이벤트 전송 (브라우저 503 대응)
+		// 더미 이벤트 전송
 		send(emitter, emitterId, "EventStream Created. [userId=" + userId + "]");
 
 		// 끊겼던 ID 이후 이벤트 재전송

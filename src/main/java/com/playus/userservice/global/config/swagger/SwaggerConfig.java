@@ -3,7 +3,6 @@ package com.playus.userservice.global.config.swagger;
 import java.util.List;
 
 import io.swagger.v3.oas.models.security.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
