@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
 import com.playus.userservice.domain.oauth.service.AuthService;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
@@ -170,11 +170,6 @@ class UserServiceTest extends IntegrationTestSupport {
         User refreshed = userRepository.findByIdAndActivatedTrue(user.getId()).get();
         assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
     }
-
-    /**
-     * @SQLDelete(sql = "UPDATE users SET activated = false WHERE id = ?")
-     * @Where(clause = "activated = true") 주석 처리후 실행
-     */
 
     @DisplayName("회원 탈퇴가 정상적으로 처리된다")
     @Test

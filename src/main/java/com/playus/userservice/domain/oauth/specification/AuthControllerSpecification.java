@@ -13,18 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-/**
- * Access/Refresh 토큰 재발급·로그아웃 API Swagger 명세.
- *
- * <p><b>인증 방식</b><br>
- *   모든 요청은 <code>Access</code>(필수)·<code>Refresh</code>(선택) 쿠키를 포함해야 합니다.
- *  브라우저는 자동 전송, 비-브라우저(Postman·앱 등)는
- *  <code>Cookie: Access=&lt;...&gt;; Refresh=&lt;...&gt;</code> 헤더를 직접 추가해야 합니다.
- * </p>
- */
 public interface AuthControllerSpecification {
-
-    /* ---------- token re-issue ---------- */
 
     @Tag(name = "Post", description = "JWT 재발급 API")
     @Operation(
@@ -55,7 +44,6 @@ public interface AuthControllerSpecification {
             }
     )
     @ApiResponses({
-            /* 정상 – 본문 없음 */
             @ApiResponse(
                     responseCode = "200",
                     description  = "재발급 성공",
@@ -65,7 +53,6 @@ public interface AuthControllerSpecification {
                     )
             ),
 
-            /* 실패 – 토큰 만료/변조 */
             @ApiResponse(
                     responseCode = "401",
                     description  = "토큰 만료/변조",
@@ -103,7 +90,6 @@ public interface AuthControllerSpecification {
     })
     ResponseEntity<Void> reissue();
 
-    /* ---------- logout ---------- */
 
     @Tag(name = "Post", description = "로그아웃 API")
     @Operation(
@@ -118,7 +104,6 @@ public interface AuthControllerSpecification {
             )
     )
     @ApiResponses({
-            /* 성공 – 204 No-Content */
             @ApiResponse(
                     responseCode = "204",
                     description  = "로그아웃 성공",
@@ -128,7 +113,6 @@ public interface AuthControllerSpecification {
                     )
             ),
 
-            /* 실패 시(토큰 만료/블랙리스트) 예시 */
             @ApiResponse(
                     responseCode = "401",
                     description  = "유효하지 않은 토큰",

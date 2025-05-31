@@ -43,4 +43,3 @@ public class ProfileSetupController implements ProfileSetupControllerSpecificati
         return setupService.generatePresignedUrlForSaveImage(request);
     }
 }
-

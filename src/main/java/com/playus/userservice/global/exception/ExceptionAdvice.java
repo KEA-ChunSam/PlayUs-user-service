@@ -1,5 +1,7 @@
 package com.playus.userservice.global.exception;
 
+import com.playus.userservice.domain.notification.controller.NotificationApiController;
+import com.playus.userservice.domain.notification.controller.NotificationController;
 import com.playus.userservice.domain.oauth.controller.AuthController;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.domain.user.controller.*;
@@ -26,7 +28,9 @@ import org.springframework.web.server.ResponseStatusException;
         UserController.class,
         PartyUserController.class,
         UserReviewController.class,
-        UserTagReadController.class
+        UserTagReadController.class,
+        NotificationController.class,
+        NotificationApiController.class
 })
 public class ExceptionAdvice {
 

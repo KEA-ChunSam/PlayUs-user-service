@@ -34,12 +34,12 @@ public class TokenService {
     private static final String REDIS_PREFIX    = "refresh:";
 
     /**
-     * TokenService 는 “토큰 발급·재발급(+리프레시 토큰 파싱)”만 담당
+     * TokenService 는 “토큰 발급,재발급만 담당
      * reissue - refresh로 access만 재발급
     */
     public void reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
         String refresh = extractRefreshToken(req);
-        // 만료/변조 체크
+        // 만료,변조 체크
         boolean expired;
         try {
             expired = jwtUtil.isExpired(refresh);
@@ -50,7 +50,7 @@ public class TokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
         }
 
-        // 2) Redis 검증
+        // Redis 검증
         String userId = jwtUtil.getUserId(refresh);
         String role   = jwtUtil.getRole(refresh);
         User user = userRepository.findByIdAndActivatedTrue(Long.parseLong(userId))
@@ -60,10 +60,10 @@ public class TokenService {
         int age = AgeUtils.calculateAgeGroup(bdt);
         String gender = user.getGender().name();
 
-        // 3) 새 Access 토큰 발급
+        // 새 Access 토큰 발급
         String newAccessToken = jwtUtil.createAccessToken(userId, role, age, gender);
 
-        // 4) Access 토큰을 HttpOnly 쿠키로 설정
+        // Access 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)
                 .secure(false)  // 운영환경(HTTPS)에서는 항상 true
                 .path("/")

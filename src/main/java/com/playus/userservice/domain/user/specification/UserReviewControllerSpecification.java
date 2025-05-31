@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.specification;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserReviewRequest;
+import com.playus.userservice.domain.user.dto.review.UserReviewRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

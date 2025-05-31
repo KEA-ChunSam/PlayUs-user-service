@@ -4,7 +4,7 @@ import com.playus.userservice.IntegrationTestSupport;
 import com.playus.userservice.domain.user.document.TagDocument;
 import com.playus.userservice.domain.user.document.UserDocument;
 import com.playus.userservice.domain.user.document.UserTagDocument;
-import com.playus.userservice.domain.user.dto.UserTagSummaryResponse;
+import com.playus.userservice.domain.user.dto.review.UserTagSummaryResponse;
 import com.playus.userservice.domain.user.repository.read.TagDocumentRepository;
 import com.playus.userservice.domain.user.repository.read.UserReadOnlyRepository;
 import com.playus.userservice.domain.user.repository.read.UserTagDocumentRepository;

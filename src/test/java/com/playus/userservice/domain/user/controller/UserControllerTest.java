@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.enums.Role;
@@ -37,8 +37,6 @@ class UserControllerTest extends ControllerTestSupport {
     @BeforeEach
     void setUp() {
         Long userId = 1L;
-
-        // 더미 OAuth2 사용자
         CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
         when(principal.getName()).thenReturn(userId.toString());
 

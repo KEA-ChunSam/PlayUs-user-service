@@ -14,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-/**
- * OAuth 토큰 검증 API Swagger specification.
- */
 @Tag(name = "Auth", description = "OAuth 토큰 검증 API")
 public interface TokenValidationControllerSpecification {
 

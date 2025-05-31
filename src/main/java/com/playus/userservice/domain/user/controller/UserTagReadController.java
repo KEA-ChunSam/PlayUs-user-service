@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserTagSummaryResponse;
+import com.playus.userservice.domain.user.dto.review.UserTagSummaryResponse;
 import com.playus.userservice.domain.user.service.UserTagReadService;
 import com.playus.userservice.domain.user.specification.UserTagReadControllerSpecification;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{user-id}/tags")
+@RequestMapping("/user/{user-id}/tags")
 @RequiredArgsConstructor
 public class UserTagReadController implements UserTagReadControllerSpecification  {
 

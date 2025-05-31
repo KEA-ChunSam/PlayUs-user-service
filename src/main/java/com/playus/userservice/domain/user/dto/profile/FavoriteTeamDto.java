@@ -6,5 +6,4 @@ import lombok.Builder;
 public record FavoriteTeamDto(
         Long teamId,
         Integer displayOrder
-) {
-}
+) {}

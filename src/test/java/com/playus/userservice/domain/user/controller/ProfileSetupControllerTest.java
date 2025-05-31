@@ -45,8 +45,6 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
         token = new UsernamePasswordAuthenticationToken(principal, null, authorities);
     }
 
-    /* ---------- Happy case ---------- */
-
     @DisplayName("프로필(닉네임,팀,썸네일)을 정상 설정한다.")
     @Test
     void setupProfile() throws Exception {
@@ -67,8 +65,6 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("프로필이 정상적으로 설정되었습니다."));
     }
-
-    /* ---------- Validation : teamId / nickname / thumbnailURL ---------- */
 
     @DisplayName("favoriteTeam(teamId) 필드는 필수이다.")
     @Test
@@ -95,8 +91,6 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
                 new UserRegisterRequest(5L, "닉네임", blank);
         assertBadRequest(req, "thumbnailURL 필드는 필수입니다.");
     }
-
-    /* ---------- Presigned URL ---------- */
 
     @DisplayName("이미지 저장용 Presigned URL을 발급한다.")
     @Test
@@ -133,8 +127,6 @@ class ProfileSetupControllerTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("이미지 파일명은 필수입니다!"));
     }
-
-    /* ---------- 공용 검증 메서드 ---------- */
 
     private void assertBadRequest(UserRegisterRequest req, String expectedMsg) throws Exception {
         mockMvc.perform(post("/user/register")

@@ -103,7 +103,7 @@ class NotificationServiceTest {
         CommentNotificationEvent event = CommentNotificationEvent.of(
                 5L, 1L, 1L, "", false
         );
-        // when (예외 없이 반환)
+        // when
         notificationService.sendCommentNotification(event);
 
         // then

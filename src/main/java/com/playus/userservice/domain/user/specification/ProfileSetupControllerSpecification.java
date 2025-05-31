@@ -20,15 +20,6 @@ import org.springframework.http.ResponseEntity;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-/**
- * Profile-setup API Swagger specification.
- *
- * <p><b>인증 방식</b><br>
- *  로그인 시 발급된 <code>Access</code> 쿠키에 JWT가 담겨 있어야 합니다.<br>
- *  브라우저는 자동 전송, 비-브라우저 클라이언트(Postman·모바일 등)는
- *  <code>Cookie: Access&#x3D;&lt;JWT&gt;</code> 헤더를 직접 추가해야 합니다.</p>
- */
-
 public interface ProfileSetupControllerSpecification {
 
     @Tag(name = "Post", description = "프로필 초기 설정 API")

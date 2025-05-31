@@ -42,23 +42,20 @@ class NotificationControllerTest extends ControllerTestSupport {
     @Test
     @DisplayName("SSE 구독 성공")
     void subscribe_ShouldReturnSseEmitter() throws Exception {
-        // 1) 테스트용 Emitter 준비
+
         SseEmitter emitter = new SseEmitter();
         given(notificationService.subscribe(anyLong(), anyString()))
                 .willReturn(emitter);
 
-        // 2) 요청 → asyncStarted() 확인 후 MvcResult 확보
         var mvcResult = mockMvc.perform(get("/user/notifications/connect")
                         .with(authentication(token))
                         .accept(MediaType.TEXT_EVENT_STREAM))
                 .andExpect(request().asyncStarted())
                 .andReturn();
 
-        // 3) 테스트 스레드에서 임의 이벤트 전송 & complete
         emitter.send(SseEmitter.event().data("ping"));
         emitter.complete();
 
-        // 4) asyncDispatch 로 최종 응답 검증
         mockMvc.perform(asyncDispatch(mvcResult))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", MediaType.TEXT_EVENT_STREAM_VALUE));
@@ -82,7 +79,7 @@ class NotificationControllerTest extends ControllerTestSupport {
     @Test
     @DisplayName("전체 알림 목록 조회 성공")
     void getNotifications_ShouldReturnList() throws Exception {
-        List<NotificationResponse> stubList = List.of();   // 내용 없는 더미 리스트
+        List<NotificationResponse> stubList = List.of();
         given(notificationService.getNotifications(anyLong())).willReturn(stubList);
 
         mockMvc.perform(get("/user/notifications")

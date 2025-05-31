@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.IntegrationTestSupport;
-import com.playus.userservice.domain.user.dto.UserReviewRequest;
+import com.playus.userservice.domain.user.dto.review.UserReviewRequest;
 import com.playus.userservice.domain.user.entity.*;
 import com.playus.userservice.domain.user.enums.AuthProvider;
 import com.playus.userservice.domain.user.enums.Gender;
@@ -110,7 +110,6 @@ class UserReviewServiceTest extends IntegrationTestSupport {
                 .hasMessageContaining("존재하지 않는 태그입니다");
     }
 
-    // ────────────────────────── 헬퍼 ──────────────────────────
     private User dummyUser(String nick) {
         return User.create(
                 nick,

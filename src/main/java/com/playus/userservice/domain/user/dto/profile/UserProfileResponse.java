@@ -21,5 +21,4 @@ public record UserProfileResponse(
         Float userScore,
         LocalDateTime blockOff,
         List<FavoriteTeamDto> favoriteTeams
-) {
-}
+) {}

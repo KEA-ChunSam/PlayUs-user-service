@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.domain.oauth.service.AuthService;
-import com.playus.userservice.domain.user.dto.UserWithdrawResponse;
+import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
 import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
@@ -9,7 +9,6 @@ import com.playus.userservice.domain.user.repository.write.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -57,10 +56,8 @@ public class UserService {
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        user.withdrawAccount();   // activated = false
-
+        user.withdrawAccount();   // activated = false 로 변경
         authService.logout(req, res);
-
         return new UserWithdrawResponse(true, "회원 탈퇴가 완료되었습니다.");
     }
 }

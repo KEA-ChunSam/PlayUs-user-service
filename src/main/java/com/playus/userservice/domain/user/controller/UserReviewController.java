@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserReviewRequest;
+import com.playus.userservice.domain.user.dto.review.UserReviewRequest;
 import com.playus.userservice.domain.user.service.UserReviewService;
 import com.playus.userservice.domain.user.specification.UserReviewControllerSpecification;
 import lombok.RequiredArgsConstructor;

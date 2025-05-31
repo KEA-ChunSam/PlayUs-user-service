@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.specification;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserInfoResponse;
+import com.playus.userservice.domain.user.dto.profile.UserInfoResponse;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.dto.profile.UserPublicProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;

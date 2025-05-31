@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
-import com.playus.userservice.domain.user.dto.UserInfoResponse;
+import com.playus.userservice.domain.user.dto.profile.UserInfoResponse;
 import com.playus.userservice.domain.user.dto.profile.UserProfileResponse;
 import com.playus.userservice.domain.user.service.UserProfileReadService;
 import com.playus.userservice.domain.user.specification.UserProfileControllerSpecification;

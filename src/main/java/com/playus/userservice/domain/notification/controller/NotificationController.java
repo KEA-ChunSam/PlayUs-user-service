@@ -2,7 +2,6 @@ package com.playus.userservice.domain.notification.controller;
 
 import com.playus.userservice.domain.notification.dto.response.NotificationResponse;
 import com.playus.userservice.domain.notification.service.NotificationService;
-import com.playus.userservice.domain.notification.specification.NotificationApiControllerSpecification;
 import com.playus.userservice.domain.notification.specification.NotificationControllerSpecification;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
