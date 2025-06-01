@@ -137,11 +137,11 @@ public interface UserProfileControllerSpecification {
                             example     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     ),
                     @Parameter(
-                            name        = "targetUserId",
+                            name        = "user-id",
                             description = "조회할 사용자 ID",
                             in          = ParameterIn.PATH,
                             required    = true,
-                            example     = "99"
+                            example     = "10"
                     )
             }
     )
