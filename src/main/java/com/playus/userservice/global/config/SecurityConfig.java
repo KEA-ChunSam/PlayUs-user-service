@@ -51,7 +51,8 @@ public class SecurityConfig {
             "/oauth2/authorization/naver",
             "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
-            "/api/v1/auth/logout"
+            "/api/v1/auth/logout",
+            "/actuator/**"
     };
 
     @Bean
