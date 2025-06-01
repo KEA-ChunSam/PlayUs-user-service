@@ -12,8 +12,9 @@ public record NotificationResponse(
 	String content,
 	Long commentId,
 	Long partyId,
+	Long actorId,
 	NotificationType type,
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm", timezone = "Asia/Seoul")
 	LocalDateTime createdAt,
 	boolean isRead
 ) {
@@ -24,6 +25,7 @@ public record NotificationResponse(
 				entity.getContent(),
 				entity.getCommentId(),
 				entity.getPartyId(),
+				entity.getActorId(),
 				entity.getType(),
 				entity.getCreatedAt(),
 				entity.isRead()

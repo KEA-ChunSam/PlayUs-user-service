@@ -51,7 +51,8 @@ public class SecurityConfig {
             "/oauth2/authorization/naver",
             "/login/oauth2/code/naver",
             "/api/v1/auth/reissue",
-            "/api/v1/auth/logout"
+            "/api/v1/auth/logout",
+            "/actuator/**"
     };
 
     @Bean
@@ -70,7 +71,7 @@ public class SecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest req) {
                         CorsConfiguration c = new CorsConfiguration();
-                        c.setAllowedOrigins(ALLOWED_ORIGINS);
+                        c.setAllowedOriginPatterns(Collections.singletonList("*"));
                         c.setAllowedMethods(Collections.singletonList("*"));
                         c.setAllowedHeaders(Collections.singletonList("*"));
                         c.setAllowCredentials(true);
