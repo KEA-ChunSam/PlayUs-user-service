@@ -36,6 +36,10 @@ public class NotificationService {
 
 	// SSE 구독 (CONNECT)
 	public SseEmitter subscribe(Long userId, String lastEventId) {
+
+		emitterRepository.deleteAllEmitterStartWithId(userId.toString());
+		emitterRepository.deleteAllEventCacheStartWithId(userId.toString());
+
 		String emitterId = userId + "_" + System.currentTimeMillis();
 		SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
