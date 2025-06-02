@@ -139,3 +139,7 @@ feign:
 
   community:
     url: http://localhost:8082
+
+cookie:
+  secure: false
+  sameSite: Lax

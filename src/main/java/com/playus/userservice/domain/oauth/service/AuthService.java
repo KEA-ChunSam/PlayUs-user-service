@@ -10,6 +10,8 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -29,6 +31,12 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.sameSite}")
+    private String cookieSameSite;
 
     /**
      * case1: 둘 다 만료 → 401
@@ -81,10 +89,10 @@ public class AuthService {
         }
         // 클라이언트 쿠키(Access) 만료 처리
         ResponseCookie expiredAccess = ResponseCookie.from("Access", "")
-                .secure(false)   // 운영환경에선 true 로 변경
+                .secure(cookieSecure)   // 운영환경에선 true 로 변경
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
 
