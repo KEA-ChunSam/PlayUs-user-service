@@ -65,10 +65,10 @@ public class TokenService {
 
         // Access 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)
-                .secure(false)  // 운영환경(HTTPS)에서는 항상 true
+                .secure(true)  // 운영환경(HTTPS)에서는 항상 true
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
@@ -91,8 +91,8 @@ public class TokenService {
                         TimeUnit.MILLISECONDS);
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, newRefresh)
-                .secure(false)  // 운영환경(HTTPS)에서는 항상 true
-                .sameSite("Lax")
+                .secure(true)  // 운영환경(HTTPS)에서는 항상 true
+                .sameSite("None")
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                 .build();
@@ -110,8 +110,8 @@ public class TokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
         } finally {
             ResponseCookie expired = ResponseCookie.from(REFRESH_COOKIE, "")
-                    .secure(false)  // 운영환경(HTTPS)에서는 항상 true
-                    .sameSite("Lax")
+                    .secure(true)  // 운영환경(HTTPS)에서는 항상 true
+                    .sameSite("None")
                     .path("/")
                     .maxAge(Duration.ZERO)
                     .build();

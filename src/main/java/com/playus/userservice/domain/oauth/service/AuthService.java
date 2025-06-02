@@ -81,10 +81,10 @@ public class AuthService {
         }
         // 클라이언트 쿠키(Access) 만료 처리
         ResponseCookie expiredAccess = ResponseCookie.from("Access", "")
-                .secure(false)   // 운영환경에선 true 로 변경
+                .secure(true)   // 운영환경에선 true 로 변경
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
 
