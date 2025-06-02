@@ -40,6 +40,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${app.frontend.success-redirect-uri2}")  // 선호팀 ≥ 1개
     private String redirectHome;
 
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.sameSite}")
+    private String cookieSameSite;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
@@ -72,19 +78,19 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
             ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
-                    .secure(true)      // 운영환경(HTTPS)에서는 항상 true
+                    .secure(cookieSecure)      // 운영환경(HTTPS)에서는 항상 true
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
-                    .sameSite("None")
+                    .sameSite(cookieSameSite)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
             // Access Token 쿠키
             ResponseCookie accessCookie = ResponseCookie.from("Access", accessToken)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
-                    .sameSite("None")
+                    .sameSite(cookieSameSite)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 

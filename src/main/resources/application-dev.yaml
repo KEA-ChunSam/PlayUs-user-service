@@ -141,3 +141,7 @@ feign:
 
   community:
     url: ${FEIGN_COMMUNITY_URL}
+
+cookie:
+  secure: true
+  sameSite: None
