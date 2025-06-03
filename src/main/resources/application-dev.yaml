@@ -1,5 +1,9 @@
 server:
   forward-headers-strategy: framework  # ALB HTTPS 헤더 인식
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
 
 spring:
   application:
@@ -23,7 +27,6 @@ spring:
       connection-test-query: "SELECT 1"  # 연결 검증 쿼리
       auto-commit: false
 
-
   data:
     mongodb:
       read:
@@ -32,6 +35,7 @@ spring:
     redis:
       cluster:
         nodes: ${REDIS_CLUSTER_NODES}
+        max-redirects: 3  # 여기가 맞는 위치
       timeout: 5s
       lettuce:
         pool:
@@ -40,6 +44,7 @@ spring:
           min-idle: 1
       repositories:
         enabled: false
+
 
   jpa:
     database: mysql
@@ -185,5 +190,5 @@ feign:
     url: ${FEIGN_COMMUNITY_URL}
 
 cookie:
-  secure: true
+  secure: false
   sameSite: None
