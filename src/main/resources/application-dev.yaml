@@ -188,3 +188,4 @@ feign:
 cookie:
   secure: true
   sameSite: None
+  domain: ".playus.o-r.kr"

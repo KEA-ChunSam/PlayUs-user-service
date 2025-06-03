@@ -69,3 +69,4 @@ app:
 cookie:
   secure: false
   sameSite: Lax
+  domain: "localhost"

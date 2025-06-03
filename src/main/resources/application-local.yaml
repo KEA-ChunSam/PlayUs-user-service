@@ -15,7 +15,7 @@ spring:
 
     redis:
       host: localhost
-      port: 6379
+      port: 6380
 
   jpa:
     show-sql: true
@@ -143,3 +143,4 @@ feign:
 cookie:
   secure: false
   sameSite: Lax
+  domain: "localhost"
