@@ -188,7 +188,3 @@ feign:
 
   community:
     url: ${FEIGN_COMMUNITY_URL}
-
-cookie:
-  secure: false
-  sameSite: None
