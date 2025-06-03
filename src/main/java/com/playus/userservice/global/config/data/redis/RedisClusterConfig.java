@@ -12,8 +12,12 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Profile({"dev", "prod"})  // dev, prod 프로필에서만 사용
 public class RedisClusterConfig {
 
-    @Value("${REDIS_CLUSTER_NODES}")
+    @Value("${spring.data.redis.cluster.nodes}")
     private String redisClusterNodes;
+
+    @Value("${spring.data.redis.cluster.max-redirects}")
+    private int maxRedirects;
+
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -25,7 +29,7 @@ public class RedisClusterConfig {
             clusterConfig.clusterNode(hostPort[0], Integer.parseInt(hostPort[1]));
         }
 
-        clusterConfig.setMaxRedirects(3);
+        clusterConfig.setMaxRedirects(maxRedirects);
 
         return new LettuceConnectionFactory(clusterConfig);
     }
