@@ -26,6 +26,9 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     @Value("${cookie.sameSite}")
     private String cookieSameSite;
 
+    @Value("${cookie.domain}")
+    private String domain;
+
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         Optional<Cookie> cookieOpt = CookieUtils.getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
@@ -41,7 +44,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
             return;
         }
         String serializedRequest = CookieUtils.serialize(authorizationRequest);
-        CookieUtils.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, serializedRequest, cookieSecure, cookieSameSite, COOKIE_EXPIRE_SECONDS);
+        CookieUtils.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, serializedRequest, cookieSecure, cookieSameSite, COOKIE_EXPIRE_SECONDS, domain);
     }
 
     @Override

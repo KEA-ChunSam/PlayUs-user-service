@@ -41,6 +41,9 @@ public class TokenService {
     @Value("${cookie.sameSite}")
     private String cookieSameSite;
 
+    @Value("${cookie.domain}")
+    private String domain;
+
     /**
      * TokenService 는 “토큰 발급,재발급만 담당
      * reissue - refresh로 access만 재발급
@@ -77,6 +80,7 @@ public class TokenService {
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
                 .sameSite(cookieSameSite)
+                .domain(domain)
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     }
@@ -103,6 +107,7 @@ public class TokenService {
                 .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
+                .domain(domain)
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
@@ -122,6 +127,7 @@ public class TokenService {
                     .sameSite(cookieSameSite)
                     .path("/")
                     .maxAge(Duration.ZERO)
+                    .domain(domain)
                     .build();
             res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
         }

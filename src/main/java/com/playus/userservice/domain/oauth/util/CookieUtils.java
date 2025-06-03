@@ -28,13 +28,14 @@ public class CookieUtils {
 	}
 
 	public static void addCookie(HttpServletResponse response, String name, String value, boolean cookieSecure,
-		String cookieSameSite, int maxAge) {
+		String cookieSameSite, int maxAge, String domain) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		cookie.setSecure(cookieSecure);
 		cookie.setAttribute("SameSite", cookieSameSite);
 		cookie.setMaxAge(maxAge);
+		cookie.setDomain(domain);
 		response.addCookie(cookie);
 	}
 
