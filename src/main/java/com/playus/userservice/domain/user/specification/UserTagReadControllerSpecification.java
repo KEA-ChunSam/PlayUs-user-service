@@ -34,7 +34,7 @@ public interface UserTagReadControllerSpecification {
                             required    = true
                     ),
                     @Parameter(
-                            name        = "userId",
+                            name        = "user-id",
                             description = "조회 대상 유저 ID",
                             in          = ParameterIn.PATH,
                             required    = true,
