@@ -38,6 +38,9 @@ public class AuthService {
     @Value("${cookie.sameSite}")
     private String cookieSameSite;
 
+    @Value("${cookie.domain}")
+    private String domain;
+
     /**
      * case1: 둘 다 만료 → 401
      * case2: access 만료 + refresh 유효 → access 재발급
@@ -93,6 +96,7 @@ public class AuthService {
                 .path("/")
                 .maxAge(0)
                 .sameSite(cookieSameSite)
+                .domain(domain)
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
 

@@ -46,6 +46,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${cookie.sameSite}")
     private String cookieSameSite;
 
+    @Value("${cookie.domain}")
+    private String domain;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
@@ -82,6 +85,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                     .sameSite(cookieSameSite)
+                    .domain(domain)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
@@ -91,6 +95,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
                     .sameSite(cookieSameSite)
+                    .domain(domain)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
