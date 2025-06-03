@@ -1,9 +1,5 @@
 server:
   forward-headers-strategy: framework  # ALB HTTPS 헤더 인식
-  servlet:
-    session:
-      cookie:
-        name: JSESSIONID
 
 spring:
   application:
