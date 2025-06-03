@@ -39,7 +39,7 @@ public class RedisClusterConfig {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("JSESSIONID");
         serializer.setCookieMaxAge(-1);
-        serializer.setUseSecureCookie(false);
+        serializer.setUseSecureCookie(true);
         serializer.setSameSite("None");         // 크로스 사이트 허용
         serializer.setUseHttpOnlyCookie(true);
         return serializer;
