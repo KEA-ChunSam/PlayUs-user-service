@@ -143,4 +143,4 @@ feign:
 cookie:
   secure: false
   sameSite: Lax
-  domain: "localhost"
+  domain: localhost
