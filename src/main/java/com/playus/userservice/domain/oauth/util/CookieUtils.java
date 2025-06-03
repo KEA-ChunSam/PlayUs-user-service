@@ -16,26 +16,42 @@ import java.util.Optional;
 public class CookieUtils {
 
 	public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
-		return Arrays.stream(request.getCookies())
+		Cookie[] cookies = request.getCookies();
+
+		if (cookies == null) {
+			return Optional.empty();
+		}
+
+		return Arrays.stream(cookies)
 			.filter(cookie -> cookie.getName().equals(name))
 			.findFirst();
 	}
 
-	public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+	public static void addCookie(HttpServletResponse response, String name, String value, boolean cookieSecure,
+		String cookieSameSite, int maxAge) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setPath("/");
 		cookie.setHttpOnly(true);
+		cookie.setSecure(cookieSecure);
+		cookie.setAttribute("SameSite", cookieSameSite);
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
 	}
 
 	public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
-		getCookie(request, name).ifPresent(cookie -> {
-			cookie.setValue("");
-			cookie.setPath("/");
-			cookie.setMaxAge(0);
-			response.addCookie(cookie);
-		});
+		Cookie[] cookies = request.getCookies();
+
+		if (cookies != null) {
+			Arrays.stream(cookies)
+				.filter(cookie -> cookie.getName().equals(name))
+				.findFirst()
+				.ifPresent(cookie -> {
+					cookie.setValue("");
+					cookie.setPath("/");
+					cookie.setMaxAge(0);
+					response.addCookie(cookie);
+				});
+		}
 	}
 
 	public static String serialize(Object obj) {
