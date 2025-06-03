@@ -8,6 +8,8 @@ import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 
 @Configuration
 @Profile({"dev", "prod"})  // dev, prod 프로필에서만 사용
@@ -30,5 +32,16 @@ public class RedisClusterConfig {
         clusterConfig.setMaxRedirects(3);
 
         return new LettuceConnectionFactory(clusterConfig);
+    }
+
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setCookieName("JSESSIONID");
+        serializer.setCookieMaxAge(-1);
+        serializer.setUseSecureCookie(false);
+        serializer.setSameSite("None");         // 크로스 사이트 허용
+        serializer.setUseHttpOnlyCookie(true);
+        return serializer;
     }
 }
