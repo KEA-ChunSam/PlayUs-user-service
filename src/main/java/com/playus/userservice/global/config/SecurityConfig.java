@@ -38,7 +38,10 @@ public class SecurityConfig {
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, String> redisTemplate;
 
-	private static final String FRONTEND_ORIGIN = "https://web.playus.o-r.kr";
+	private static final List<String> ALLOWED_ORIGINS = List.of(
+			"http://localhost:3000",
+			"https://web.playus.o-r.kr"
+	);
 
 	private static final String[] INTERNAL_PATHS = {
 			"/user/api/**",
@@ -104,7 +107,7 @@ public class SecurityConfig {
 			response.setContentType("application/json;charset=UTF-8");
 
 			String origin = request.getHeader("Origin");
-			if (FRONTEND_ORIGIN.equals(origin)) {
+			if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
 				response.setHeader("Access-Control-Allow-Origin", origin);
 				response.setHeader("Access-Control-Allow-Credentials", "true");
 			}
@@ -116,7 +119,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of(FRONTEND_ORIGIN));
+		config.setAllowedOrigins(ALLOWED_ORIGINS);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);

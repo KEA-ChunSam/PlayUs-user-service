@@ -34,10 +34,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final RedisTemplate<String, String> redisTemplate;
     private final FavoriteTeamRepository favoriteTeamRepository;
 
-    @Value("${app.frontend.success-redirect-uri}")   // 프로필 미설정(=선호팀 없음)
+    @Value("${APP_FRONTEND_SUCCESS_REDIRECT_URI}")   // 프로필 미설정(=선호팀 없음)
     private String redirectNeedSetup;
 
-    @Value("${app.frontend.success-redirect-uri2}")  // 선호팀 ≥ 1개
+    @Value("${APP_FRONTEND_SUCCESS_REDIRECT_URI2}")  // 선호팀 ≥ 1개
     private String redirectHome;
 
     @Value("${cookie.secure}")
