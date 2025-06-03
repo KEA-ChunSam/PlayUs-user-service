@@ -10,10 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -54,6 +56,8 @@ public class SecurityConfig {
 			"/login/oauth2/code/naver",
 			"/api/v1/auth/reissue",
 			"/api/v1/auth/logout",
+			"/presigned-url",
+			"/register",
 			"/actuator/**"
 	};
 
@@ -62,6 +66,10 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
+
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(EntryPoint())
+				)
 
 				// JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
 				.addFilterBefore(
@@ -90,6 +98,19 @@ public class SecurityConfig {
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
+	}
+
+	private AuthenticationEntryPoint EntryPoint() {
+		return (req, res, ex) -> {
+			res.setStatus(HttpStatus.UNAUTHORIZED.value());
+			res.setContentType("application/json;charset=UTF-8");
+			String origin = req.getHeader("Origin");
+			if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
+				res.setHeader("Access-Control-Allow-Origin", origin);
+				res.setHeader("Access-Control-Allow-Credentials", "true");
+			}
+			res.getWriter().write("{\"error\":\"Unauthorized\"}");
+		};
 	}
 
 	@Bean
