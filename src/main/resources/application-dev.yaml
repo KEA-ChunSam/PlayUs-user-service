@@ -15,7 +15,8 @@ spring:
       connection-timeout: 60000          # OCI 네트워크 지연 고려 60초
       idle-timeout: 60000                # OCI 프록시가 빨리 끊으므로 1분
       max-lifetime: 180000               # OCI 프록시 정책 고려 3분
-      maximum-pool-size: 3               # 작은 풀 크기 (OCI 동시 연결 제한)
+      keepalive-time: 30000
+      maximum-pool-size: 5               # 작은 풀 크기 (OCI 동시 연결 제한)
       minimum-idle: 1                    # 최소한만 유지
       validation-timeout: 10000          # 네트워크 지연 고려 10초
       leak-detection-threshold: 30000    # 30초로 단축
