@@ -6,24 +6,26 @@ spring:
     name: user-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL}?useSSL=false&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&socketTimeout=60000&connectTimeout=60000
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # HikariCP 설정 추가
+    # OCI 프록시 환경 최적화 HikariCP 설정
     hikari:
-      connection-timeout: 20000         # 연결 타임아웃 20초
-      idle-timeout: 300000              # 유휴 연결 타임아웃 5분
-      max-lifetime: 900000              # 최대 연결 수명 15분
-      maximum-pool-size: 10             # 최대 연결 수
-      minimum-idle: 2                   # 최소 유휴 연결 수
-      validation-timeout: 5000          # 연결 검증 타임아웃 5초
-      leak-detection-threshold: 60000   # 연결 누수 감지 60초
+      connection-timeout: 60000          # OCI 네트워크 지연 고려 60초
+      idle-timeout: 60000                # OCI 프록시가 빨리 끊으므로 1분
+      max-lifetime: 180000               # OCI 프록시 정책 고려 3분
+      maximum-pool-size: 3               # 작은 풀 크기 (OCI 동시 연결 제한)
+      minimum-idle: 1                    # 최소한만 유지
+      validation-timeout: 10000          # 네트워크 지연 고려 10초
+      leak-detection-threshold: 30000    # 30초로 단축
+      connection-test-query: "SELECT 1"  # 연결 검증 쿼리
+
 
   data:
     mongodb:
       read:
-        uri: ${SPRING_DATA_MONGODB_READ_URI}
+        uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
 
     redis:
       cluster:
@@ -45,12 +47,17 @@ spring:
       hibernate.format_sql:    true
       hibernate.show_sql:      true
       hibernate.jdbc.time_zone: Asia/Seoul
-      # 배치 처리 성능 개선
-      hibernate.jdbc.batch_size: 20
-      hibernate.order_inserts: true
-      hibernate.order_updates: true
-      # 연결 관련 개선
+
+      # OCI 환경에서 안정성 우선 설정
+      hibernate.jdbc.batch_size: 1     # 배치 비활성화 (안정성 우선)
+      hibernate.order_inserts: false   # OCI 환경에서 순서 보장 비활성화
+      hibernate.order_updates: false
       hibernate.connection.provider_disables_autocommit: true
+      hibernate.connection.autocommit: false
+
+      # OCI 프록시 연결 관리
+      hibernate.connection.acquisition_timeout: 60000
+      hibernate.connection.validation_timeout: 10000
 
   security:
     oauth2:
@@ -129,17 +136,31 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        failure-rate-threshold: 50
+        failure-rate-threshold: 60
         slow-call-rate-threshold: 80
-        slow-call-duration-threshold: 10s
+        slow-call-duration-threshold: 15s
         permitted-number-of-calls-in-half-open-state: 3
         max-wait-duration-in-half-open-state: 0s
         sliding-window-type: COUNT_BASED
         sliding-window-size: 10
         minimum-number-of-calls: 10
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 15s
     instances:
       circuit:
+        base-config: default
+
+  # OCI 환경 Retry 설정 추가
+  retry:
+    configs:
+      default:
+        max-attempts: 5    # OCI 환경에서 재시도 증가
+        wait-duration: 2s
+        retry-exceptions:
+          - java.sql.SQLException
+          - com.mysql.cj.jdbc.exceptions.CommunicationsException
+          - java.net.SocketTimeoutException
+    instances:
+      database:
         base-config: default
 
 sentry:
