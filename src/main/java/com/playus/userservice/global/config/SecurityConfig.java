@@ -25,7 +25,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -40,11 +39,6 @@ public class SecurityConfig {
 	private final RedisTemplate<String, String> redisTemplate;
 
 	private static final String FRONTEND_ORIGIN = "https://web.playus.o-r.kr";
-
-	private static final List<String> ALLOWED_ORIGINS = List.of(
-			"http://localhost:3000",
-			"https://web.playus.o-r.kr"
-	);
 
 	private static final String[] INTERNAL_PATHS = {
 			"/user/api/**",
@@ -122,8 +116,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOriginPatterns(ALLOWED_ORIGINS);
-		//config.setAllowedOrigins(List.of(FRONTEND_ORIGIN)); 배포시 사용
+		config.setAllowedOrigins(List.of(FRONTEND_ORIGIN));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
