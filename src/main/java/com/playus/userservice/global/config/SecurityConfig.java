@@ -5,20 +5,15 @@ import com.playus.userservice.domain.oauth.handler.CustomFailureHandler;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.global.jwt.JwtFilter;
 import com.playus.userservice.global.jwt.JwtUtil;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -38,7 +33,10 @@ public class SecurityConfig {
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, String> redisTemplate;
 
-	private static final String FRONTEND_ORIGIN = "https://web.playus.o-r.kr";
+	private static final List<String> ALLOWED_ORIGINS = List.of(
+			"http://localhost:3000",
+			"https://web.playus.o-r.kr"
+	);
 
 	private static final String[] INTERNAL_PATHS = {
 			"/user/api/**",
@@ -64,8 +62,6 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
-
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(EntryPoint()))
 
 				// JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
 				.addFilterBefore(
@@ -96,27 +92,10 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-
-	private AuthenticationEntryPoint EntryPoint() {
-		return (HttpServletRequest request, HttpServletResponse response,
-				org.springframework.security.core.AuthenticationException authException) -> {
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			response.setContentType("application/json;charset=UTF-8");
-
-			String origin = request.getHeader("Origin");
-			if (FRONTEND_ORIGIN.equals(origin)) {
-				response.setHeader("Access-Control-Allow-Origin", origin);
-				response.setHeader("Access-Control-Allow-Credentials", "true");
-			}
-
-			response.getWriter().write("{\"error\":\"Unauthorized\"}");
-		};
-	}
-
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of(FRONTEND_ORIGIN));
+		config.setAllowedOrigins(ALLOWED_ORIGINS);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
