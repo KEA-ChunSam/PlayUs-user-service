@@ -21,6 +21,7 @@ spring:
       validation-timeout: 10000          # 네트워크 지연 고려 10초
       leak-detection-threshold: 30000    # 30초로 단축
       connection-test-query: "SELECT 1"  # 연결 검증 쿼리
+      auto-commit: false
 
 
   data:
@@ -37,6 +38,8 @@ spring:
           max-active: 10
           max-idle: 10
           min-idle: 1
+      repositories:
+        enabled: false
 
   jpa:
     database: mysql
@@ -53,8 +56,6 @@ spring:
       hibernate.jdbc.batch_size: 1     # 배치 비활성화 (안정성 우선)
       hibernate.order_inserts: false   # OCI 환경에서 순서 보장 비활성화
       hibernate.order_updates: false
-      hibernate.connection.provider_disables_autocommit: true
-      hibernate.connection.autocommit: false
 
       # OCI 프록시 연결 관리
       hibernate.connection.acquisition_timeout: 60000
