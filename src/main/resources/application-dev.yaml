@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: framework  # ALB HTTPS 헤더 인식
+
 spring:
   application:
     name: user-service
@@ -7,6 +10,15 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # HikariCP 설정 추가
+    hikari:
+      connection-timeout: 20000         # 연결 타임아웃 20초
+      idle-timeout: 300000              # 유휴 연결 타임아웃 5분
+      max-lifetime: 900000              # 최대 연결 수명 15분
+      maximum-pool-size: 10             # 최대 연결 수
+      minimum-idle: 2                   # 최소 유휴 연결 수
+      validation-timeout: 5000          # 연결 검증 타임아웃 5초
+      leak-detection-threshold: 60000   # 연결 누수 감지 60초
 
   data:
     mongodb:
@@ -28,10 +40,17 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false  # 성능 개선을 위해 추가
     properties:
       hibernate.format_sql:    true
       hibernate.show_sql:      true
       hibernate.jdbc.time_zone: Asia/Seoul
+      # 배치 처리 성능 개선
+      hibernate.jdbc.batch_size: 20
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      # 연결 관련 개선
+      hibernate.connection.provider_disables_autocommit: true
 
   security:
     oauth2:
