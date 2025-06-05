@@ -41,39 +41,23 @@ public class AuthService {
     @Value("${cookie.domain}")
     private String domain;
 
-    /**
-     * case1: 둘 다 만료 → 401
-     * case2: access 만료 + refresh 유효 → access 재발급
-     * case3: access 유효 + refresh 만료 → refresh 재발급
-     * case4: 둘 다 유효 → 정상 인증 세팅
-     */
-
     public void verifyAndRenewToken(HttpServletRequest req, HttpServletResponse res) {
-        String access  = tokenService.resolveToken(req, TokenType.ACCESS);
-        String refresh = tokenService.resolveToken(req, TokenType.REFRESH);
 
-        boolean accessExpired  = isExpired(access);
+        String refresh = tokenService.resolveToken(req, TokenType.REFRESH);
         boolean refreshExpired = isExpired(refresh);
 
-        // case1
-        if (accessExpired && refreshExpired) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Both tokens expired");
+        if (refresh == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MISSING_REFRESH_TOKEN");
         }
-        // case2
-        if (accessExpired) {
-            String newAccess = tokenService.reissueAccessToken(req, res);
-            authenticate(newAccess);
-            return;
-        }
-        // case3
+
         if (refreshExpired) {
-            tokenService.reissueRefreshToken(access, res);
-            authenticate(access);
-            return;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "REFRESH_TOKEN_EXPIRED");
         }
-        // case4
-        authenticate(access);
+
+        String newAccess = tokenService.reissueAccessToken(req, res);
+        authenticate(newAccess);
     }
+
 
     public void logout(HttpServletRequest req, HttpServletResponse res) {
         // Refresh Token 삭제
@@ -115,21 +99,20 @@ public class AuthService {
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "MISSING_TOKEN");
         }
-
+    
+        //블랙리스트 체크
         String jti = jwtUtil.getJti(token);
         if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jti))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
         }
 
+
         String type = jwtUtil.getType(token);
-        if ("refresh".equals(type)) {
-            String userId = jwtUtil.getUserId(token);
-            String refreshKey = "refresh:" + userId;
-            if (!Boolean.TRUE.equals(redisTemplate.hasKey(refreshKey))) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_SESSION");
-            }
+        if (!"access".equals(type)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_TYPE");
         }
 
+        // 엑세스 토큰 클레임 검사
         String userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
         int age = jwtUtil.getAge(token);

@@ -49,21 +49,24 @@ public class TokenService {
      * reissue - refresh로 access만 재발급
     */
     public String reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
+
         String refresh = extractRefreshToken(req);
+
         // 만료,변조 체크
-        boolean expired;
-        try {
-            expired = jwtUtil.isExpired(refresh);
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
-        }
-        if (expired) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_만료된 토큰입니다");
+        if (jwtUtil.isExpired(refresh)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "REFRESH_TOKEN_EXPIRED");
         }
 
         // Redis 검증
         String userId = jwtUtil.getUserId(refresh);
-        String role   = jwtUtil.getRole(refresh);
+        String redisKey = REDIS_PREFIX + userId;
+
+        if (!Boolean.TRUE.equals(redisTemplate.hasKey(redisKey))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_SESSION");
+        }
+
+        // 유저 검증
+        String role = jwtUtil.getRole(refresh);
         User user = userRepository.findByIdAndActivatedTrue(Long.parseLong(userId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
 
@@ -74,7 +77,6 @@ public class TokenService {
         // 새 Access 토큰 발급
         String newAccessToken = jwtUtil.createAccessToken(userId, role, age, gender);
 
-        // Access 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie accessCookie = ResponseCookie.from("Access", newAccessToken)
                 .secure(cookieSecure)  // 운영환경(HTTPS)에서는 항상 true
                 .path("/")
@@ -84,34 +86,24 @@ public class TokenService {
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
-        return newAccessToken;
-    }
+        // 리프레쉬 토큰 유효기간 하루 남으면 새로 발급
+        long remaining = jwtUtil.getRemainingExpirationTime(refresh);
+        long oneDayMs = 24L * 60 * 60 * 1000;
 
-    /** Access 유효할 경우 Refresh 재발급 */
-    public void reissueRefreshToken(String access, HttpServletResponse res) {
+        if (remaining < oneDayMs) {
+            String rotated = jwtUtil.createRefreshToken(userId, role);
+            redisTemplate.opsForValue()
+                    .set(redisKey, rotated, JwtUtil.REFRESH_EXPIRE_MS, TimeUnit.MILLISECONDS);
 
-        if (access == null || jwtUtil.isExpired(access)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN");
+            ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE, rotated)
+                    .secure(cookieSecure).sameSite(cookieSameSite).domain(domain)
+                    .path("/").httpOnly(true)
+                    .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
+                    .build();
+            res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         }
 
-        String userId = jwtUtil.getUserId(access);
-        String role   = jwtUtil.getRole(access);
-        String newRefresh = jwtUtil.createRefreshToken(userId, role);
-
-        redisTemplate.opsForValue()
-                .set(REDIS_PREFIX + userId,
-                        newRefresh,
-                        JwtUtil.REFRESH_EXPIRE_MS,
-                        TimeUnit.MILLISECONDS);
-
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, newRefresh)
-                .secure(cookieSecure)  // 운영환경(HTTPS)에서는 항상 true
-                .sameSite(cookieSameSite)
-                .path("/")
-                .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
-                .domain(domain)
-                .build();
-        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return newAccessToken;
     }
 
     public void deleteRefreshToken(HttpServletRequest req, HttpServletResponse res) {
