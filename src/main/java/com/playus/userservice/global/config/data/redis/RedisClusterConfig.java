@@ -1,6 +1,5 @@
 package com.playus.userservice.global.config.data.redis;
 
-import io.lettuce.core.ClientOptions;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
