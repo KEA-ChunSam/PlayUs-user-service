@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -92,7 +93,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Gender gender = mapGender(registrationId, response.getGender());
 
         User user = User.create(
-                "default_nickname",
+                "User_" + generateRandomMixStr(7,true),
                 normalizedPhone,
                 birth,
                 gender,
@@ -152,5 +153,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     new OAuth2Error("invalid_gender",
                             "유효하지 않은 성별 정보입니다: " + raw, null));
         }
+    }
+
+    private static String generateRandomMixStr(int length, boolean isUpperCase) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            sb.append(characters.charAt(index));
+        }
+        return isUpperCase ? sb.toString() : sb.toString().toLowerCase();
     }
 }
