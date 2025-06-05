@@ -13,7 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user/auth")
 @RequiredArgsConstructor
 public class AuthController implements AuthControllerSpecification {
 
