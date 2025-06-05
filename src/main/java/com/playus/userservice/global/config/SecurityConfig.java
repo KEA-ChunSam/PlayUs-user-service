@@ -76,10 +76,6 @@ public class SecurityConfig {
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 
-			.exceptionHandling(ex -> ex
-				.authenticationEntryPoint(EntryPoint())
-			)
-
 			// JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
 			.addFilterBefore(
 				new JwtFilter(jwtUtil, redisTemplate),
@@ -110,19 +106,6 @@ public class SecurityConfig {
 			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
-	}
-
-	private AuthenticationEntryPoint EntryPoint() {
-		return (req, res, ex) -> {
-			res.setStatus(HttpStatus.UNAUTHORIZED.value());
-			res.setContentType("application/json;charset=UTF-8");
-			String origin = req.getHeader("Origin");
-			if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
-				res.setHeader("Access-Control-Allow-Origin", origin);
-				res.setHeader("Access-Control-Allow-Credentials", "true");
-			}
-			res.getWriter().write("{\"error\":\"Unauthorized\"}");
-		};
 	}
 
 	@Bean
