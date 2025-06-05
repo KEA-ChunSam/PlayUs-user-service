@@ -58,8 +58,8 @@ public class SecurityConfig {
 		"/login/oauth2/code/kakao",
 		"/oauth2/authorization/naver",
 		"/login/oauth2/code/naver",
-		"/api/v1/auth/reissue",
-		"/api/v1/auth/logout",
+		"/user/auth/reissue",
+		"/user/auth/logout",
 		"/presigned-url",
 		"/register",
 		"/actuator/**"
