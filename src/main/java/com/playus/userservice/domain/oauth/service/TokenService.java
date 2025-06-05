@@ -96,8 +96,10 @@ public class TokenService {
                     .set(redisKey, rotated, JwtUtil.REFRESH_EXPIRE_MS, TimeUnit.MILLISECONDS);
 
             ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE, rotated)
-                    .secure(cookieSecure).sameSite(cookieSameSite).domain(domain)
-                    .path("/").httpOnly(true)
+                    .secure(cookieSecure)
+                    .sameSite(cookieSameSite)
+                    .domain(domain)
+                    .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                     .build();
             res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
