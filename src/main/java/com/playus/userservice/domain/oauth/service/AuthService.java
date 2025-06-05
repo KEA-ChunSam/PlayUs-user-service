@@ -61,8 +61,8 @@ public class AuthService {
         }
         // case2
         if (accessExpired) {
-            tokenService.reissueAccessToken(req, res);
-            authenticate(refresh);
+            String newAccess = tokenService.reissueAccessToken(req, res);
+            authenticate(newAccess);
             return;
         }
         // case3

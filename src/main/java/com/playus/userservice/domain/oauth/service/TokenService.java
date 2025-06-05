@@ -48,7 +48,7 @@ public class TokenService {
      * TokenService 는 “토큰 발급,재발급만 담당
      * reissue - refresh로 access만 재발급
     */
-    public void reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
+    public String reissueAccessToken(HttpServletRequest req, HttpServletResponse res) {
         String refresh = extractRefreshToken(req);
         // 만료,변조 체크
         boolean expired;
@@ -83,6 +83,8 @@ public class TokenService {
                 .domain(domain)
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+
+        return newAccessToken;
     }
 
     /** Access 유효할 경우 Refresh 재발급 */
