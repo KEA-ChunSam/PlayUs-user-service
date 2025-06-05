@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -76,13 +77,17 @@ public class SecurityConfig {
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 
+			.exceptionHandling(e -> e
+				.authenticationEntryPoint(EntryPoint())
+			)
+
 			// JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
 			.addFilterBefore(
 				new JwtFilter(jwtUtil, redisTemplate),
 				UsernamePasswordAuthenticationFilter.class
 			)
 
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
 			// OAuth2
 			.oauth2Login(oauth2 -> oauth2
@@ -122,4 +127,22 @@ public class SecurityConfig {
 		return source;
 	}
 
+	@Bean
+	public AuthenticationEntryPoint EntryPoint() {
+		return (req, res, ex) -> {
+
+			res.setStatus(HttpStatus.UNAUTHORIZED.value());     // 401
+			res.setContentType("application/json;charset=UTF-8");
+			res.getWriter().write("{\"error\":\"Unauthorized\"}");
+		};
+	}
+
+	@Bean @Order(1)
+	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
+		http.securityMatcher("/user/api/**", "/community/api/**","/twp/api/**")
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		return http.build();
+	}
 }

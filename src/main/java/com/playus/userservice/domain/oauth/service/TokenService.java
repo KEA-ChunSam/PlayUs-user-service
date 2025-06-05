@@ -82,7 +82,7 @@ public class TokenService {
                 .path("/")
                 .maxAge(Duration.ofMillis(JwtUtil.ACCESS_EXPIRE_MS))
                 .sameSite(cookieSameSite)
-                .domain(domain)
+                .domain(domain)     // 로컬에서 테스트시 주석처리
                 .build();
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
@@ -98,7 +98,7 @@ public class TokenService {
             ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE, rotated)
                     .secure(cookieSecure)
                     .sameSite(cookieSameSite)
-                    .domain(domain)
+                    .domain(domain)     // 로컬에서 테스트시 주석처리
                     .path("/")
                     .maxAge(Duration.ofMillis(JwtUtil.REFRESH_EXPIRE_MS))
                     .build();

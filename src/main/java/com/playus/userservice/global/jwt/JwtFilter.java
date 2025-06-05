@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 내부 호출 /user/api/ 은 필터에서 제외
-        return request.getRequestURI().startsWith("/user/api/");
+        return request.getRequestURI().startsWith("/user/api/**");
     }
 
     public JwtFilter(JwtUtil jwtUtil,
