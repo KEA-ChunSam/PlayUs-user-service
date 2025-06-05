@@ -31,17 +31,16 @@ spring:
         uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=30000&socketTimeoutMS=60000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
 
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      timeout: 3s
+      cluster:
+        nodes: ${REDIS_CLUSTER_NODES}
       lettuce:
         pool:
-          max-active: 16                   # 일반 환경에서 더 많은 연결 허용
-          max-idle: 8                      # 적절한 유휴 연결 유지
-          min-idle: 2                      # 최소 연결로 지연 방지
-          max-wait: 3s                     # 빠른 응답을 위한 짧은 대기
-          time-between-eviction-runs: 60s  # 1분마다 유휴 연결 정리
-        shutdown-timeout: 1s               # 빠른 셧다운
+          max-active: 16                 # 일반 환경에서 더 많은 연결 허용
+          max-idle: 8                    # 적절한 유휴 연결 유지
+          min-idle: 2                    # 최소 연결로 지연 방지
+          max-wait: 3s                   # 빠른 응답을 위한 짧은 대기
+          time-between-eviction-runs: 60s # 1분마다 유휴 연결 정리
+        shutdown-timeout: 1s             # 빠른 셧다운
       repositories:
         enabled: false
 
@@ -57,9 +56,9 @@ spring:
       hibernate.jdbc.time_zone: Asia/Seoul
 
       # 배치 처리 활성화 (성능 최적화)
-      hibernate.jdbc.batch_size: 20              # 배치 크기 증가
-      hibernate.order_inserts: true              # 삽입 순서 최적화
-      hibernate.order_updates: true              # 업데이트 순서 최적화
+      hibernate.jdbc.batch_size: 20           # 배치 크기 증가
+      hibernate.order_inserts: true           # 삽입 순서 최적화
+      hibernate.order_updates: true           # 업데이트 순서 최적화
       hibernate.jdbc.batch_versioned_data: true  # 버전 데이터 배치 처리
 
       # 캐시 설정 (메모리 사용량 고려)
