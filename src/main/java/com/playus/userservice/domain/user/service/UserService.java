@@ -40,7 +40,7 @@ public class UserService {
         }
 
         user.updateNickname(newNickname);
-        user.updateThumbnailURL(newThumbnailURL);
+        user.updateImage(newThumbnailURL);
 
         userRepository.save(user);
 
