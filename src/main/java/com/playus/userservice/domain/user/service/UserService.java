@@ -2,7 +2,7 @@ package com.playus.userservice.domain.user.service;
 
 import com.playus.userservice.domain.oauth.service.AuthService;
 import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.repository.write.UserRepository;
@@ -22,7 +22,7 @@ public class UserService {
     private final AuthService authService;
 
     @Transactional
-    public NicknameResponse updateNickname(Long userId, NicknameRequest req) {
+    public NicknameResponse updateProfile(Long userId, ProfileUpdateRequest req) {
 
         // 사용자 조회
         User user = userRepository.findByIdAndActivatedTrue(userId)
@@ -30,6 +30,7 @@ public class UserService {
                         HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         String newNickname = req.nickname();
+        String newThumbnailURL = req.thumbnailURL();
 
         // 닉네임 중복 확인 (db에 존재 & 본인 닉네임 아님)
         if (userRepository.existsByNickname(newNickname)
@@ -37,8 +38,13 @@ public class UserService {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
+
         user.updateNickname(newNickname);
-        return new NicknameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
+        user.updateThumbnailURL(newThumbnailURL);
+
+        userRepository.save(user);
+
+        return new NicknameResponse(true, "프로필이 성공적으로 변경되었습니다.");
     }
 
     @Transactional
