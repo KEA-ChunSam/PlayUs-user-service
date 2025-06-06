@@ -1,6 +1,6 @@
 package com.playus.userservice.domain.user.service;
 
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.favoriteteam.FavoriteTeamRequest;
 import com.playus.userservice.domain.user.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.userservice.domain.user.dto.presigned.PresignedUrlForSaveImageResponse;
@@ -31,9 +31,7 @@ public class ProfileSetupService {
                 new FavoriteTeamRequest(favoriteTeamId, 1)
         );
 
-        userService.updateNickname(userId, new NicknameRequest(nickname));
-
-        userService.updateImage(userId, thumbnailURL);
+        userService.updateProfile(userId, new ProfileUpdateRequest(nickname, thumbnailURL));
 
         return new UserRegisterResponse(true, "프로필이 정상적으로 설정되었습니다.");
     }
