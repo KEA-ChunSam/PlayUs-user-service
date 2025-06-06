@@ -101,6 +101,10 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
     }
 
+    public void updateThumbnailURL(String thumbnailURL) {
+        this.thumbnailURL = thumbnailURL;
+    }
+
     public void updateUserScore(Float userScore) {
         this.userScore = userScore;
     }
