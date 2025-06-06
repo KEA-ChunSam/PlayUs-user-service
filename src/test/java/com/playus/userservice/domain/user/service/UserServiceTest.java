@@ -3,7 +3,7 @@ package com.playus.userservice.domain.user.service;
 import com.playus.userservice.IntegrationTestSupport;
 import com.playus.userservice.domain.oauth.service.AuthService;
 import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.entity.User;
 import com.playus.userservice.domain.user.enums.AuthProvider;
@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -43,7 +44,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @DisplayName("닉네임을 성공적으로 업데이트한다")
     @Test
-    void updateNickname_success() {
+    void updateProfile_success() {
         // given
         User savedUser = userRepository.save(
                 User.create(
@@ -57,28 +58,29 @@ class UserServiceTest extends IntegrationTestSupport {
                 )
         );
         Long userId = savedUser.getId();
-        NicknameRequest req = new NicknameRequest("test2");
+        ProfileUpdateRequest req = new ProfileUpdateRequest("test2", "http://test.test");
 
         // when
-        NicknameResponse resp = userService.updateNickname(userId, req);
+        NicknameResponse resp = userService.updateProfile(userId, req);
 
         // then
         assertThat(resp.success()).isTrue();
-        assertThat(resp.message()).isEqualTo("닉네임이 성공적으로 변경되었습니다.");
+        assertThat(resp.message()).isEqualTo("프로필이 성공적으로 변경되었습니다.");
 
-        User updated = userRepository.findByIdAndActivatedTrue(userId).get();
+        User updated = userRepository.findByIdAndActivatedTrue(userId).orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         assertThat(updated.getNickname()).isEqualTo("test2");
     }
 
     @DisplayName("존재하지 않는 유저의 닉네임 업데이트 시 NOT_FOUND 예외 발생")
     @Test
-    void updateNickname_userNotFound() {
+    void updateProfile_userNotFound() {
         // given
         Long invalidUserId = 999L;
-        NicknameRequest req = new NicknameRequest("nickname");
+        ProfileUpdateRequest req = new ProfileUpdateRequest("nickname", "http://test.test");
 
         // when / then
-        assertThatThrownBy(() -> userService.updateNickname(invalidUserId, req))
+        assertThatThrownBy(() -> userService.updateProfile(invalidUserId, req))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(e -> {
                     ResponseStatusException ex = (ResponseStatusException) e;
@@ -89,7 +91,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @DisplayName("이미 존재하는 닉네임으로 변경 시 CONFLICT 예외 발생")
     @Test
-    void updateNickname_conflict() {
+    void updateProfile_conflict() {
         // given 두 명 저장
         userRepository.save(
                 User.create(
@@ -113,10 +115,10 @@ class UserServiceTest extends IntegrationTestSupport {
                         "http://example.com/b.jpg"
                 )
         );
-        NicknameRequest req = new NicknameRequest("test1");
+        ProfileUpdateRequest req = new ProfileUpdateRequest("test1", "http://test.test");
 
         // when / then
-        assertThatThrownBy(() -> userService.updateNickname(other.getId(), req))
+        assertThatThrownBy(() -> userService.updateProfile(other.getId(), req))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(e -> {
                     ResponseStatusException ex = (ResponseStatusException) e;
@@ -127,7 +129,7 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @DisplayName("기존 닉네임과 동일한 값으로 변경해도 예외 없이 성공")
     @Test
-    void updateNickname_sameAsCurrent() {
+    void updateProfile_sameAsCurrent() {
         // given: 유저 저장
         User user = userRepository.save(
                 User.create(
@@ -140,14 +142,15 @@ class UserServiceTest extends IntegrationTestSupport {
                         "http://example.com/c.jpg"
                 )
         );
-        NicknameRequest req = new NicknameRequest("sameName");
+        ProfileUpdateRequest req = new ProfileUpdateRequest("sameName", "http://test.test");
 
         // when
-        NicknameResponse resp = userService.updateNickname(user.getId(), req);
+        NicknameResponse resp = userService.updateProfile(user.getId(), req);
 
         // then
         assertThat(resp.success()).isTrue();
-        User updated = userRepository.findByIdAndActivatedTrue(user.getId()).get();
+        User updated = userRepository.findByIdAndActivatedTrue(user.getId()).orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         assertThat(updated.getNickname()).isEqualTo("sameName");
     }
 
@@ -167,7 +170,8 @@ class UserServiceTest extends IntegrationTestSupport {
         userService.updateImage(user.getId(), newUrl);
 
         // then
-        User refreshed = userRepository.findByIdAndActivatedTrue(user.getId()).get();
+        User refreshed = userRepository.findByIdAndActivatedTrue(user.getId()).orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         assertThat(refreshed.getThumbnailURL()).isEqualTo(newUrl);
     }
 
@@ -205,7 +209,8 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThat(resp.success()).isTrue();
         assertThat(resp.message()).isEqualTo("회원 탈퇴가 완료되었습니다.");
 
-        User updated = userRepository.findById(userId).get();
+        User updated = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         assertThat(updated.isActivated()).isFalse();
     }
 

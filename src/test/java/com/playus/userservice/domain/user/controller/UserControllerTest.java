@@ -3,7 +3,7 @@ package com.playus.userservice.domain.user.controller;
 import com.playus.userservice.ControllerTestSupport;
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +36,9 @@ class UserControllerTest extends ControllerTestSupport {
 
     @BeforeEach
     void setUp() {
-        Long userId = 1L;
+        long userId = 1L;
         CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
-        when(principal.getName()).thenReturn(userId.toString());
+        when(principal.getName()).thenReturn(Long.toString(userId));
 
         List<SimpleGrantedAuthority> authorities =
                 List.of(new SimpleGrantedAuthority(Role.USER.name()));
@@ -51,15 +51,15 @@ class UserControllerTest extends ControllerTestSupport {
 
     @DisplayName("닉네임을 정상적으로 변경할 수 있다.")
     @Test
-    void updateNickname_success() throws Exception {
+    void updateProfile_success() throws Exception {
         // given
-        var req = new NicknameRequest("newNick");
+        var req = new ProfileUpdateRequest("newNick", "http://test.test");
         var resp = new NicknameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
-        given(userService.updateNickname(eq(1L), any(NicknameRequest.class)))
+        given(userService.updateProfile(eq(1L), any(ProfileUpdateRequest.class)))
                 .willReturn(resp);
 
         // when // then
-        mockMvc.perform(put("/user/nickname")
+        mockMvc.perform(put("/user/profile")
                         .with(authentication(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -71,12 +71,12 @@ class UserControllerTest extends ControllerTestSupport {
 
     @DisplayName("중복 닉네임은 409 Conflict")
     @Test
-    void updateNickname_conflict() throws Exception {
-        var req = new NicknameRequest("dupNick");
+    void updateProfile_conflict() throws Exception {
+        var req = new ProfileUpdateRequest("dupNick", "http://test.test");
         willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."))
-                .given(userService).updateNickname(eq(1L), any(NicknameRequest.class));
+                .given(userService).updateProfile(eq(1L), any(ProfileUpdateRequest.class));
 
-        mockMvc.perform(put("/user/nickname")
+        mockMvc.perform(put("/user/profile")
                         .with(authentication(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -89,12 +89,12 @@ class UserControllerTest extends ControllerTestSupport {
 
     @DisplayName("사용자가 없으면 404 Not Found")
     @Test
-    void updateNickname_notFound() throws Exception {
-        var req = new NicknameRequest("anyNick");
+    void updateProfile_notFound() throws Exception {
+        var req = new ProfileUpdateRequest("anyNick", "http://test.test");
         willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."))
-                .given(userService).updateNickname(eq(1L), any(NicknameRequest.class));
+                .given(userService).updateProfile(eq(1L), any(ProfileUpdateRequest.class));
 
-        mockMvc.perform(put("/user/nickname")
+        mockMvc.perform(put("/user/profile")
                         .with(authentication(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -108,10 +108,10 @@ class UserControllerTest extends ControllerTestSupport {
     @DisplayName("nickname 필드는 필수이다.")
     @ParameterizedTest
     @NullAndEmptySource
-    void updateNickname_blankNickname(String blank) throws Exception {
-        var req = new NicknameRequest(blank);
+    void updateNickname_blankProfile(String blank) throws Exception {
+        var req = new ProfileUpdateRequest(blank, "http://test.test");
 
-        mockMvc.perform(put("/user/nickname")
+        mockMvc.perform(put("/user/profile")
                         .with(authentication(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
