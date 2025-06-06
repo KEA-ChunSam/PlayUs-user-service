@@ -8,42 +8,40 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}?useSSL=false&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&socketTimeout=30000&connectTimeout=30000&useUnicode=true&characterEncoding=UTF-8
+    url: ${SPRING_DATASOURCE_URL}?useSSL=false&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&socketTimeout=90000&connectTimeout=90000&useUnicode=true&characterEncoding=UTF-8
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # OCI 프록시 환경 최적화 HikariCP 설정 (네트워크 불안정 대응)
     hikari:
-      connection-timeout: 30000          # 60초 → 30초 (빠른 실패로 재시도 유도)
-      idle-timeout: 60000                # 2분 → 1분 (더 자주 갱신)
-      max-lifetime: 180000               # 5분 → 3분 (더 자주 갱신)
-      keepalive-time: 30000              # 1분 → 30초 (더 자주 연결 체크)
-      maximum-pool-size: 6               # 8 → 6 (연결 수 줄여서 안정성 확보)
-      minimum-idle: 2                    # 최소 연결 유지
-      validation-timeout: 5000           # 10초 → 5초 (빠른 검증)
-      leak-detection-threshold: 30000    # 30초 유지
-      connection-test-query: "SELECT 1"  # 연결 검증 쿼리
+      connection-timeout: 90000
+      idle-timeout: 120000
+      max-lifetime: 300000
+      keepalive-time: 60000
+      maximum-pool-size: 6
+      minimum-idle: 2
+      validation-timeout: 15000
+      leak-detection-threshold: 60000
+      connection-test-query: "SELECT 1"
       auto-commit: false
-      # 추가: 연결 테스트 강화
-      test-on-borrow: true               # 연결 사용 전 테스트
-      test-while-idle: true              # 유휴 연결 테스트
+      test-on-borrow: true
+      test-while-idle: true
 
   data:
     mongodb:
       read:
-        uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=15000&socketTimeoutMS=30000&serverSelectionTimeoutMS=5000&maxIdleTimeMS=30000
+        uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=20000&socketTimeoutMS=60000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
 
     redis:
       cluster:
         nodes: ${REDIS_CLUSTER_NODES}
       lettuce:
         pool:
-          max-active: 12                 # 16 → 12 (안정성 확보)
-          max-idle: 6                    # 8 → 6
-          min-idle: 2                    # 최소 연결로 지연 방지
-          max-wait: 2s                   # 3초 → 2초 (더 빠른 응답)
-          time-between-eviction-runs: 30s # 1분 → 30초 (더 자주 정리)
-        shutdown-timeout: 1s             # 빠른 셧다운
+          max-active: 12
+          max-idle: 6
+          min-idle: 2
+          max-wait: 3s
+          time-between-eviction-runs: 30s
+        shutdown-timeout: 1s
       repositories:
         enabled: false
 
@@ -52,30 +50,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
-    open-in-view: false  # 성능 개선을 위해 추가
+    open-in-view: false
     properties:
       hibernate.format_sql: false
       hibernate.show_sql: false
       hibernate.jdbc.time_zone: Asia/Seoul
-
-      # 배치 처리 활성화 (성능 최적화)
-      hibernate.jdbc.batch_size: 15           # 20 → 15 (안정성 확보)
-      hibernate.order_inserts: true           # 삽입 순서 최적화
-      hibernate.order_updates: true           # 업데이트 순서 최적화
-      hibernate.jdbc.batch_versioned_data: true  # 버전 데이터 배치 처리
-
-      # 캐시 설정 (메모리 사용량 고려)
+      hibernate.jdbc.batch_size: 15
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.jdbc.batch_versioned_data: true
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
-
-      # 페치 최적화
-      hibernate.jdbc.fetch_size: 30           # 50 → 30 (안정성 확보)
-      hibernate.default_batch_fetch_size: 12  # 16 → 12
-
-      # OCI 프록시 연결 관리 (네트워크 불안정 대응)
-      hibernate.connection.acquisition_timeout: 60000   # 2분 → 1분
-      hibernate.connection.validation_timeout: 10000    # 15초 → 10초
+      hibernate.jdbc.fetch_size: 30
+      hibernate.default_batch_fetch_size: 12
+      hibernate.connection.acquisition_timeout: 90000
+      hibernate.connection.validation_timeout: 15000
 
   security:
     oauth2:
@@ -132,19 +122,19 @@ management:
     redis:
       enabled: false
     datasource:
-      enabled: true                      # 추가: DB 헬스체크 활성화
+      enabled: true
 
   endpoints:
     web:
       exposure:
         include:
-          - health           # 애플리케이션 상태 확인
-          - info             # 애플리케이션 정보
-          - prometheus       # 메트릭 데이터 노출
+          - health
+          - info
+          - prometheus
 
   endpoint:
     health:
-      show-details: when-authorized      # never → when-authorized (문제 진단용)
+      show-details: when-authorized
 
 app:
   frontend:
@@ -156,27 +146,25 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        failure-rate-threshold: 60       # 50 → 60 (조금 더 관대하게)
+        failure-rate-threshold: 60
         slow-call-rate-threshold: 70
-        slow-call-duration-threshold: 10s # 15초 → 10초 (더 빠른 감지)
+        slow-call-duration-threshold: 10s
         permitted-number-of-calls-in-half-open-state: 3
         max-wait-duration-in-half-open-state: 0s
         sliding-window-type: COUNT_BASED
-        sliding-window-size: 8           # 10 → 8 (더 빠른 반응)
+        sliding-window-size: 8
         minimum-number-of-calls: 5
-        wait-duration-in-open-state: 10s # 15초 → 10초 (더 빠른 복구)
-      # Redis 특화 설정
+        wait-duration-in-open-state: 10s
       redis-config:
         failure-rate-threshold: 50
-        slow-call-duration-threshold: 3s # 5초 → 3초
-        minimum-number-of-calls: 3       # 5 → 3
-        wait-duration-in-open-state: 5s  # 10초 → 5초
-      # MongoDB 특화 설정
+        slow-call-duration-threshold: 3s
+        minimum-number-of-calls: 3
+        wait-duration-in-open-state: 5s
       mongodb-config:
         failure-rate-threshold: 70
-        slow-call-duration-threshold: 15s # 20초 → 15초
-        minimum-number-of-calls: 3       # 5 → 3
-        wait-duration-in-open-state: 15s # 20초 → 15초
+        slow-call-duration-threshold: 15s
+        minimum-number-of-calls: 3
+        wait-duration-in-open-state: 15s
     instances:
       circuit:
         base-config: default
@@ -185,13 +173,12 @@ resilience4j:
       mongodb:
         base-config: mongodb-config
 
-  # OCI 환경 Retry 설정 최적화 (네트워크 불안정 대응)
   retry:
     configs:
       default:
-        max-attempts: 4              # 5 → 4 (적당한 재시도)
-        wait-duration: 500ms         # 1초 → 500ms (더 빠른 재시도)
-        exponential-backoff-multiplier: 1.5  # 2 → 1.5 (더 완만한 증가)
+        max-attempts: 5
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2.0
         retry-exceptions:
           - java.sql.SQLException
           - com.mysql.cj.jdbc.exceptions.CommunicationsException
@@ -199,17 +186,17 @@ resilience4j:
           - java.net.ConnectException
           - org.springframework.dao.TransientDataAccessException
       redis-config:
-        max-attempts: 3
-        wait-duration: 300ms         # 500ms → 300ms
+        max-attempts: 4
+        wait-duration: 600ms
         exponential-backoff-multiplier: 1.5
         retry-exceptions:
           - java.net.SocketTimeoutException
           - java.net.ConnectException
           - io.lettuce.core.RedisException
       mongodb-config:
-        max-attempts: 3
-        wait-duration: 500ms         # 1초 → 500ms
-        exponential-backoff-multiplier: 1.5  # 2 → 1.5
+        max-attempts: 4
+        wait-duration: 800ms
+        exponential-backoff-multiplier: 1.5
         retry-exceptions:
           - java.net.SocketTimeoutException
           - com.mongodb.MongoException
@@ -221,32 +208,30 @@ resilience4j:
       mongodb:
         base-config: mongodb-config
 
-  # 동시 요청 제어
   bulkhead:
     configs:
       default:
-        max-concurrent-calls: 12     # 15 → 12 (안정성 확보)
-        max-wait-duration: 3s        # 5초 → 3초
+        max-concurrent-calls: 12
+        max-wait-duration: 3s
     instances:
       database:
         base-config: default
-        max-concurrent-calls: 6      # 8 → 6 (DB 연결 수 맞춤)
+        max-concurrent-calls: 6
       redis:
-        max-concurrent-calls: 15     # 20 → 15
+        max-concurrent-calls: 15
       mongodb:
-        max-concurrent-calls: 8      # 10 → 8
+        max-concurrent-calls: 8
       external-api:
         max-concurrent-calls: 10
 
-  # 타임아웃 제어
   timelimiter:
     configs:
       default:
-        timeout-duration: 12s        # 15초 → 12초
+        timeout-duration: 15s
       database-config:
-        timeout-duration: 45s        # 60초 → 45초 (배치 처리용)
+        timeout-duration: 60s
       cache-config:
-        timeout-duration: 2s         # 3초 → 2초
+        timeout-duration: 3s
     instances:
       database:
         base-config: database-config
@@ -266,8 +251,8 @@ sentry:
 logging:
   config: classpath:logback-spring.xml
   level:
-    com.zaxxer.hikari: WARN          # 추가: HikariCP 로깅
-    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: WARN  # 추가: SQL 예외 로깅
+    com.zaxxer.hikari: WARN
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: WARN
 
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
