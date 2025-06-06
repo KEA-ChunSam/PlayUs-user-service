@@ -3,7 +3,7 @@ package com.playus.userservice.domain.user.specification;
 
 import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,8 +24,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface UserControllerSpecification {
 
     @Operation(
-            summary     = "닉네임 변경",
-            description = "인증된 사용자의 닉네임을 변경합니다.",
+            summary     = "프로필 변경",
+            description = "인증된 사용자의 프로필을 변경합니다.",
             security    = @SecurityRequirement(name = "AccessCookie"),
             parameters  = @Parameter(
                     name        = "Access",
@@ -44,7 +44,7 @@ public interface UserControllerSpecification {
                                     value = """
                         {
                             "success": true,
-                            "message": "닉네임이 성공적으로 변경되었습니다."
+                            "message": "프로필이 성공적으로 변경되었습니다."
                         }
                         """
                             )
@@ -126,9 +126,9 @@ public interface UserControllerSpecification {
                     )
             )
     })
-    ResponseEntity<NicknameResponse> updateNickname(
+    ResponseEntity<NicknameResponse> updateProfile(
             @Parameter(hidden = true) CustomOAuth2User principal,
-            @Parameter(description = "새 닉네임", required = true) NicknameRequest request
+            @Parameter(description = "새 닉네임", required = true) ProfileUpdateRequest request
     );
 
     @Operation(

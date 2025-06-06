@@ -1,7 +1,7 @@
 package com.playus.userservice.domain.user.controller;
 
 import com.playus.userservice.domain.user.dto.withdraw.UserWithdrawResponse;
-import com.playus.userservice.domain.user.dto.nickname.NicknameRequest;
+import com.playus.userservice.domain.user.dto.nickname.ProfileUpdateRequest;
 import com.playus.userservice.domain.user.dto.nickname.NicknameResponse;
 import com.playus.userservice.domain.user.specification.UserControllerSpecification;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,13 +24,13 @@ public class UserController implements UserControllerSpecification {
     private final UserService userService;
 
 
-    @PutMapping("/nickname")
-    public ResponseEntity<NicknameResponse> updateNickname(
+    @PutMapping("/profile")
+    public ResponseEntity<NicknameResponse> updateProfile(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody NicknameRequest request) {
+            @Valid @RequestBody ProfileUpdateRequest request) {
 
         Long userId = Long.parseLong(principal.getName());
-        NicknameResponse resp = userService.updateNickname(userId, request);
+        NicknameResponse resp = userService.updateProfile(userId, request);
         return ResponseEntity.ok(resp);
     }
 
