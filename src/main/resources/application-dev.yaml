@@ -14,8 +14,8 @@ spring:
         uri: ${SPRING_DATA_MONGODB_READ_URI}
 
     redis:
-      host: localhost
-      port: 6380
+      cluster:
+        nodes: ${REDIS_CLUSTER_NODES}
 
   jpa:
     show-sql: true
