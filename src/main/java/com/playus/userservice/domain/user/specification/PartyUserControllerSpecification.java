@@ -21,7 +21,22 @@ public interface PartyUserControllerSpecification {
 
     @Operation(
             summary     = "직관팟 참여자 썸네일 조회",
-            description = "직관팟 참여자들의 사용자 ID 목록을 받아, 각 사용자의 썸네일 URL 리스트를 반환합니다."
+            description = "직관팟 참여자들의 사용자 ID 목록을 받아, 각 사용자의 썸네일 URL 리스트를 반환합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 참여자 썸네일 조회 요청 예시",
+                                    value = """
+                                                [
+                                                    7,
+                                                    10
+                                                ]
+                                            """
+                            )
+                    )
+            )
     )
     @ApiResponses({
             @ApiResponse(
@@ -56,7 +71,6 @@ public interface PartyUserControllerSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "인증 실패"),
             @ApiResponse(
                     responseCode = "404", description = "사용자를 찾을 수 없음",
                     content = @Content(
@@ -99,7 +113,21 @@ public interface PartyUserControllerSpecification {
 
     @Operation(
             summary     = "직관팟 작성자 정보 조회",
-            description = "직관팟 작성자의 ID 목록을 받아, 각 작성자의 id, nickname, gender, thumbnailURL을 반환합니다."
+            description = "직관팟 작성자의 ID 목록을 받아, 각 작성자의 id, nickname, gender, age, thumbnailURL을 반환합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 작성자 정보 조회 요청 예시",
+                                    value = """
+                                                        [
+                                                            7
+                                                        ]
+                                                    """
+                            )
+                    )
+            )
     )
     @ApiResponses({
             @ApiResponse(
@@ -112,22 +140,31 @@ public interface PartyUserControllerSpecification {
                                     [
                                         {
                                         "id": 31,
-                                        "nickname": "writer1",
-                                        "gender": "MALE",
+                                        "writerName": "writer1",
+                                        "writerGender": "MALE",
+                                        "writerAge" : 20,
                                         "thumbnailURL": "https://example.com/w1.png"
-                                        },
-                                        {
-                                        "id": 32,
-                                        "nickname": "writer2",
-                                        "gender": "FEMALE",
-                                        "thumbnailURL": "https://example.com/w2.png"
                                         }
                                     ]
                                     """
                             )
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (빈 ID 리스트 등)",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                    {
+                                        "code": 400,
+                                        "status": "BAD_REQUEST",
+                                        "message": "userIdList는 필수입니다."
+                                    }
+                                    """
+                            )
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "작성자를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
@@ -142,7 +179,23 @@ public interface PartyUserControllerSpecification {
 
     @Operation(
             summary     = "직관팟 지원자 정보 조회",
-            description = "지원자들의 사용자 ID 목록을 받아, 각 지원자의 id·닉네임·나이·썸네일 URL을 반환합니다."
+            description = "지원자들의 사용자 ID 목록을 받아, 각 지원자의 id·닉네임·나이·썸네일 URL을 반환합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 지원자 정보 조회 요청 예시",
+                                    value = """
+                                                        [
+                                                            7,
+                                                            10
+                                                        ]
+                                                    """
+                            )
+                    )
+            )
+
     )
     @ApiResponses({
             @ApiResponse(
