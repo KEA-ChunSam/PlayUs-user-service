@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: framework  # ALB HTTPS 헤더 인식
+
 spring:
   application:
     name: user-service
@@ -99,9 +102,9 @@ management:
 
 app:
   frontend:
-    success-redirect-uri: http://localhost:3000/PlayUs-FE#/choice-team      # 선호팀 없는 신규 유저
-    success-redirect-uri2: http://localhost:3000/PlayUs-FE#/home           # 선호팀이 이미 있는 유저
-    fail-redirect-uri: http://localhost:3000/PlayUs-FE#/login
+    success-redirect-uri: ${FRONT_SUCCESS_REDIRECT_URI}
+    success-redirect-uri2: ${FRONT_SUCCESS_REDIRECT_URI2}
+    fail-redirect-uri: ${FRONT_FAIL_REDIRECT_URI}
 
 resilience4j:
   circuitbreaker:
@@ -133,14 +136,12 @@ slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
 feign:
-
   match:
-    url: http://match-dummy
-
+    url: ${FEIGN_MATCH_URL}
   community:
-    url: http://localhost:8082
+    url: ${FEIGN_COMMUNITY_URL}
 
 cookie:
-  secure: false
-  sameSite: Lax
-  domain: localhost
+  secure: true
+  sameSite: None
+  domain: playus.o-r.kr
