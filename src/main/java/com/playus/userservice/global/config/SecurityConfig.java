@@ -71,7 +71,7 @@ public class SecurityConfig {
 		return new HttpCookieOAuth2AuthorizationRequestRepository();
 	}
 
-	@Bean
+	@Bean @Order(2)
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)

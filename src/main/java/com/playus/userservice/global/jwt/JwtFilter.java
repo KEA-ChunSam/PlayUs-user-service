@@ -28,11 +28,21 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private static final String[] EXCLUDE_PATHS = {
+            "/user/api/",
+            "/community/api/",
+            "/twp/api/"
+    };
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // 내부 호출 /user/api/ 은 필터에서 제외
-        return request.getRequestURI().startsWith("/user/api/**");
+        String uri = request.getRequestURI();
+        for (String path : EXCLUDE_PATHS) {
+            if (uri.startsWith(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public JwtFilter(JwtUtil jwtUtil,
