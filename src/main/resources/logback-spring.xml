@@ -1,7 +1,9 @@
 <configuration>
     <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
+
+    <!-- ✅ 트레이스 ID를 포함한 로그 패턴 -->
     <property name="LOG_PATTERN"
-              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-}] %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
 
     <appender name="CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
@@ -10,6 +12,7 @@
         </encoder>
     </appender>
 
+    <!-- ✅ Sentry 설정 (트레이싱 정보 포함) -->
     <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
         <maxRequestBodySize>always</maxRequestBodySize>
         <sendDefaultPii>true</sendDefaultPii>
@@ -22,10 +25,12 @@
     <springProperty name="NAME" source="spring.application.name"/>
     <springProperty name="ENVIRONMENT" source="sentry.environment"/>
     <springProperty name="SLACK_WEBHOOK_URI" source="slack.webhook-url"/>
+
+    <!-- ✅ Slack 알림에도 트레이스 ID 포함 -->
     <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
         <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>*🚨[${ENVIRONMENT}]-[${NAME}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-4relative [%thread] %-5level %class - %msg &lt;${SENTRY_REPOSITORY_URI}|Go-To-Sentry&gt;*
+            <pattern>*🚨[${ENVIRONMENT}]-[${NAME}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-4relative [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %class - %msg &lt;${SENTRY_REPOSITORY_URI}|Go-To-Sentry&gt;*
                 %n
             </pattern>
         </layout>
@@ -33,6 +38,7 @@
         <iconEmoji>:robot_face:</iconEmoji>
         <colorCoding>true</colorCoding>
     </appender>
+
     <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="SLACK"/>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -43,8 +49,8 @@
     <springProfile name="local">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-<!--            <appender-ref ref="SENTRY"/>-->
-<!--            <appender-ref ref="ASYNC_SLACK"/>-->
+            <!--            <appender-ref ref="SENTRY"/>-->
+            <!--            <appender-ref ref="ASYNC_SLACK"/>-->
         </root>
     </springProfile>
 
