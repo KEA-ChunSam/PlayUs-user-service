@@ -29,9 +29,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private static final String[] EXCLUDE_PATHS = {
-            "/user/api/",
-            "/community/api/",
-            "/twp/api/"
+        "/user/api/**", "/user/api",
+        "/community/api/**", "/community/api",
+        "/twp/api/**", "/twp/api"
     };
 
     @Override

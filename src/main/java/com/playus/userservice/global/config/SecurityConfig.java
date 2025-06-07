@@ -46,9 +46,9 @@ public class SecurityConfig {
 	);
 
 	private static final String[] INTERNAL_PATHS = {
-		"/user/api/**",
-		"/community/api/**",
-		"/twp/api/**"
+		"/user/api", "/user/api/**",
+		"/community/api", "/community/api/**",
+		"/twp/api", "/twp/api/**"
 	};
 
 	private static final String[] WHITELISTED_PATHS = {
