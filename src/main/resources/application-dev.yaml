@@ -96,6 +96,7 @@ management:
 
   # 트레이싱 설정
   tracing:
+    enabled: true
     sampling:
       probability: 1.0  # 개발환경 100% 샘플링
 
