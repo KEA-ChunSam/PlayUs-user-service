@@ -47,6 +47,8 @@ public class SecurityConfig {
 
 	private static final String[] INTERNAL_PATHS = {
 		"/user/api/**",
+		"/community/api/**",
+		"/twp/api/**"
 	};
 
 	private static final String[] WHITELISTED_PATHS = {
@@ -71,44 +73,54 @@ public class SecurityConfig {
 		return new HttpCookieOAuth2AuthorizationRequestRepository();
 	}
 
-	@Bean @Order(2)
+	@Bean
+	@Order(2)
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
-			.formLogin(AbstractHttpConfigurer::disable)
-			.httpBasic(AbstractHttpConfigurer::disable)
+		http
+				.csrf(AbstractHttpConfigurer::disable)
+				.formLogin(AbstractHttpConfigurer::disable)
+				.httpBasic(AbstractHttpConfigurer::disable)
 
-			.exceptionHandling(e -> e
-				.authenticationEntryPoint(EntryPoint())
-			)
-
-			// JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
-			.addFilterBefore(
-				new JwtFilter(jwtUtil, redisTemplate),
-				UsernamePasswordAuthenticationFilter.class
-			)
-
+				// CORS 설정
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-			// OAuth2
-			.oauth2Login(oauth2 -> oauth2
-				.authorizationEndpoint(endpoint -> endpoint
-					.authorizationRequestRepository(authorizationRequestRepository())
+				// 401, 403 예외 처리
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(EntryPoint())      // 인증 실패(401)
+						.accessDeniedHandler((req, res, denied) -> { // 권한 실패(403)
+							if (!res.isCommitted()) {
+								res.setStatus(HttpStatus.FORBIDDEN.value());
+								res.setContentType("application/json;charset=UTF-8");
+								res.getWriter().write("{\"error\":\"Access Denied\"}");
+							}
+						})
 				)
-				.userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-				.successHandler(customSuccessHandler)
-				.failureHandler(customFailureHandler)
-			)
 
-			// 인증/인가
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(WHITELISTED_PATHS)
-				.permitAll()
-				.requestMatchers(INTERNAL_PATHS)
-				.permitAll()
-				.anyRequest().authenticated()
-			)
+				// JWT 필터
+				.addFilterBefore(
+						new JwtFilter(jwtUtil, redisTemplate),
+						UsernamePasswordAuthenticationFilter.class
+				)
 
-			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+				// OAuth2 로그인 설정
+				.oauth2Login(oauth2 -> oauth2
+						.authorizationEndpoint(endpoint ->
+								endpoint.authorizationRequestRepository(authorizationRequestRepository())
+						)
+						.userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+						.successHandler(customSuccessHandler)
+						.failureHandler(customFailureHandler)
+				)
+
+				// 인증·인가 규칙
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(WHITELISTED_PATHS).permitAll()  // 화이트리스트
+						.requestMatchers(INTERNAL_PATHS).permitAll()     // 내부 API
+						.anyRequest().authenticated()
+				)
+
+				// 세션 없이 JWT 기반
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
 	}
@@ -139,10 +151,11 @@ public class SecurityConfig {
 
 	@Bean @Order(1)
 	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
-		http.securityMatcher("/user/api/**", "/community/api/**","/twp/api/**")
-				.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http
+			.securityMatcher(INTERNAL_PATHS)
+			.csrf(AbstractHttpConfigurer::disable)
+			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		return http.build();
 	}
 }
