@@ -19,7 +19,9 @@ public class UserReviewService {
     private final TagRepository tagRepository;
     private final UserTagRepository userTagRepository;
 
-    private static final float score = 0.01f;
+    private static final float SCORE_STEP = 0.001f;
+    private static final float MAX_SCORE = 1.0f;
+    private static final float MIN_SCORE = 0.0f;
 
     @Transactional
     public List<UserReviewRequest> processReviews(Long reviewerId, List<UserReviewRequest> requests) {
@@ -46,11 +48,20 @@ public class UserReviewService {
             Tag tag = tagRepository.findById(dto.tagId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 태그입니다. id=" + dto.tagId()));
 
-            if (dto.positive()) {
-                user.updateUserScore(user.getUserScore() + score);
-            } else {
-                user.updateUserScore(user.getUserScore() - score);
+            float currentScore = user.getUserScore();
+            float delta = dto.positive() ? SCORE_STEP : -SCORE_STEP;
+            float newScore = currentScore + delta;
+
+            // 상한
+            if (newScore > MAX_SCORE) {
+                newScore = MAX_SCORE;
             }
+            // 하한
+            else if (newScore < MIN_SCORE) {
+                newScore = MIN_SCORE;
+            }
+
+            user.updateUserScore(newScore);
             userTagRepository.save(UserTag.create(user, tag));
         }
 
