@@ -20,6 +20,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -65,6 +66,19 @@ public class ExceptionAdvice {
         return ResponseEntity.noContent().build();
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String paramName = ex.getName();
+        Object invalidValue = ex.getValue();
+        String message = String.format("'%s'는 숫자여야 합니다: %s", paramName, invalidValue);
+        ErrorResponse body = ErrorResponse.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(message)
+                .build();
+        log.error("Type Mismatch ({}={}): {}", paramName, invalidValue, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 
     @ExceptionHandler(OAuth2AuthenticationException.class)
     public ResponseEntity<ErrorResponse> oauth2AuthExceptionHandler(OAuth2AuthenticationException e) {
