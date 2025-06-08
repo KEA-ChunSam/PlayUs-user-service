@@ -84,21 +84,31 @@ cloud:
       endpoint : ${BUCKET_ENDPOINT}
 
 management:
-  health:
-    redis:
-      enabled: false
-
   endpoints:
     web:
       exposure:
         include:
           - health           # 애플리케이션 상태 확인
-          - info             # 애플리케이션 정보
+          - info
           - prometheus       # 메트릭 데이터 노출
+          - metrics          # 메트릭 엔드포인트 추가
+          - tracing          # 트레이싱 엔드포인트 추가
+
+  # 트레이싱 설정
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # 개발환경 100% 샘플링
 
   endpoint:
     health:
-      show-details: always
+      show-details: always  # 모니터링을 위해 상세 정보 표시
+
+  # 메트릭에 기본 태그 추가
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: dev
 
 app:
   frontend:
