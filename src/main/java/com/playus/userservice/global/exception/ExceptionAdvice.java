@@ -3,6 +3,7 @@ package com.playus.userservice.global.exception;
 import com.playus.userservice.domain.notification.controller.NotificationApiController;
 import com.playus.userservice.domain.notification.controller.NotificationController;
 import com.playus.userservice.domain.oauth.controller.AuthController;
+import com.playus.userservice.domain.oauth.dto.CustomOAuth2User;
 import com.playus.userservice.domain.oauth.service.CustomOAuth2UserService;
 import com.playus.userservice.domain.user.controller.*;
 import com.playus.userservice.global.response.ErrorResponse;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -88,8 +91,13 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> otherExceptionHandler(Exception e) {
-        String errorMessage = e.getMessage();
-        log.error("Unexpected Error: {}", errorMessage);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomOAuth2User user) {
+            log.error("Unexpected Error for user {}: {}", user.getName(), e.getMessage(), e);
+        } else {
+            log.error("Unexpected Error: {}", e.getMessage(), e);
+        }
+
         return ResponseEntity.internalServerError().body("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 
