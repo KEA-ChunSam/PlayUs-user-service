@@ -19,6 +19,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -57,6 +58,13 @@ public class ExceptionAdvice {
         log.error("API Error ({}): {}", status, message);
         return ResponseEntity.status(status).body(body);
     }
+
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public ResponseEntity<Void> handleAsyncTimeout(AsyncRequestTimeoutException e) {
+        log.warn("AsyncRequestTimeoutException 발생 – notification: {}", e.getMessage());
+        return ResponseEntity.noContent().build();
+    }
+
 
     @ExceptionHandler(OAuth2AuthenticationException.class)
     public ResponseEntity<ErrorResponse> oauth2AuthExceptionHandler(OAuth2AuthenticationException e) {
