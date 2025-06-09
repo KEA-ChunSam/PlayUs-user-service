@@ -42,33 +42,33 @@ public class SecurityConfig {
 	private final RedisTemplate<String, String> redisTemplate;
 
 	private static final List<String> ALLOWED_ORIGINS = List.of(
-		"http://localhost:3000",
-		"https://web.playus.o-r.kr"
+			"http://localhost:3000",
+			"https://web.playus.o-r.kr"
 	);
 
 	private static final String[] INTERNAL_PATHS = {
-		"/user/api", "/user/api/**",
-		"/user/auth/reissue",
-		"/user/auth/logout",
-		"/community/api", "/community/api/**",
-		"/twp/api", "/twp/api/**"
+			"/user/api", "/user/api/**",
+			"/user/auth/reissue",
+			"/user/auth/logout",
+			"/community/api", "/community/api/**",
+			"/twp/api", "/twp/api/**"
 	};
 
 	private static final String[] WHITELISTED_PATHS = {
-		"/error",
-		"/swagger-ui/**",
-		"/v3/api-docs/**",
-		"/user/api/**",
-		"/community/api/**",
-		"/oauth2/authorization/kakao",
-		"/login/oauth2/code/kakao",
-		"/oauth2/authorization/naver",
-		"/login/oauth2/code/naver",
-		"/user/auth/reissue",
-		"/user/auth/logout",
-		"/presigned-url",
-		"/register",
-		"/actuator/**"
+			"/error",
+			"/swagger-ui/**",
+			"/v3/api-docs/**",
+			"/user/api/**",
+			"/community/api/**",
+			"/oauth2/authorization/kakao",
+			"/login/oauth2/code/kakao",
+			"/oauth2/authorization/naver",
+			"/login/oauth2/code/naver",
+			"/user/auth/reissue",
+			"/user/auth/logout",
+			"/presigned-url",
+			"/register",
+			"/actuator/**"
 	};
 
 	@Bean
@@ -117,7 +117,11 @@ public class SecurityConfig {
 
 				// 인증·인가 규칙
 				.authorizeHttpRequests(auth -> auth
-						.anyRequest().permitAll()
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //알림 프리플라이트 허용
+						.requestMatchers(WHITELISTED_PATHS).permitAll()  // 화이트리스트
+						.requestMatchers(INTERNAL_PATHS).permitAll()     // 내부 API
+						.requestMatchers("/user/notifications/**").authenticated()
+						.anyRequest().authenticated()
 				)
 
 				// 세션 없이 JWT 기반
@@ -153,10 +157,10 @@ public class SecurityConfig {
 	@Bean @Order(1)
 	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
 		http
-			.securityMatcher("/**")
-			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+				.securityMatcher(INTERNAL_PATHS)
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		return http.build();
 	}
 }
