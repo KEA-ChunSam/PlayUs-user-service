@@ -120,6 +120,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //알림 프리플라이트 허용
 						.requestMatchers(WHITELISTED_PATHS).permitAll()  // 화이트리스트
 						.requestMatchers(INTERNAL_PATHS).permitAll()     // 내부 API
+						.requestMatchers("/user/notifications/**").authenticated()
 						.anyRequest().authenticated()
 				)
 
