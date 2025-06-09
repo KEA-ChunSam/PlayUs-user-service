@@ -47,7 +47,6 @@ public class SecurityConfig {
 
 	private static final String[] INTERNAL_PATHS = {
 		"/user/api", "/user/api/**",
-		"/user/notifications", "/user/notifications/**",
 		"/user/auth/reissue",
 		"/user/auth/logout",
 		"/community/api", "/community/api/**",
