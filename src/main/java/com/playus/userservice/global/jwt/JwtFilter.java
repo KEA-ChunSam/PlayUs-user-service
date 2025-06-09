@@ -57,43 +57,66 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Access".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        try {
+            String token = extractAccessToken(request);
 
-        if (token != null) {
-            try {
+            if (token != null) {
+                // 블랙리스트 검사
                 String jti = jwtUtil.getJti(token);
-                if (redisTemplate.hasKey("blacklist:" + jti)) {
+                if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jti))) {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
                 }
 
+                // 만료 여부
                 if (!jwtUtil.isExpired(token)) {
-                    String userId = jwtUtil.getUserId(token);
-                    String role = jwtUtil.getRole(token);
-                    int age = jwtUtil.getAge(token);
-                    String gender = jwtUtil.getGender(token);
-
-                    CustomOAuth2User principal = new CustomOAuth2User(
-                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
-                    );
-                    Authentication auth = new UsernamePasswordAuthenticationToken(
-                            principal, null, principal.getAuthorities()
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    setSecurityContext(token);
                 }
-            } catch (JwtException | IllegalArgumentException e) {
-                log.debug("토큰 인증 실패: {}", e.getMessage());
+            }
+
+            chain.doFilter(request, response);
+        }
+        catch (JwtException | IllegalArgumentException | ResponseStatusException ex) {
+            log.debug("토큰 인증 실패: {}", ex.getMessage());
+
+            // 401 JSON 반환
+            if (!response.isCommitted()) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"error\":\"INVALID_TOKEN\"}");
+            }
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    private String extractAccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie cookie : cookies) {
+            if ("Access".equals(cookie.getName())) {
+                return cookie.getValue();
             }
         }
-
-        chain.doFilter(request, response);
+        return null;
     }
+
+    private void setSecurityContext(String token) {
+        String userId = jwtUtil.getUserId(token);
+        String role = jwtUtil.getRole(token);
+        int age = jwtUtil.getAge(token);
+        String gender = jwtUtil.getGender(token);
+
+        CustomOAuth2User principal = new CustomOAuth2User(
+                UserDto.fromJwt(Long.parseLong(userId),
+                        Role.valueOf(role),
+                        age,
+                        Gender.valueOf(gender))
+        );
+
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(
+                        principal, null, principal.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
 }
