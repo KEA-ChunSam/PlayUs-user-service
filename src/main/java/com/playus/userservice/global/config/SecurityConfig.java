@@ -153,7 +153,7 @@ public class SecurityConfig {
 	@Bean @Order(1)
 	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
 		http
-			.securityMatcher(INTERNAL_PATHS)
+			.securityMatcher("/**")
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
 			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
