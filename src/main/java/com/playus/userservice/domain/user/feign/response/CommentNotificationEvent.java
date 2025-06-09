@@ -7,6 +7,7 @@ public record CommentNotificationEvent(
         Long commentId,
         Long postId,
         Long writerId,
+        Long receiverId,
         String content,
         boolean activated
 ) {
@@ -14,6 +15,7 @@ public record CommentNotificationEvent(
             Long commentId,
             Long postId,
             Long writerId,
+            Long receiverId,
             String content,
             boolean activated
     ) {
@@ -21,6 +23,7 @@ public record CommentNotificationEvent(
                 .commentId(commentId)
                 .postId(postId)
                 .writerId(writerId)
+                .receiverId(receiverId)
                 .content(content)
                 .activated(activated)
                 .build();
@@ -31,6 +34,7 @@ public record CommentNotificationEvent(
                 .commentId(null)
                 .postId(null)
                 .writerId(null)
+                .receiverId(null)
                 .content("정보를 불러올 수 없습니다.")
                 .activated(false)
                 .build();
