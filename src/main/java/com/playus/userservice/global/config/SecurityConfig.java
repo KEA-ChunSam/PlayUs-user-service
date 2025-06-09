@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -116,6 +117,7 @@ public class SecurityConfig {
 
 				// 인증·인가 규칙
 				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //알림 프리플라이트 허용
 						.requestMatchers(WHITELISTED_PATHS).permitAll()  // 화이트리스트
 						.requestMatchers(INTERNAL_PATHS).permitAll()     // 내부 API
 						.anyRequest().authenticated()
