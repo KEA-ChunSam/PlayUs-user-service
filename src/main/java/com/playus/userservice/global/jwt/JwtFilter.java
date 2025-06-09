@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,9 +30,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private static final String[] EXCLUDE_PATHS = {
-        "/user/api/**", "/user/api",
-        "/community/api/**", "/community/api",
-        "/twp/api/**", "/twp/api"
+        "/user/api",
+        "/community/api",
+        "/twp/api"
     };
 
     @Override
@@ -72,7 +73,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 String jti = jwtUtil.getJti(token);
                 if (redisTemplate.hasKey("blacklist:" + jti)) {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
+                    throw new InsufficientAuthenticationException("BLACKLISTED_TOKEN");
                 }
 
                 if (!jwtUtil.isExpired(token)) {
