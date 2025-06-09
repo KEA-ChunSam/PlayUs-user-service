@@ -116,7 +116,7 @@ public class NotificationService {
 
 		if (!e.activated()) return;
 
-		User receiver = userRepository.findById(e.writerId())
+		User receiver = userRepository.findById(e.receiverId())
 				.orElseThrow(() -> new ResponseStatusException(
 						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
