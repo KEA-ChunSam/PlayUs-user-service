@@ -14,14 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,6 +38,9 @@ public class SecurityConfig {
 	private final CustomFailureHandler customFailureHandler;
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, String> redisTemplate;
+	private final AuthenticationEntryPoint entryPoint;
+	private final AccessDeniedHandler accessDeniedHandler;
+
 
 	private static final List<String> ALLOWED_ORIGINS = List.of(
 			"http://localhost:3000",
@@ -76,6 +77,16 @@ public class SecurityConfig {
 		return new HttpCookieOAuth2AuthorizationRequestRepository();
 	}
 
+	@Bean @Order(1)
+	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
+		http
+				.securityMatcher(INTERNAL_PATHS)
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		return http.build();
+	}
+
 	@Bean
 	@Order(2)
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -89,21 +100,12 @@ public class SecurityConfig {
 
 				// 401, 403 예외 처리
 				.exceptionHandling(ex -> ex
-						.authenticationEntryPoint(EntryPoint())      // 인증 실패(401)
-						.accessDeniedHandler((req, res, denied) -> { // 권한 실패(403)
-							if (!res.isCommitted()) {
-								res.setStatus(HttpStatus.FORBIDDEN.value());
-								res.setContentType("application/json;charset=UTF-8");
-								res.getWriter().write("{\"error\":\"Access Denied\"}");
-							}
-						})
+						.authenticationEntryPoint(entryPoint)
+						.accessDeniedHandler(accessDeniedHandler)
 				)
 
 				// JWT 필터
-				.addFilterBefore(
-						new JwtFilter(jwtUtil, redisTemplate),
-						UsernamePasswordAuthenticationFilter.class
-				)
+				.addFilterBefore(new JwtFilter(jwtUtil, redisTemplate), UsernamePasswordAuthenticationFilter.class)
 
 				// OAuth2 로그인 설정
 				.oauth2Login(oauth2 -> oauth2
@@ -144,23 +146,4 @@ public class SecurityConfig {
 		return source;
 	}
 
-	@Bean
-	public AuthenticationEntryPoint EntryPoint() {
-		return (req, res, ex) -> {
-
-			res.setStatus(HttpStatus.UNAUTHORIZED.value());     // 401
-			res.setContentType("application/json;charset=UTF-8");
-			res.getWriter().write("{\"error\":\"Unauthorized\"}");
-		};
-	}
-
-	@Bean @Order(1)
-	public SecurityFilterChain internalChain(HttpSecurity http) throws Exception {
-		http
-				.securityMatcher(INTERNAL_PATHS)
-				.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		return http.build();
-	}
 }
