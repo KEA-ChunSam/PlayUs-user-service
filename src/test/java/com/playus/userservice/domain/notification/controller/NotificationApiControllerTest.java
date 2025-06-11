@@ -25,7 +25,8 @@ class NotificationApiControllerTest extends ControllerTestSupport {
         CommentNotificationEvent event = CommentNotificationEvent.of(
                 100L,  // commentId
                 200L,  // postId
-                1L,    // writerId
+                1L,    // writerId,
+                1L,   // receiverId
                 "새 댓글이 등록되었습니다.", // content
                 true   // activated
         );

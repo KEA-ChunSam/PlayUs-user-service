@@ -77,7 +77,7 @@ class NotificationServiceTest {
     void sendCommentNotification_success() {
         // given
         CommentNotificationEvent event = CommentNotificationEvent.of(
-                42L, 99L, dummyUser.getId(), "", true
+                42L, 99L, dummyUser.getId(), 1L, "", true
         );
 
         given(userRepository.findById(dummyUser.getId()))
@@ -101,7 +101,7 @@ class NotificationServiceTest {
     void sendCommentNotification_inactive_noop() {
         // given
         CommentNotificationEvent event = CommentNotificationEvent.of(
-                5L, 1L, 1L, "", false
+                5L, 1L, 1L, 1L, "", false
         );
         // when
         notificationService.sendCommentNotification(event);
